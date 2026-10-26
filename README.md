@@ -20,7 +20,7 @@ Live: https://say-it-words.netlify.app/
 | `index.html` | App shell |
 | `css/app.css` | "Toy Box Bright" design |
 | `js/words.js` | The 326 words: picture, Hebrew, accepted alternatives |
-| `js/audio-map.js` | Word → Wiktionary recording file |
+| `js/audio-map.js` | Word → recording on Wikimedia Commons |
 | `js/store.js` | Progress, profiles, spaced repetition, migration from version 1 |
 | `js/audio.js` | Recordings, device voices, effects, music |
 | `js/speech.js` | Microphone, Echo recording, speech recognition, forgiving match |
@@ -28,7 +28,7 @@ Live: https://say-it-words.netlify.app/
 | `js/app.js` | Screens and mini-games |
 | `js/parent.js` | Parent gate and parent area |
 | `sw.js` | Offline support |
-| `netlify.toml` | Netlify settings; proxies `/media/*` to the recordings so they can be kept offline |
+| `netlify.toml` | Netlify settings |
 
 No build step: edit and push. When you change files, bump the version (`?v=` in `index.html`, `VERSION` and the file list in `sw.js`) so phones pick up the update.
 
@@ -38,6 +38,6 @@ Stored in the browser's localStorage under `sayit2`. On first launch it imports 
 
 ## Credits
 
-- Word recordings: Wiktionary contributors, [CC BY-SA](https://creativecommons.org/licenses/by-sa/3.0/), via [dictionaryapi.dev](https://dictionaryapi.dev). Words without a recording use the device's voice.
+- Word recordings: Wiktionary and Lingua Libre contributors on [Wikimedia Commons](https://commons.wikimedia.org), CC BY-SA (each file's page on Commons names its author and exact licence). Played as Commons' MP3 versions. Words without a recording use the device's voice.
 - Font: [Fredoka](https://github.com/google/fonts/tree/main/ofl/fredoka), SIL Open Font License (`fonts/OFL.txt`), subset to Latin + Hebrew.
 - Pictures: the device's emoji.

@@ -75,12 +75,14 @@
   }
   const hasHebrew = () => !!heVoice;
 
-  // ---------- word recordings (Wiktionary, CC BY-SA; served through /media/ on this site) ----------
+  // ---------- word recordings (Wiktionary contributors on Wikimedia Commons, CC BY-SA) ----------
   const el = new Audio(); el.preload = "auto";
   const blobs = {};
+  const MEDIA = "https://upload.wikimedia.org/wikipedia/commons/transcoded/";
+  const mediaUrl = f => /^https:/.test(f) ? f : MEDIA + f;
   async function blobFor(file){
     if(blobs[file]) return blobs[file];
-    const r = await fetch("media/" + file);
+    const r = await fetch(mediaUrl(file), {mode:"cors"});
     if(!r.ok) throw new Error("audio " + r.status);
     const u = URL.createObjectURL(await r.blob());
     blobs[file] = u; return u;
@@ -129,5 +131,5 @@
     return speak(pick(t.en), "en", .8);
   }
 
-  window.Sound = { sfx, music, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, unlock: ()=>ac() };
+  window.Sound = { mediaUrl, sfx, music, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, unlock: ()=>ac() };
 })();

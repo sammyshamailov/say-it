@@ -1,13 +1,6 @@
 [build]
   publish = "."
 
-# Word recordings (Wiktionary, CC BY-SA) are served through this site so the app can keep them offline.
-[[redirects]]
-  from = "/media/*"
-  to = "https://api.dictionaryapi.dev/media/pronunciations/en/:splat"
-  status = 200
-  force = true
-
 [[headers]]
   for = "/sw.js"
   [headers.values]

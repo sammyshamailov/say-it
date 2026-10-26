@@ -1,12 +1,12 @@
 // Service worker: makes the app work offline after the first visit.
-const VERSION = "2.0.0";
+const VERSION = "2.0.1";
 const APP = "sayit-app-" + VERSION;
 const AUDIO = "sayit-audio";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest",
-  "css/app.css?v=2.0.0", "fonts/fredoka.woff",
-  "js/words.js?v=2.0.0", "js/audio-map.js?v=2.0.0", "js/store.js?v=2.0.0", "js/audio.js?v=2.0.0",
-  "js/speech.js?v=2.0.0", "js/mascot.js?v=2.0.0", "js/app.js?v=2.0.0", "js/parent.js?v=2.0.0",
+  "css/app.css?v=2.0.1", "fonts/fredoka.woff",
+  "js/words.js?v=2.0.1", "js/audio-map.js?v=2.0.1", "js/store.js?v=2.0.1", "js/audio.js?v=2.0.1",
+  "js/speech.js?v=2.0.1", "js/mascot.js?v=2.0.1", "js/app.js?v=2.0.1", "js/parent.js?v=2.0.1",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"
 ];
 
@@ -20,8 +20,8 @@ self.addEventListener("activate", e=>{
 
 self.addEventListener("fetch", e=>{
   const url = new URL(e.request.url);
-  if(e.request.method !== "GET" || url.origin !== location.origin) return;
-  if(url.pathname.includes("/media/")){
+  if(e.request.method !== "GET") return;
+  if(url.hostname === "upload.wikimedia.org"){
     e.respondWith(caches.open(AUDIO).then(async c=>{
       const hit = await c.match(e.request, {ignoreSearch:true});
       if(hit) return hit;
@@ -31,6 +31,7 @@ self.addEventListener("fetch", e=>{
     }));
     return;
   }
+  if(url.origin !== location.origin) return;
   // app files: cache first, refresh in the background
   e.respondWith(caches.open(APP).then(async c=>{
     const hit = await c.match(e.request, {ignoreSearch: e.request.mode==="navigate"}) || (e.request.mode==="navigate" ? await c.match("index.html") : null);
@@ -48,12 +49,12 @@ self.addEventListener("message", e=>{
   e.waitUntil((async ()=>{
     const c = await caches.open(AUDIO);
     const todo = [];
-    for(const f of files){ if(!(await c.match("media/"+f))) todo.push(f); }
+    for(const f of files){ if(!(await c.match(f))) todo.push(f); }
     let i = 0;
     async function worker(){
       while(i < todo.length){
         const f = todo[i++];
-        try{ const r = await fetch("media/"+f); if(r.ok) await c.put("media/"+f, r); }catch(err){}
+        try{ const r = await fetch(f, {mode:"cors"}); if(r.ok) await c.put(f, r); }catch(err){}
         await new Promise(r=>setTimeout(r, 150));
       }
     }
