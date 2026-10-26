@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#26215E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Say It!">
+<meta name="description" content="A word game for young children learning their first English words, through pictures, sound and voice.">
+<title>Say It! Words</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/fredoka.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="css/app.css?v=2.0.0">
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<main id="app" aria-live="polite"></main>
+<noscript><p style="padding:24px;font-size:20px">Say It! needs JavaScript turned on.</p></noscript>
+<script src="js/words.js?v=2.0.0"></script>
+<script src="js/audio-map.js?v=2.0.0"></script>
+<script src="js/store.js?v=2.0.0"></script>
+<script src="js/audio.js?v=2.0.0"></script>
+<script src="js/speech.js?v=2.0.0"></script>
+<script src="js/mascot.js?v=2.0.0"></script>
+<script src="js/app.js?v=2.0.0"></script>
+<script src="js/parent.js?v=2.0.0"></script>
+<script>
+  // Offline support: cache the app, then each word recording once.
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{
+      navigator.serviceWorker.register("sw.js").then(reg=>{
+        const files = [...new Set(Object.values(window.AUDIO_MAP||{}))];
+        const send = ()=>{ const w = reg.active || navigator.serviceWorker.controller; if(w) w.postMessage({type:"cache-audio", files}); };
+        if(reg.active) send(); else navigator.serviceWorker.ready.then(send);
+      }).catch(()=>{});
+    });
+  }
+</script>
+</body>
+</html>
