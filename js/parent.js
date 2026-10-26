@@ -4,7 +4,7 @@
   const S = Store, st = () => S.state;
   const $ = sel => app.querySelector(sel);
   const { esc, pic, I } = window.UI;
-  const VERSION = "2.0.1";
+  const VERSION = "2.0.2";
   let installEvt = null;
   window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt = e; });
 

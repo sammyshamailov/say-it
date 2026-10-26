@@ -1,12 +1,12 @@
 // Service worker: makes the app work offline after the first visit.
-const VERSION = "2.0.1";
+const VERSION = "2.0.2";
 const APP = "sayit-app-" + VERSION;
 const AUDIO = "sayit-audio";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest",
-  "css/app.css?v=2.0.1", "fonts/fredoka.woff",
-  "js/words.js?v=2.0.1", "js/audio-map.js?v=2.0.1", "js/store.js?v=2.0.1", "js/audio.js?v=2.0.1",
-  "js/speech.js?v=2.0.1", "js/mascot.js?v=2.0.1", "js/app.js?v=2.0.1", "js/parent.js?v=2.0.1",
+  "css/app.css?v=2.0.2", "fonts/fredoka.woff",
+  "js/words.js?v=2.0.2", "js/audio-map.js?v=2.0.2", "js/store.js?v=2.0.2", "js/audio.js?v=2.0.2",
+  "js/speech.js?v=2.0.2", "js/mascot.js?v=2.0.2", "js/app.js?v=2.0.2", "js/parent.js?v=2.0.2",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"
 ];
 
