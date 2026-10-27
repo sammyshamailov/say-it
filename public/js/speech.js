@@ -56,16 +56,20 @@
     const chunks = []; let rec;
     try{ rec = new MediaRecorder(s); }catch(e){ rec = null; }
     if(rec){ rec.ondataavailable = e=>{ if(e.data && e.data.size) chunks.push(e.data); }; rec.start(); }
-    const t0 = performance.now(); let noise = 0.01, n = 0, voiced = 0, spoke = false, lastVoice = 0;
+    // Children often start talking the instant they tap, so the first 350 ms can't be trusted as
+    // "background noise". During that window use a fixed threshold and only average quiet frames;
+    // afterwards the threshold follows the room, capped so a noisy start can't make it deaf.
+    const START_THR = 0.05, MAX_THR = 0.06;
+    const t0 = performance.now(); let noise = 0.01, n = 0, voiced = 0, spoke = false, lastVoice = 0, last = t0;
     await new Promise(res=>{
       (function loop(){
         an.getFloatTimeDomainData(buf);
         let sum = 0; for(let i=0;i<buf.length;i++) sum += buf[i]*buf[i];
-        const rms = Math.sqrt(sum/buf.length), t = performance.now()-t0;
-        if(t < 350){ noise = (noise*n + rms)/(++n); }
-        const thr = Math.max(0.02, noise*3);
+        const now = performance.now(), rms = Math.sqrt(sum/buf.length), t = now-t0, dt = Math.min(50, now-last); last = now;
+        if(t < 350 && rms < START_THR){ noise = (noise*n + rms)/(++n); }
+        const thr = t < 350 ? START_THR : Math.min(MAX_THR, Math.max(0.02, noise*3));
         onLevel && onLevel(Math.min(1, rms/(thr*4)));
-        if(t >= 350 && rms > thr){ voiced += 16; lastVoice = t; if(voiced > 140) spoke = true; }
+        if(rms > thr){ voiced += dt; lastVoice = t; if(voiced > 140) spoke = true; }
         const quietAfter = spoke && t - lastVoice > 750;
         if(quietAfter || t > (spoke ? 5000 : 4500)) return res();
         requestAnimationFrame(loop);

@@ -1,0 +1,12 @@
+{
+  "name": "say-it-words",
+  "private": true,
+  "type": "module",
+  "description": "Say It! Words. The app itself has no build step; this file only brings in the library the transfer-code function needs.",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

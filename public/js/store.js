@@ -68,6 +68,25 @@
   }
   save(true);
   try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+  // never lose the last answer when the app is swiped away
+  addEventListener("pagehide", ()=>save(true));
+  document.addEventListener("visibilitychange", ()=>{ if(document.hidden) save(true); });
+
+  // ---- moving progress between phones (transfer code or backup file) ----
+  function isSave(d){
+    return !!d && typeof d==="object" && d.v===2 && Array.isArray(d.profiles) &&
+      d.profiles.every(p=>p && typeof p.id==="string" && p.words && typeof p.words==="object");
+  }
+  function exportData(){ return JSON.parse(JSON.stringify(state)); }
+  function replaceAll(d){
+    if(!isSave(d)) return false;
+    const fresh = blank();
+    d.settings = Object.assign(fresh.settings, d.settings||{});
+    d.profiles = d.profiles.map(p=>Object.assign(newProfile(p.name, p.avatar, p.gender), p));
+    if(!d.profiles.some(p=>p.id===d.lastId)) d.lastId = d.profiles[0] ? d.profiles[0].id : null;
+    state = d; save(true);
+    return true;
+  }
 
   // ---- word progress / spaced repetition ----
   function rec(p, key){ return p.words[key]; }
@@ -140,6 +159,7 @@
     player(){ return state.profiles.find(p=>p.id===state.lastId) || null; },
     setPlayer(id){ state.lastId = id; save(); },
     addStars(p, n){ p.stars += n; save(); },
-    reset(){ state = blank(); save(true); }
+    reset(){ state = blank(); save(true); },
+    isSave, exportData, replaceAll
   };
 })();

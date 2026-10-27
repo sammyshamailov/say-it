@@ -4,7 +4,7 @@
   const S = Store, st = () => S.state;
   const $ = sel => app.querySelector(sel);
   const { esc, pic, I } = window.UI;
-  const VERSION = "2.0.2";
+  const VERSION = "2.1.0";
   let installEvt = null;
   window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt = e; });
 
@@ -12,26 +12,108 @@
   const mins = ms => Math.round(ms/60000);
 
   // ---------- gate ----------
+  // Three numbers written as Hebrew words: easy for a parent, a 1-in-504 guess for a child who can't read.
+  const HE_NUM = ["","אחת","שתיים","שלוש","ארבע","חמש","שש","שבע","שמונה","תשע"];
   function gate(){
+    let want = [], got = [];
+    const pick = ()=>{ const d = S.shuffle([1,2,3,4,5,6,7,8,9]); want = d.slice(0,3); got = []; };
+    pick();
     app.innerHTML = `<div class="screen">
       <div class="top"><button class="b3 icon c-tile" id="back" aria-label="חזרה">${I.back}</button></div>
-      <div class="gate" style="flex:1;justify-content:center">
-        <div style="width:150px">${Mascot.svg("listen")}</div>
-        <p lang="he" dir="rtl" style="margin:0;font-size:22px;font-weight:600">להורים: לחצו והחזיקו 3 שניות</p>
-        <div class="ring" id="ring"><button id="hold" aria-label="לחצו והחזיקו 3 שניות כדי להיכנס לאזור ההורים">${I.gear}</button></div>
+      <div class="gate" style="flex:1;justify-content:center" lang="he" dir="rtl">
+        <div style="width:120px">${Mascot.svg("listen")}</div>
+        <p style="margin:0;font-size:20px;font-weight:600">להורים: הקישו את המספרים לפי הסדר</p>
+        <p class="gate-words" id="words" aria-live="polite"></p>
+        <div class="gate-dots" id="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="keypad" id="pad" dir="ltr">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="b3 c-tile" data-n="${n}">${n}</button>`).join("")}</div>
       </div></div>`;
     $("#back").onclick = Nav.back;
-    const ring = $("#ring"), hold = $("#hold");
-    let t0 = 0, raf = 0;
-    const stop = ()=>{ cancelAnimationFrame(raf); t0 = 0; ring.style.setProperty("--p","0%"); };
-    hold.addEventListener("pointerdown", e=>{
-      e.preventDefault(); hold.setPointerCapture && hold.setPointerCapture(e.pointerId); t0 = performance.now();
-      (function tick(){ const p = Math.min(1,(performance.now()-t0)/3000); ring.style.setProperty("--p", (p*100)+"%");
-        if(p>=1){ stop(); Sound.sfx("unlock"); Nav.back(); Nav.go(dashboard); return; } if(t0) raf = requestAnimationFrame(tick); })();
+    const words = $("#words"), dots = [...app.querySelectorAll("#dots i")];
+    const show = ()=>{ words.textContent = want.map(n=>HE_NUM[n]).join(" · "); dots.forEach((d,i)=>d.classList.toggle("on", i<got.length)); };
+    show();
+    app.querySelectorAll("[data-n]").forEach(b=>b.onclick = ()=>{
+      got.push(+b.dataset.n); show();
+      if(got.length < 3) return;
+      if(got.every((n,i)=>n===want[i])){ Sound.sfx("unlock"); Nav.back(); Nav.go(dashboard); return; }
+      Sound.sfx("soft");
+      const pad = $("#pad"); pad.classList.remove("wiggle"); void pad.offsetWidth; pad.classList.add("wiggle");
+      setTimeout(()=>{ pick(); show(); }, 400);
     });
-    ["pointerup","pointercancel","pointerleave"].forEach(ev=>hold.addEventListener(ev, stop));
-    hold.addEventListener("contextmenu", e=>e.preventDefault());
-    hold.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); if(e.repeat) return; t0 = performance.now(); } });
+    // for the child: a friendly spoken hint that this part is for grown-ups
+    if(Sound.hasHebrew() && st().settings.hebrew) Sound.hebrew("זה בשביל אבא או אמא!"); else Sound.speak("Ask a grown-up!", "en", .8);
+  }
+
+  // ---------- moving progress to another phone ----------
+  const API = "/api/transfer";
+  const fmtCode = c => c.slice(0,3) + " " + c.slice(3);
+  const hasProgress = () => st().profiles.some(p => p.stars > 0 || Object.keys(p.words).length);
+  const NET_ERR = "אין חיבור לאינטרנט, או שהשרת לא זמין. נסו שוב בעוד רגע, או השתמשו בגיבוי לקובץ.";
+
+  async function makeCode(host){
+    host.innerHTML = `<p class="small">יוצר קוד…</p>`;
+    try{
+      const r = await fetch(API, {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({data: S.exportData()})});
+      const j = await r.json().catch(()=>({}));
+      if(!r.ok || !j.code) throw new Error(j.error || r.status);
+      host.innerHTML = `<p class="small">בטלפון השני: פותחים את <span class="en-ltr">Say It!</span>, נכנסים לאזור ההורים (או למסך הפתיחה) ובוחרים "יש לי קוד". מקלידים:</p>
+        <div class="xcode" dir="ltr" aria-label="${j.code.split("").join(" ")}">${fmtCode(j.code)}</div>
+        <p class="small" id="left"></p>`;
+      const left = host.querySelector("#left");
+      const tick = ()=>{
+        if(!left.isConnected) return clearInterval(timer);
+        const s = Math.max(0, Math.round((j.expires - Date.now())/1000));
+        left.textContent = s ? `הקוד עובד פעם אחת ותקף עוד ${Math.floor(s/60)}:${String(s%60).padStart(2,"0")} דקות.` : "הקוד פג תוקף. אפשר ליצור קוד חדש.";
+        if(!s) clearInterval(timer);
+      };
+      const timer = setInterval(tick, 1000); tick();
+    }catch(e){
+      host.innerHTML = `<p class="small err">${e.message==="too-big" ? "יש יותר מדי נתונים להעברה בקוד. השתמשו בגיבוי לקובץ." : NET_ERR}</p>`;
+    }
+  }
+
+  function enterCode(host, done){
+    host.innerHTML = `<div class="field"><label for="code">קוד העברה מהטלפון הישן</label>
+        <input type="text" id="code" class="code-in" dir="ltr" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7P 42Q"></div>
+      <div class="row"><button class="b3 pbtn c-mint" id="go">העברה</button></div>
+      <p class="small" id="msg"></p>`;
+    const inp = host.querySelector("#code"), msg = host.querySelector("#msg"), go = host.querySelector("#go");
+    inp.focus();
+    inp.oninput = ()=>{ const c = inp.value.toUpperCase().replace(/[^0-9A-Z]/g,"").slice(0,6); inp.value = c.length>3 ? fmtCode(c) : c; };
+    inp.onkeydown = e=>{ if(e.key==="Enter") go.click(); };
+    go.onclick = async ()=>{
+      const code = inp.value.replace(/\s/g,"");
+      if(code.length !== 6){ msg.className = "small err"; msg.textContent = "הקוד צריך להיות 6 תווים."; return; }
+      if(hasProgress() && !confirm("ההתקדמות שבמכשיר הזה תוחלף בזו מהטלפון הישן. להמשיך?")) return;
+      go.disabled = true; msg.className = "small"; msg.textContent = "מעביר…";
+      try{
+        const r = await fetch(API + "?code=" + encodeURIComponent(code), {cache:"no-store"});
+        const j = await r.json().catch(()=>({}));
+        if(r.status===404){ msg.className = "small err"; msg.textContent = "הקוד לא נמצא. בדקו שהוקלד נכון, או צרו קוד חדש בטלפון הישן."; go.disabled = false; return; }
+        if(r.status===410){ msg.className = "small err"; msg.textContent = "הקוד פג תוקף. צרו קוד חדש בטלפון הישן."; go.disabled = false; return; }
+        if(!r.ok || !S.replaceAll(j.data)) throw new Error("bad");
+        Sound.sfx("unlock"); alert("ההתקדמות הועברה!"); done();
+      }catch(e){ msg.className = "small err"; msg.textContent = NET_ERR; go.disabled = false; }
+    };
+  }
+
+  // Offline fallback: a backup file (shared through WhatsApp, Drive, email…)
+  async function saveBackup(){
+    const name = `say-it-backup-${new Date().toISOString().slice(0,10)}.json`;
+    const file = new File([JSON.stringify(S.exportData())], name, {type:"application/json"});
+    try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:"Say It! backup"}); return; } }
+    catch(e){ if(e.name==="AbortError") return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  }
+  function restoreBackup(input, done){
+    input.onchange = async ()=>{
+      const f = input.files && input.files[0]; input.value = ""; if(!f) return;
+      let d = null; try{ d = JSON.parse(await f.text()); }catch(e){}
+      if(!S.isSave(d)){ alert("זה לא קובץ גיבוי של Say It!."); return; }
+      if(hasProgress() && !confirm("ההתקדמות שבמכשיר הזה תוחלף בזו שבקובץ. להמשיך?")) return;
+      S.replaceAll(d); alert("ההתקדמות שוחזרה!"); done();
+    };
+    input.click();
   }
 
   // ---------- first run ----------
@@ -43,8 +125,14 @@
         <p class="small" style="font-size:16px">משחק מילים באנגלית לילדים שעוד לא קוראים: תמונות, קול ודיבור. ההתקדמות נשמרת רק במכשיר הזה, בלי חשבון ובלי פרסומות.</p>
       </div>
       <div class="panel" id="form"></div>
+      <div class="panel" id="move">
+        <h2>עוברים מטלפון אחר?</h2>
+        <p class="small">אם הילדים כבר שיחקו בטלפון אחר, אפשר להעביר את כל ההתקדמות עם קוד.</p>
+        <div id="movehost"><button class="pbtn c-yellow b3" id="havecode">יש לי קוד העברה</button></div>
+      </div>
     </div></div>`;
     profileForm(null, $("#form"), ()=>{ Screens.start(); });
+    $("#havecode").onclick = ()=> enterCode($("#movehost"), ()=>Screens.start());
   }
 
   // ---------- profile form ----------
@@ -122,6 +210,16 @@
         <p class="small" id="micstate"></p>
       </div>
 
+      <div class="panel"><h2>העברה לטלפון אחר</h2>
+        <p class="small">עוברים לטלפון חדש, או רוצים שהילדים ישחקו גם בטאבלט? יוצרים כאן קוד ומקלידים אותו בטלפון השני. הקוד עובד פעם אחת ונמחק אחרי 15 דקות. ההתקדמות לא נשמרת אצלנו מעבר לזה.</p>
+        <div id="xhost"></div>
+        <div class="row"><button class="b3 pbtn c-yellow" id="mkcode">יצירת קוד העברה</button><button class="pbtn" id="havecode">יש לי קוד</button></div>
+        <details><summary class="small">בלי אינטרנט? גיבוי לקובץ</summary>
+          <div class="row" style="margin-top:10px"><button class="pbtn" id="bk">שמירת גיבוי</button><button class="pbtn" id="rs">שחזור מגיבוי</button>
+          <input type="file" id="rsfile" accept=".json,application/json" hidden></div>
+        </details>
+      </div>
+
       <div class="panel"><h2>שימוש בלי אינטרנט</h2>
         <p class="small" id="offline">בודק…</p>
         ${installEvt?`<button class="b3 pbtn c-yellow" id="install">התקנה כאפליקציה</button>`:""}
@@ -145,6 +243,11 @@
     tg("t-music","music", ()=>Sound.music(set.sfx && set.music));
     tg("t-heb","hebrew"); tg("t-all","unlockAll");
     app.querySelectorAll("[data-m]").forEach(b=>b.onclick = ()=>{ set.sayMode = b.dataset.m; S.save(); app.querySelectorAll("[data-m]").forEach(x=>x.setAttribute("aria-pressed", x===b)); });
+    const back = ()=>Screens.start();
+    $("#mkcode").onclick = ()=> makeCode($("#xhost"));
+    $("#havecode").onclick = ()=> enterCode($("#xhost"), back);
+    $("#bk").onclick = saveBackup;
+    $("#rs").onclick = ()=> restoreBackup($("#rsfile"), back);
     const ib = $("#install"); if(ib) ib.onclick = async ()=>{ installEvt.prompt(); await installEvt.userChoice; installEvt = null; ib.remove(); };
 
     const perm = await Speech.permission();

@@ -1,5 +1,6 @@
 [build]
-  publish = "."
+  publish = "public"
+  functions = "netlify/functions"
 
 [[headers]]
   for = "/sw.js"
@@ -17,3 +18,7 @@
     Permissions-Policy = "microphone=(self), camera=(), geolocation=()"
     Referrer-Policy = "no-referrer"
     X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    # Scripts only from this site. Inline style attributes are used by the screens, so styles allow them.
+    # Word recordings still come from Wikimedia Commons until they are self-hosted.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self' blob: https://upload.wikimedia.org; connect-src 'self' https://upload.wikimedia.org; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"

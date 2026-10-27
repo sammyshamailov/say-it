@@ -215,9 +215,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .pbtn{height:56px;border-radius:18px;font-size:20px;font-weight:700;padding:0 20px}
 
 .gate{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
-.ring{width:140px;height:140px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--yellow) var(--p,0%),var(--tile) 0);touch-action:none}
-.ring button{width:112px;height:112px;border-radius:50%;background:var(--bg);display:grid;place-items:center}
-.ring svg{width:44px;height:44px}
 
 .parent{direction:rtl;text-align:right;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px;padding-bottom:20px}
 .panel{color-scheme:light;background:#fff;color:var(--ink);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px}
@@ -251,3 +248,18 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .danger{color:#B3123E}
 
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Parent gate: three numbers as Hebrew words + keypad */
+.gate-words{margin:0;font-size:30px;font-weight:700;color:var(--yellow);min-height:40px}
+.gate-dots{display:flex;gap:12px}
+.gate-dots i{width:16px;height:16px;border-radius:50%;border:3px solid var(--lilac)}
+.gate-dots i.on{background:var(--yellow);border-color:var(--yellow)}
+.keypad{display:grid;grid-template-columns:repeat(3,76px);gap:14px}
+.keypad button{height:68px;border-radius:20px;font-size:30px;font-weight:700}
+
+/* Transfer code */
+.xcode{font-size:44px;font-weight:700;letter-spacing:6px;text-align:center;background:#F1EFFC;border-radius:18px;padding:14px 8px;color:var(--ink);user-select:all}
+.field input.code-in{font-size:30px;letter-spacing:4px;text-align:center;text-transform:uppercase}
+.small.err{color:#B3123E}
+.panel details summary{cursor:pointer}
+.panel .pbtn:not([class*="c-"]){background:#F1EFFC}

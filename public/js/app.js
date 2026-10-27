@@ -418,7 +418,8 @@
     function spawn(head=0){
       if(!alive(r)) return clearBubbles();
       const t = target(); if(!t) return;
-      const others = WORDS.flatMap(g=>g.subs.flatMap(x=>x.keys)).filter(k=>S.WORD[k].pic!==t.pic);
+      // distractors never share the target's word ("orange" fruit vs colour) or picture
+      const others = WORDS.flatMap(g=>g.subs.flatMap(x=>x.keys)).filter(k=>S.WORD[k].pic!==t.pic && S.WORD[k].en!==t.en);
       const isT = since >= 2 || Math.random() < .4;
       const k = isT ? t.key : others[Math.floor(Math.random()*others.length)];
       since = isT ? 0 : since+1;
@@ -433,7 +434,7 @@
       b.addEventListener("animationend", ev=>{ if(ev.animationName==="floatup" || ev.animationName==="burst") b.remove(); });
       b.onpointerdown = async ()=>{
         if(!alive(r) || b.classList.contains("burst")) return;
-        if(S.WORD[b.dataset.k].pic === target().pic){
+        if(S.WORD[b.dataset.k].en === target().en){
           b.classList.add("burst"); Sound.sfx("pop"); Sound.sfx("good");
           Mascot.set($("#buddy"), "happy", p.outfit);
           ti++; speed = Math.max(6.5, speed-.8);
