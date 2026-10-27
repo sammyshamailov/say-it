@@ -251,8 +251,9 @@
     $("#hear").onclick = hear; $("#big").onclick = hear;
     const hb = $("#heb"); if(hb) hb.onclick = ()=> Sound.hebrew(heFor(w,p)).then(()=>Sound.word(w.en));
     $("#next").onclick = ()=>{ if(!S.rec(p, s.k)){ p.words[s.k] = {lvl:0, due:0, right:0, wrong:0, said:0, clear:0, seen:Date.now()}; S.save(); } nextStep(); };
-    await wait(300); if(alive(r)) await Sound.word(w.en);
-    if(alive(r)) $("#next").classList.add("glow");
+    const nx = $("#next");
+    await wait(300); if(alive(r) && nx.isConnected) await Sound.word(w.en);
+    if(alive(r) && nx.isConnected) nx.classList.add("glow"); // the child may already have moved on
   }
 
   // Listen & tap
@@ -328,7 +329,7 @@
       <div style="flex:1"></div>
       <div class="say-row">
         <div class="side" aria-hidden="true"></div>
-        <button class="b3 mic c-pink" id="mic" aria-label="Say it">${I.mic}</button>
+        <button class="b3 mic c-pink" id="mic" aria-label="Say it" disabled>${I.mic}</button>
         <button class="b3 side c-mint" id="next" aria-label="Next" hidden>${I.next}</button>
         <div class="side" id="nextph" aria-hidden="true"></div>
       </div>`, {stars:true});
@@ -336,32 +337,42 @@
     const level = v=>{ bars.forEach((b,i)=>{ const k = 1 - Math.abs(i-3)/4; b.style.height = (10 + v*54*k*(0.7+Math.random()*0.3)) + "px"; }); };
     let myVoice = null;
     const showNext = ()=>{ $("#next").hidden = false; $("#nextph").hidden = true; $("#next").classList.add("glow"); };
-    $("#hear").onclick = ()=>Sound.word(w.en);
-    const hb = $("#heb"); if(hb) hb.onclick = ()=> Sound.hebrew(heFor(w,p)).then(()=>Sound.word(w.en));
-    $("#next").onclick = ()=> nextStep();
-    $("#echo").onclick = async ()=>{ if(myVoice){ await Sound.playUrl(myVoice, 1); await Sound.word(w.en); } };
 
-    const reward = async (clear)=>{
+    // The mic stays locked while the app is talking, so the child waits for the word to finish
+    // (and the app never records its own voice as the child's).
+    let talking = 0;
+    const lockMic = on=>{ const m = $("#mic"); if(m) m.disabled = on; };
+    const talk = async play=>{
+      talking++; lockMic(true);
+      try{ await play(); } finally { talking--; if(!talking && alive(r)) lockMic(false); }
+    };
+    $("#hear").onclick = ()=>{ if(!busy) talk(()=>Sound.word(w.en)); };
+    const hb = $("#heb"); if(hb) hb.onclick = ()=>{ if(!busy) talk(()=>Sound.hebrew(heFor(w,p)).then(()=>Sound.word(w.en))); };
+    $("#next").onclick = ()=> nextStep();
+    $("#echo").onclick = ()=>{ if(myVoice && !busy) talk(async ()=>{ await Sound.playUrl(myVoice, 1); await Sound.word(w.en); }); };
+
+    const reward = (clear)=> talk(async ()=>{
       Mascot.set($("#buddy"), "happy", p.outfit);
       if(!rewarded){ rewarded = true; S.markSaid(p, s.k, clear); bumpStars(clear ? 2 : 1); R.stars += clear ? 2 : 1; }
       Sound.sfx("good");
       await Sound.talk(clear ? "clear" : "said", p.gender); if(!alive(r)) return;
       if(myVoice){ await Sound.playUrl(myVoice, 1); if(!alive(r)) return; await wait(200); }
       await Sound.word(w.en); if(alive(r)) showNext();
-    };
-    const missed = async ()=>{
+    });
+    const missed = ()=> talk(async ()=>{
       attempts++;
       Mascot.set($("#buddy"), "oops", p.outfit);
       await Sound.talk("noHear", p.gender); if(!alive(r)) return;
       await Sound.word(w.en);
       if(alive(r)){ Mascot.set($("#buddy"), "listen", p.outfit); if(attempts>=2) showNext(); }
-    };
+    });
 
     $("#mic").onclick = async ()=>{
-      if(busy || !alive(r)) return;
+      if(busy || talking || !alive(r)) return;
       Sound.stop();
       if(!st().settings.micAsked){ const ok = await Parent.micExplain(); if(!ok || !alive(r)) return; st().settings.micAsked = true; S.save(); }
       busy = true; const mic = $("#mic"); mic.classList.add("live");
+      Sound.hush(true); // no music while the child speaks, so it isn't recorded or heard as their voice
       try{
         // after one unheard try, switch to Echo: it only needs to hear a voice, so every real attempt counts
         let echo = Speech.mode() !== "recognize" || attempts >= 1;
@@ -382,18 +393,17 @@
         }
       }catch(e){
         if(alive(r)) micDenied();
-      } finally { busy = false; if(alive(r)) mic.classList.remove("live"); }
+      } finally { Sound.hush(false); busy = false; if(alive(r)) mic.classList.remove("live"); }
     };
     // no microphone: the child says it out loud and taps the star
     const micDenied = ()=>{
       const mic = $("#mic");
       mic.className = "b3 mic c-yellow"; mic.setAttribute("aria-label","I said it!");
       mic.innerHTML = I.star("#fff","#1A1640");
-      mic.onclick = ()=>{ if(!rewarded) reward(false); };
+      mic.onclick = ()=>{ if(!rewarded && !talking) reward(false); };
       Mascot.set($("#buddy"), "listen", p.outfit);
     };
-    await wait(300); if(!alive(r)) return;
-    await Sound.word(w.en); if(!alive(r)) return;
+    await talk(async ()=>{ await wait(300); if(alive(r)) await Sound.word(w.en); }); if(!alive(r)) return;
     if(st().settings.micAsked) { const perm = await Speech.permission(); if(perm==="denied") micDenied(); }
     if(alive(r)) $("#mic").classList.add("glow");
   }

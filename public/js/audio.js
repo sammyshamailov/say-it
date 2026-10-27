@@ -9,7 +9,7 @@
     if(ctx.state === "suspended") ctx.resume();
     return ctx;
   }
-  function tone(freq, t0, dur, type="sine", vol=0.18, slideTo){
+  function tone(freq, t0, dur, type="sine", vol=0.18, slideTo, out){
     const c = ac(); if(!c) return;
     const o = c.createOscillator(), g = c.createGain();
     o.type = type; o.frequency.setValueAtTime(freq, c.currentTime+t0);
@@ -17,7 +17,7 @@
     g.gain.setValueAtTime(0.0001, c.currentTime+t0);
     g.gain.exponentialRampToValueAtTime(vol, c.currentTime+t0+0.015);
     g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime+t0+dur);
-    o.connect(g).connect(c.destination); o.start(c.currentTime+t0); o.stop(c.currentTime+t0+dur+0.05);
+    o.connect(g).connect(out || c.destination); o.start(c.currentTime+t0); o.stop(c.currentTime+t0+dur+0.05);
   }
   const SFX = {
     tap(){ tone(620,0,.08,"sine",.12,900); },
@@ -35,9 +35,29 @@
   let musicTimer = null, musicStep = 0;
   const MEL = [523,587,659,784,880,784,659,587, 523,659,784,1047,880,784,659,523];
   const BASS = [131,131,196,196,175,175,196,196];
+
+  // The music steps aside whenever something needs to be heard (a word, Hebrew help, feedback)
+  // or recorded (the child's voice), and comes back a moment after it's quiet again.
+  let bus = null, hushCount = 0, quietUntil = 0;
+  const RETURN_MS = 900;
+  function musicBus(){
+    const c = ac(); if(!c) return null;
+    if(!bus){ bus = c.createGain(); bus.connect(c.destination); }
+    return bus;
+  }
+  function duck(){                      // fade the notes already sounding, in about 0.1 s
+    quietUntil = Date.now() + RETURN_MS;
+    if(bus && ctx){ bus.gain.cancelScheduledValues(ctx.currentTime); bus.gain.setTargetAtTime(0, ctx.currentTime, 0.03); }
+  }
+  function hush(on){ hushCount = Math.max(0, hushCount + (on ? 1 : -1)); duck(); }
+  const voiceBusy = () => hushCount > 0 || (("speechSynthesis" in window) && speechSynthesis.speaking) || (!el.paused && !el.ended);
   function musicTick(){
-    tone(MEL[musicStep%MEL.length], 0, .28, "triangle", .035);
-    if(musicStep%2===0) tone(BASS[(musicStep/2)%BASS.length], 0, .55, "sine", .05);
+    if(voiceBusy()){ duck(); return; }
+    if(Date.now() < quietUntil) return;
+    const b = musicBus(); if(!b) return;
+    if(b.gain.value < 1){ b.gain.cancelScheduledValues(ctx.currentTime); b.gain.setTargetAtTime(1, ctx.currentTime, 0.15); }
+    tone(MEL[musicStep%MEL.length], 0, .28, "triangle", .035, null, b);
+    if(musicStep%2===0) tone(BASS[(musicStep/2)%BASS.length], 0, .55, "sine", .05, null, b);
     musicStep++;
   }
   function music(on){
@@ -64,7 +84,7 @@
       speechSynthesis.cancel();
       const short = text.replace(/[^a-z]/gi,"").length <= 4;
       const u = new SpeechSynthesisUtterance(/[.!?]$/.test(text) ? text : text + ".");
-      keep = u;
+      keep = u; duck();
       if(lang==="he"){ if(heVoice) u.voice = heVoice; u.lang = heVoice ? heVoice.lang : "he-IL"; u.rate = rate || .9; }
       else { if(enVoice) u.voice = enVoice; u.lang = enVoice ? enVoice.lang : "en-US"; u.rate = (rate || .62) * (short ? .9 : 1); }
       u.pitch = 1.1;
@@ -87,17 +107,22 @@
     const u = URL.createObjectURL(await r.blob());
     blobs[file] = u; return u;
   }
+  // When a new sound starts (or stop() is called), the sound it cuts off finishes right away
+  // with "stopped", instead of waiting for the 8-second safety timer.
+  let cutOff = null;
   function playUrl(url, rate=1){
+    if(cutOff) cutOff("stopped");
     return new Promise(res=>{
-      let done = false; const fin = ok=>{ if(done) return; done = true; el.onended = el.onerror = null; res(ok); };
-      el.pause(); el.src = url; el.currentTime = 0;
+      let done = false; const fin = ok=>{ if(done) return; done = true; if(cutOff===fin) cutOff = null; el.onended = el.onerror = null; res(ok); };
+      cutOff = fin;
+      duck(); el.pause(); el.src = url; el.currentTime = 0;
       el.preservesPitch = true; el.webkitPreservesPitch = true; el.playbackRate = rate;
       el.onended = ()=>fin(true); el.onerror = ()=>fin(false);
       el.play().catch(()=>fin(false));
       setTimeout(()=>fin(true), 8000);
     });
   }
-  function stop(){ try{ el.pause(); }catch(e){} if("speechSynthesis" in window) speechSynthesis.cancel(); }
+  function stop(){ if(cutOff) cutOff("stopped"); try{ el.pause(); }catch(e){} if("speechSynthesis" in window) speechSynthesis.cancel(); }
 
   async function word(en, slow=false){
     stop();
@@ -131,5 +156,5 @@
     return speak(pick(t.en), "en", .8);
   }
 
-  window.Sound = { mediaUrl, sfx, music, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, unlock: ()=>ac() };
+  window.Sound = { mediaUrl, sfx, music, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, hush, unlock: ()=>ac() };
 })();
