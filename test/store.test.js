@@ -66,3 +66,30 @@ test("speech matcher stays forgiving", () => {
   assert.ok(Speech.isMatch(["tree"], "three", ["3", "tree", "free"]));
   assert.ok(!Speech.isMatch(["dog"], "cat"));
 });
+
+test("shop: spending lowers the purse, never the stars earned", () => {
+  const { Store } = loadApp();
+  const p = Store.newProfile("Noa"); Store.state.profiles.push(p);
+  Store.addStars(p, 12);
+  assert.equal(Store.purse(p), 12);
+  assert.ok(Store.buy(p, "pet:farm/cow", 5));
+  assert.equal(Store.purse(p), 7);
+  assert.equal(p.stars, 12, "lifetime stars unchanged");
+  assert.ok(!Store.buy(p, "pet:farm/cow", 5), "can't buy the same thing twice");
+  assert.ok(!Store.buy(p, "hat:crown", 10), "can't buy without enough stars");
+  assert.equal(Store.purse(p), 7);
+  assert.ok(Store.owns(p, "pet:farm/cow"));
+  Store.addStars(p, 3);
+  assert.ok(Store.buy(p, "hat:crown", 10));
+  assert.equal(Store.purse(p), 0);
+});
+
+test("shop: an animal is for sale once its word was answered right", () => {
+  const { Store } = loadApp();
+  const p = Store.newProfile("Noa"); Store.state.profiles.push(p);
+  assert.ok(!Store.knows(p, "farm/cow"));
+  Store.mark(p, "farm/cow", false);
+  assert.ok(!Store.knows(p, "farm/cow"), "met but missed");
+  Store.mark(p, "farm/cow", true);
+  assert.ok(Store.knows(p, "farm/cow"));
+});

@@ -22,6 +22,7 @@
     turtle:`<svg viewBox="0 0 32 24"><ellipse cx="15" cy="13" rx="10" ry="7" fill="#3DDC97"/><path d="M8 13h14M15 6v14" stroke="#20A86E" stroke-width="1.5"/><circle cx="27" cy="13" r="4" fill="#B8F5D8"/><rect x="8" y="17" width="4" height="5" rx="2" fill="#B8F5D8"/><rect x="18" y="17" width="4" height="5" rx="2" fill="#B8F5D8"/></svg>`,
     q:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 9a3 3 0 1 1 4 2.8c-.7.3-1 .9-1 1.6V15"/><circle cx="12" cy="18.5" r=".6" fill="currentColor"/></svg>`,
     crown:`<svg class="crown" viewBox="0 0 34 26" role="img" aria-label="all learned"><path d="M3 22 L5 6 L12 13 L17 3 L22 13 L29 6 L31 22 Z" fill="#FFD23F" stroke="#1A1640" stroke-width="2.4" stroke-linejoin="round"/></svg>`,
+    bag:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z" fill="currentColor" fill-opacity=".25"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>`,
     gear:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`
   };
   window.ICONS = I;
@@ -35,7 +36,7 @@
   const heFor = (w, p) => { const [m,f] = w.he.split("|"); return (p && p.gender==="f" && f) ? f : m; };
   const wait = ms => new Promise(r=>setTimeout(r, ms));
   const $ = sel => app.querySelector(sel);
-  window.UI = { esc, pic, I, heFor };
+  window.UI = { esc, pic, I, heFor, starsPill };
 
   const LANDS = {
     animals:{en:"Animal Jungle", he:"ג'ונגל החיות", c:"mint"},
@@ -70,10 +71,11 @@
   window.Nav = { go, back, toMap };
 
   // ---------- header bits ----------
-  function starsPill(){ const p = P(); return `<div class="stars" aria-label="${p?p.stars:0} stars">${I.star()}<span>${p?p.stars:0}</span></div>`; }
+  // the pill shows the stars a child can still spend in the shop
+  function starsPill(){ const n = P() ? S.purse(P()) : 0; return `<div class="stars" aria-label="${n} stars">${I.star()}<span>${n}</span></div>`; }
   function bumpStars(n=1){
     const p = P(); S.addStars(p, n); Sound.sfx("star");
-    app.querySelectorAll(".stars span").forEach(s=>s.textContent = p.stars);
+    app.querySelectorAll(".stars span").forEach(s=>s.textContent = S.purse(p));
     app.querySelectorAll(".stars").forEach(s=>{ s.classList.remove("bump"); void s.offsetWidth; s.classList.add("bump"); });
   }
   function soundBtn(){ const on = st().settings.sfx; return `<button class="b3 icon c-sky" id="snd" aria-label="${on?"Sound on":"Sound off"}" aria-pressed="${on}">${on?I.speaker:I.mute}</button>`; }
@@ -87,7 +89,7 @@
     app.innerHTML = `<div class="screen">
       <div class="top"><div class="grow"></div><button class="b3 icon c-tile" id="parent" aria-label="Parents">${I.gear}</button></div>
       <div class="who-grid">${ps.map((p,i)=>`<button class="b3 who-card c-${cols[i%cols.length]}" data-id="${p.id}" aria-label="${esc(p.name)}">
-        <span class="face">${p.avatar}</span><span class="nm">${esc(p.name)}</span><span class="st">⭐ ${p.stars}</span></button>`).join("")}</div></div>`;
+        <span class="face">${p.avatar}</span><span class="nm">${esc(p.name)}</span><span class="st">⭐ ${S.purse(p)}</span></button>`).join("")}</div></div>`;
     app.querySelectorAll("[data-id]").forEach(b=>b.onclick = ()=>{
       S.setPlayer(b.dataset.id); const p = P();
       if(/[֐-׿]/.test(p.name)) Sound.hebrew("היי " + p.name + "!"); else if(/^[a-z\s'-]+$/i.test(p.name) && !/^my (son|daughter)$/i.test(p.name)) Sound.speak("Hi " + p.name + "!", "en", .8); else Sound.talk("hi", p.gender);
@@ -121,7 +123,7 @@
       <div class="dock">
         <button class="b3 icon c-purple" id="book" aria-label="Sticker book">${I.book}</button>
         <button class="b3 play c-yellow" id="play" aria-label="Play">${I.play}Play</button>
-        <button class="b3 icon c-mint" id="wear" aria-label="Dress up">${I.shirt}</button>
+        <button class="b3 icon c-mint ${Shop.canBuy(p)?"glow":""}" id="shop" aria-label="Garden and shop">${I.bag}</button>
       </div></div>`;
     app.querySelectorAll(".buddy").forEach(b=>b.classList.add("idle"));
     const m = $("#map"), curEl = app.querySelector(".land.current");
@@ -134,7 +136,7 @@
     $("#play").onclick = ()=> startRound(S.nextSub(p));
     $("#who").onclick = ()=> go(who);
     $("#book").onclick = ()=> go(stickers);
-    $("#wear").onclick = ()=> go(wardrobe);
+    $("#shop").onclick = ()=> go(Shop.garden);
     $("#parent").onclick = ()=> go(Parent.gate);
     wireSound();
   }
@@ -166,24 +168,6 @@
       <div class="book">${slots.map((s,i)=> s ? `<button class="b3 slot c-white" data-i="${i}" aria-label="${esc(s.en)}">${pic(s.pic)}</button>` : `<div class="b3 slot empty" aria-hidden="true"></div>`).join("")}</div></div>`;
     $("#back").onclick = back;
     app.querySelectorAll("[data-i]").forEach(b=>b.onclick = ()=> Sound.word(p.stickers[+b.dataset.i].en));
-  }
-
-  function wardrobe(){
-    const p = P();
-    const render = ()=>{
-      app.innerHTML = `<div class="screen">
-        <div class="top"><button class="b3 icon c-tile" id="back" aria-label="Back">${I.back}</button><div class="grow"></div>${starsPill()}</div>
-        <div class="mascot-row" id="me" style="min-height:180px">${Mascot.svg("happy", p.outfit)}</div>
-        <div class="wardrobe">
-          <button class="b3 wear c-white ${!p.outfit?"on":""}" data-o="" aria-label="No hat">${Mascot.svg("idle", null)}</button>
-          ${Mascot.OUTFITS.map(o=>{ const have = p.stars >= o.stars;
-            return `<button class="b3 wear ${have?"c-white":"c-tile"} ${p.outfit===o.id?"on":""}" data-o="${o.id}" ${have?"":"disabled"} aria-label="${have?o.id:"locked, "+o.stars+" stars"}">${Mascot.outfitSVG(o.id)}${have?"":`<span class="lockline">${I.star("#FFD23F","#FFD23F")}${o.stars}</span>`}</button>`; }).join("")}
-        </div></div>`;
-      $("#me .buddy").style.width = "170px";
-      $("#back").onclick = back;
-      app.querySelectorAll("[data-o]").forEach(b=>b.onclick = ()=>{ if(b.disabled) return; p.outfit = b.dataset.o || null; S.save(); Sound.sfx("good"); render(); });
-    };
-    render();
   }
 
   // ---------- round ----------
@@ -503,21 +487,20 @@
   // Well done
   async function finish(){
     const r = R, p = P(), sub = R.sub;
-    const before = Mascot.unlocked(p.stars - R.stars).length;
     const ws = R.words.map(k=>S.WORD[k]);
     const prize = ws[Math.floor(Math.random()*ws.length)];
     p.done[sub.id] = true; p.rounds++; p.lastPlayed = Date.now();
     p.stickers.push({pic:prize.pic, en:prize.en, at:Date.now()});
     if(roundT0){ p.playMs += Date.now()-roundT0; roundT0 = 0; }
     S.save(true);
-    const newOutfit = Mascot.unlocked(p.stars).length > before ? Mascot.unlocked(p.stars).slice(-1)[0] : null;
+    const shopNow = Shop.canBuy(p);
     const n = Math.min(R.stars, 14);
     app.innerHTML = `<div class="screen"><div class="done">
       <div style="width:clamp(140px,40vw,190px)" id="buddy">${Mascot.svg("happy", p.outfit)}</div>
       <h1>Well done!</h1>
       <div class="jar" aria-label="${R.stars} stars">${Array.from({length:n},(_,i)=>I.star("#FFD23F","#1A1640").replace("<svg",`<svg style="animation-delay:${.15+i*.08}s"`)).join("")}</div>
       <button class="sticker" id="stk" aria-label="New sticker: ${esc(prize.en)}">${pic(prize.pic)}</button>
-      ${newOutfit?`<div class="bubble" style="display:flex;align-items:center;gap:8px">New! <span style="width:60px;display:inline-block">${Mascot.outfitSVG(newOutfit.id)}</span></div>`:""}
+      ${shopNow?`<button class="b3 icon c-mint glow" id="shopnow" aria-label="Garden and shop">${I.bag}</button>`:""}
     </div>
     <div class="dock">
       <button class="b3 icon c-tile" id="home" aria-label="Map">${I.home}</button>
@@ -530,6 +513,7 @@
     $("#home").onclick = toMap;
     $("#again").onclick = ()=>{ stack.length = 0; stack.push([map,[]]); startRound(S.nextSub(p)); };
     $("#book").onclick = ()=>{ toMap(); go(stickers); };
+    if(shopNow) $("#shopnow").onclick = ()=>{ toMap(); go(Shop.garden); };
     R.dead = true; R = null; Speech.release();
     await wait(500); Sound.talk("done", p.gender);
   }
@@ -538,6 +522,7 @@
   function start(){
     leaveRound(); stack.length = 0;
     const s = st();
+    s.profiles.forEach(Shop.ensure);
     if(!s.profiles.length){ stack.push([Parent.setup,[]]); return Parent.setup(); }
     if(s.profiles.length === 1) S.setPlayer(s.profiles[0].id);
     if(s.profiles.length > 1){ stack.push([who,[]]); return who(); }

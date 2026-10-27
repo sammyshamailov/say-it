@@ -10,7 +10,7 @@ Live: https://say-it-words.netlify.app/
 - **A round (3–5 minutes)**: meet new words → Listen & tap → Say it → a bonus game (Pop the bubbles or Memory match) → Well done, with stars and a sticker.
 - **Say it**: on Android Chrome the browser's speech recognition checks the word and gives a bonus star. Everywhere else, and after one unheard try, "Echo" records the child, plays their voice back, then the model word. Every real attempt earns a star.
 - **Spaced repetition**: each word has a level per child; a miss lowers it and brings the word back in the same round and later rounds.
-- **Rewards**: stars, a sticker book (tap a sticker to hear its word), and mascot outfits every 25–50 stars. Nothing is ever lost.
+- **Rewards**: stars, a sticker book (tap a sticker to hear its word), and the garden: kids spend stars to adopt any animal whose English word they've answered correctly (5 stars each; it lives in their garden and says its name when tapped) and to buy hats for the mascot (6–10 stars). Prices are shown as rows of stars, not numbers. Total stars earned never goes down; only the purse does. Nothing bought is ever lost, and nothing can be bought with real money.
 - **Parent area**: type three numbers written as Hebrew words (a 4-year-old can't read them). Words learned, words to practice, time played, profiles, settings (sounds, music, Hebrew help, speaking mode, unlock all), microphone info, credits. Hebrew, right to left.
 
 ## Files
@@ -27,6 +27,7 @@ Live: https://say-it-words.netlify.app/
 | `public/js/speech.js` | Microphone, Echo recording, speech recognition, forgiving match |
 | `public/js/mascot.js` | The chameleon mascot and outfits (SVG) |
 | `public/js/app.js` | Screens and mini-games |
+| `public/js/shop.js` | The garden and star shop |
 | `public/js/parent.js` | Parent gate and parent area |
 | `public/js/boot.js` | Registers offline support (separate file so no inline scripts are needed) |
 | `public/sw.js` | Offline support |

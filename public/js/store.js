@@ -23,7 +23,7 @@
 
   function newProfile(name, avatar, gender){
     return {id:"k"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), name:name||"", avatar:avatar||"🦁",
-      gender:gender==="f"?"f":"m", stars:0, outfit:null, stickers:[], words:{}, done:{}, playMs:0, rounds:0, lastPlayed:0};
+      gender:gender==="f"?"f":"m", stars:0, spent:0, outfit:null, stickers:[], words:{}, done:{}, playMs:0, rounds:0, lastPlayed:0};
   }
 
   // ---- migrate from the first version (keys sayit-players, sayit-got-<id>) ----
@@ -110,6 +110,18 @@
       .sort((a,b)=> p.words[a].lvl - p.words[b].lvl || p.words[a].due - p.words[b].due);
   }
 
+  // ---- star shop ----
+  // p.stars counts every star ever earned and never goes down (parents see it, lands use it).
+  // The purse is what's left to spend. Bought things are kept forever in p.owned.
+  const purse = p => Math.max(0, (p.stars||0) - (p.spent||0));
+  const owns = (p, id) => Array.isArray(p.owned) && p.owned.includes(id);
+  function buy(p, id, price){
+    if(owns(p, id) || purse(p) < price) return false;
+    p.owned = [...(p.owned||[]), id]; p.spent = (p.spent||0) + price;
+    save(true); return true;
+  }
+  const knows = (p, key) => !!(p.words[key] && p.words[key].right > 0);
+
   // ---- map progression ----
   function subStarted(p, s){ return s.keys.some(k=>p.words[k]); }
   function subDone(p, s){ return !!p.done[s.id]; }
@@ -160,6 +172,6 @@
     setPlayer(id){ state.lastId = id; save(); },
     addStars(p, n){ p.stars += n; save(); },
     reset(){ state = blank(); save(true); },
-    isSave, exportData, replaceAll
+    isSave, exportData, replaceAll, purse, owns, buy, knows
   };
 })();
