@@ -36,7 +36,7 @@ Live: https://say-it-words.netlify.app/
 | `test/` | Tests, run with `npm test` (Node 20+) |
 | `netlify.toml` | Netlify settings |
 
-No build step for the app: edit and push. When you change files, bump the version (`?v=` in `public/index.html`, `VERSION` and the file list in `public/sw.js`, `VERSION` in `public/js/parent.js`) so phones pick up the update. `package.json` only exists so Netlify installs `@netlify/blobs` for the transfer function.
+No build step for the app: edit and push. Installed apps update themselves: when the app opens or comes back to the screen it checks for a new version, and reloads into it on the map (never mid-round or in the parent area). When you change files, bump the version (`?v=` in `public/index.html`, `VERSION` and the file list in `public/sw.js`, `VERSION` in `public/js/parent.js`) so phones pick up the update. `package.json` only exists so Netlify installs `@netlify/blobs` for the transfer function.
 
 ## Saved data
 

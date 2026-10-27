@@ -1,17 +1,18 @@
 // Service worker: makes the app work offline after the first visit.
-const VERSION = "2.2.0";
+const VERSION = "2.2.1";
 const APP = "sayit-app-" + VERSION;
 const AUDIO = "sayit-audio";
 const SHELL = [
   "./", "index.html", "manifest.webmanifest",
-  "css/app.css?v=2.2.0", "fonts/fredoka.woff",
-  "js/words.js?v=2.2.0", "js/audio-map.js?v=2.2.0", "js/store.js?v=2.2.0", "js/audio.js?v=2.2.0",
-  "js/speech.js?v=2.2.0", "js/mascot.js?v=2.2.0", "js/app.js?v=2.2.0", "js/shop.js?v=2.2.0", "js/parent.js?v=2.2.0", "js/boot.js?v=2.2.0",
+  "css/app.css?v=2.2.1", "fonts/fredoka.woff",
+  "js/words.js?v=2.2.1", "js/audio-map.js?v=2.2.1", "js/store.js?v=2.2.1", "js/audio.js?v=2.2.1",
+  "js/speech.js?v=2.2.1", "js/mascot.js?v=2.2.1", "js/app.js?v=2.2.1", "js/shop.js?v=2.2.1", "js/parent.js?v=2.2.1", "js/boot.js?v=2.2.1",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/maskable-512.png"
 ];
 
 self.addEventListener("install", e=>{
-  e.waitUntil(caches.open(APP).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));
+  // cache:"reload" skips the browser's HTTP cache, so a new version never stores old files
+  e.waitUntil(caches.open(APP).then(c=>c.addAll(SHELL.map(u=>new Request(u, {cache:"reload"})))).then(()=>self.skipWaiting()));
 });
 self.addEventListener("activate", e=>{
   e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("sayit-app-") && k!==APP).map(k=>caches.delete(k))))
@@ -33,11 +34,25 @@ self.addEventListener("fetch", e=>{
   }
   if(url.origin !== location.origin) return;
   if(url.pathname.startsWith("/api/")) return; // transfer codes always go to the network
-  // app files: cache first, refresh in the background
+  // Opening the app: try the network first so a new version shows straight away,
+  // but fall back to the saved copy after 3 seconds or when offline.
+  if(e.request.mode === "navigate"){
+    e.respondWith(caches.open(APP).then(async c=>{
+      const saved = async ()=> (await c.match(e.request, {ignoreSearch:true})) || (await c.match("index.html")) || (await c.match("./"));
+      const net = fetch(e.request, {cache:"no-cache"}).then(r=>{ if(r.ok && r.type==="basic") c.put("index.html", r.clone()); return r; });
+      const timeout = new Promise(res=>setTimeout(res, 3000, null));
+      try{ const r = await Promise.race([net, timeout]); if(r && r.ok) return r; }catch(err){}
+      return (await saved()) || (await net.catch(()=>null)) || new Response("Offline", {status:503});
+    }));
+    return;
+  }
+  // other app files carry ?v=<version> in their address, so the saved copy is always the right one
   e.respondWith(caches.open(APP).then(async c=>{
-    const hit = await c.match(e.request, {ignoreSearch: e.request.mode==="navigate"}) || (e.request.mode==="navigate" ? await c.match("index.html") : null);
-    const net = fetch(e.request).then(r=>{ if(r.ok && r.type==="basic") c.put(e.request, r.clone()); return r; }).catch(()=>null);
-    return hit || (await net) || new Response("Offline", {status:503});
+    const hit = await c.match(e.request);
+    if(hit) return hit;
+    const r = await fetch(e.request).catch(()=>null);
+    if(r && r.ok && r.type==="basic") c.put(e.request, r.clone());
+    return r || new Response("Offline", {status:503});
   }));
 });
 

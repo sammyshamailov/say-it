@@ -528,7 +528,9 @@
     if(s.profiles.length > 1){ stack.push([who,[]]); return who(); }
     stack.push([map,[]]); map();
   }
-  window.Screens = { map, who, start, toMap, toMapFresh, LANDS };
+  // safe to reload for an update: not in a round, no sheet open, not in the parent area or first-run form
+  const calm = () => !R && !document.querySelector(".veil, .parent, .gate");
+  window.Screens = { map, who, start, toMap, toMapFresh, LANDS, calm };
   window.addEventListener("pointerdown", ()=>{ const s = st().settings; Sound.unlock(); Sound.music(s.sfx && s.music); }, {once:true});
   document.addEventListener("DOMContentLoaded", start); // after parent.js has loaded too
 })();
