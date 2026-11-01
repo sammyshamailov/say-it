@@ -1,12 +1,13 @@
 // Service worker: makes the app work offline after the first visit.
-const VERSION = "2.2.1";
+const VERSION = "2.3.0";
 const APP = "sayit-app-" + VERSION;
 const AUDIO = "sayit-audio";
+const PICS = "sayit-pictures"; // word pictures; their address carries ?p=<picture version>
 const SHELL = [
   "./", "index.html", "manifest.webmanifest",
-  "css/app.css?v=2.2.1", "fonts/fredoka.woff",
-  "js/words.js?v=2.2.1", "js/audio-map.js?v=2.2.1", "js/store.js?v=2.2.1", "js/audio.js?v=2.2.1",
-  "js/speech.js?v=2.2.1", "js/mascot.js?v=2.2.1", "js/app.js?v=2.2.1", "js/shop.js?v=2.2.1", "js/parent.js?v=2.2.1", "js/boot.js?v=2.2.1",
+  "css/app.css?v=2.3.0", "fonts/fredoka.woff",
+  "js/words.js?v=2.3.0", "js/audio-map.js?v=2.3.0", "js/store.js?v=2.3.0", "js/audio.js?v=2.3.0",
+  "js/speech.js?v=2.3.0", "js/mascot.js?v=2.3.0", "js/app.js?v=2.3.0", "js/shop.js?v=2.3.0", "js/parent.js?v=2.3.0", "js/boot.js?v=2.3.0",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/maskable-512.png"
 ];
 
@@ -33,7 +34,17 @@ self.addEventListener("fetch", e=>{
     return;
   }
   if(url.origin !== location.origin) return;
-  if(url.pathname.startsWith("/api/")) return; // transfer codes always go to the network
+  if(url.pathname.startsWith("/api/")) return;
+  if(url.pathname.includes("/img/words/")){
+    e.respondWith(caches.open(PICS).then(async c=>{
+      const hit = await c.match(e.request);
+      if(hit) return hit;
+      const r = await fetch(e.request).catch(()=>null);
+      if(r && r.ok && r.type==="basic") c.put(e.request, r.clone());
+      return r || new Response("", {status:503});
+    }));
+    return;
+  } // transfer codes always go to the network
   // Opening the app: try the network first so a new version shows straight away,
   // but fall back to the saved copy after 3 seconds or when offline.
   if(e.request.mode === "navigate"){
@@ -56,25 +67,31 @@ self.addEventListener("fetch", e=>{
   }));
 });
 
-// Download every word recording once, a few at a time, so words play offline.
-let caching = false;
+// Download every word recording and picture once, a few at a time, so words work offline.
+const busy = {};
 self.addEventListener("message", e=>{
-  if(!e.data || e.data.type !== "cache-audio" || caching) return;
-  caching = true;
-  const files = e.data.files || [];
+  const d = e.data || {};
+  const name = d.type === "cache-audio" ? AUDIO : d.type === "cache-pictures" ? PICS : null;
+  if(!name || busy[name]) return;
+  busy[name] = true;
+  const files = d.files || [];
   e.waitUntil((async ()=>{
-    const c = await caches.open(AUDIO);
+    const c = await caches.open(name);
+    if(name === PICS){ // forget pictures from an older picture version
+      const keep = new Set(files.map(f=>new URL(f, self.registration.scope).href));
+      for(const k of await c.keys()) if(!keep.has(k.url)) await c.delete(k);
+    }
     const todo = [];
     for(const f of files){ if(!(await c.match(f))) todo.push(f); }
     let i = 0;
     async function worker(){
       while(i < todo.length){
         const f = todo[i++];
-        try{ const r = await fetch(f, {mode:"cors"}); if(r.ok) await c.put(f, r); }catch(err){}
-        await new Promise(r=>setTimeout(r, 150));
+        try{ const r = await fetch(f, name === AUDIO ? {mode:"cors"} : {}); if(r.ok) await c.put(f, r); }catch(err){}
+        await new Promise(r=>setTimeout(r, name === AUDIO ? 150 : 30));
       }
     }
     await Promise.all([worker(), worker(), worker()]);
-    caching = false;
+    busy[name] = false;
   })());
 });

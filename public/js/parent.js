@@ -4,7 +4,7 @@
   const S = Store, st = () => S.state;
   const $ = sel => app.querySelector(sel);
   const { esc, pic, I } = window.UI;
-  const VERSION = "2.2.1";
+  const VERSION = "2.3.0";
   let installEvt = null;
   window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt = e; });
 
@@ -227,7 +227,7 @@
 
       <div class="panel"><h2>קרדיטים</h2>
         <p class="small">הקלטות המילים: תורמי <a href="https://en.wiktionary.org" target="_blank" rel="noopener">Wiktionary</a> ו־<a href="https://lingualibre.org" target="_blank" rel="noopener">Lingua Libre</a>, מתוך <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>, ברישיונות <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA</a>. מילים בלי הקלטה נאמרות בקול של המכשיר.</p>
-        <p class="small">גופן Fredoka ברישיון SIL Open Font License. תמונות: אמוג'י של המכשיר. גרסה <span class="en-ltr">${VERSION}</span>.</p>
+        <p class="small">גופן Fredoka ברישיון SIL Open Font License. תמונות: איורים שנוצרו במיוחד לאפליקציה. גרסה <span class="en-ltr">${VERSION}</span>.</p>
       </div>
     </div></div>`;
 

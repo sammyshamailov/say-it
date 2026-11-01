@@ -21,6 +21,10 @@ Live: https://say-it-words.netlify.app/
 | `public/index.html` | App shell |
 | `public/css/app.css` | "Toy Box Bright" design |
 | `public/js/words.js` | The 326 words: picture, Hebrew, accepted alternatives |
+| `public/img/words/` | One picture per word (see `assets/pictures/README.md`) |
+| `public/img/words-sprite.webp`, `.json` | All word pictures on one combined sheet, with positions |
+| `assets/pictures/` | Source sheets, full-size pictures and the prompts used to make them |
+| `tools/pictures/build.py` | Cuts the sheets into pictures and builds the combined sheet |
 | `public/js/audio-map.js` | Word → recording on Wikimedia Commons |
 | `public/js/store.js` | Progress, profiles, spaced repetition, migration from version 1 |
 | `public/js/audio.js` | Recordings, device voices, effects, music |

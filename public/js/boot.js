@@ -7,7 +7,9 @@ if("serviceWorker" in navigator){
   window.addEventListener("load", ()=>{
     navigator.serviceWorker.register("sw.js").then(reg=>{
       const files = [...new Set(Object.values(window.AUDIO_MAP||{}))].map(f=>Sound.mediaUrl(f));
-      const send = ()=>{ const w = reg.active || navigator.serviceWorker.controller; if(w) w.postMessage({type:"cache-audio", files}); };
+      const pictures = (window.UI && UI.allPictureUrls) ? UI.allPictureUrls() : [];
+      const send = ()=>{ const w = reg.active || navigator.serviceWorker.controller;
+        if(w){ w.postMessage({type:"cache-pictures", files:pictures}); w.postMessage({type:"cache-audio", files}); } };
       if(reg.active) send(); else navigator.serviceWorker.ready.then(send);
 
       // An installed app that comes back from the background isn't reloaded by the phone,

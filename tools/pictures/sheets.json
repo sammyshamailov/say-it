@@ -1,0 +1,560 @@
+[
+ {
+  "sheet": "farm.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "farm-cow",
+   "farm-pig",
+   "farm-sheep",
+   "farm-horse",
+   "farm-chicken",
+   "farm-rooster",
+   "farm-duck",
+   "farm-goat",
+   "farm-donkey",
+   "farm-turkey"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "pets.webp",
+  "cols": 3,
+  "rows": 3,
+  "pictures": [
+   "pets-dog",
+   "pets-puppy",
+   "pets-cat",
+   "pets-kitten",
+   "pets-rabbit",
+   "pets-hamster",
+   "pets-mouse",
+   "pets-goldfish"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "wild-1.webp",
+  "cols": 3,
+  "rows": 3,
+  "pictures": [
+   "wild-lion",
+   "wild-tiger",
+   "wild-elephant",
+   "wild-monkey",
+   "wild-giraffe",
+   "wild-zebra",
+   "wild-bear",
+   "wild-panda",
+   "wild-koala"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "wild-2.webp",
+  "cols": 3,
+  "rows": 3,
+  "pictures": [
+   "wild-fox",
+   "wild-wolf",
+   "wild-deer",
+   "wild-snake",
+   "wild-crocodile",
+   "wild-hippo",
+   "wild-kangaroo",
+   "wild-camel",
+   "wild-dinosaur"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "sea.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "sea-fish",
+   "sea-whale",
+   "sea-dolphin",
+   "sea-shark",
+   "sea-octopus",
+   "sea-crab",
+   "sea-turtle",
+   "sea-seal",
+   "sea-jellyfish",
+   "sea-shrimp",
+   "sea-lobster",
+   "sea-shell"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "bugs.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "bugs-bee",
+   "bugs-ant",
+   "bugs-butterfly",
+   "bugs-ladybug",
+   "bugs-spider",
+   "bugs-snail",
+   "bugs-worm",
+   "bugs-caterpillar",
+   "bugs-fly",
+   "bugs-beetle"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "fruits.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "fruits-apple",
+   "fruits-banana",
+   "fruits-grapes",
+   "fruits-orange",
+   "fruits-strawberry",
+   "fruits-watermelon",
+   "fruits-pear",
+   "fruits-cherry",
+   "fruits-lemon",
+   "fruits-pineapple",
+   "fruits-peach",
+   "fruits-kiwi",
+   "fruits-mango",
+   "fruits-coconut",
+   "fruits-blueberry",
+   "fruits-avocado"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "veg.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "veg-carrot",
+   "veg-tomato",
+   "veg-potato",
+   "veg-cucumber",
+   "veg-corn",
+   "veg-broccoli",
+   "veg-onion",
+   "veg-garlic",
+   "veg-pepper",
+   "veg-mushroom",
+   "veg-lettuce",
+   "veg-eggplant"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "meals.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "meals-bread",
+   "meals-cheese",
+   "meals-egg",
+   "meals-pizza",
+   "meals-sandwich",
+   "meals-soup",
+   "meals-rice",
+   "meals-pasta",
+   "meals-salad",
+   "meals-hamburger",
+   "meals-fries",
+   "meals-hot-dog",
+   "meals-pancakes",
+   "meals-falafel",
+   "meals-cereal"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "sweets.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "sweets-cake",
+   "sweets-ice-cream",
+   "sweets-cookie",
+   "sweets-chocolate",
+   "sweets-candy",
+   "sweets-lollipop",
+   "sweets-donut",
+   "sweets-cupcake",
+   "sweets-popcorn",
+   "sweets-honey"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "drinks.webp",
+  "cols": 3,
+  "rows": 2,
+  "pictures": [
+   "drinks-milk",
+   "drinks-juice",
+   "drinks-water",
+   "drinks-tea",
+   "drinks-coffee",
+   "drinks-soda"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "family.webp",
+  "cols": 3,
+  "rows": 3,
+  "pictures": [
+   "family-mom",
+   "family-dad",
+   "family-baby",
+   "family-boy",
+   "family-girl",
+   "family-grandma",
+   "family-grandpa",
+   "family-family"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "body.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "body-hand",
+   "body-foot",
+   "body-eye",
+   "body-ear",
+   "body-nose",
+   "body-mouth",
+   "body-tooth",
+   "body-leg",
+   "body-arm",
+   "body-finger",
+   "body-tongue",
+   "body-brain"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "feelings-boy.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "feelings-happy-boy",
+   "feelings-sad-boy",
+   "feelings-angry-boy",
+   "feelings-scared-boy",
+   "feelings-sleepy-boy",
+   "feelings-sick-boy",
+   "feelings-surprised-boy",
+   "feelings-silly-boy",
+   "feelings-love-boy",
+   "feelings-yummy-boy"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "feelings-girl.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "feelings-happy-girl",
+   "feelings-sad-girl",
+   "feelings-angry-girl",
+   "feelings-scared-girl",
+   "feelings-sleepy-girl",
+   "feelings-sick-girl",
+   "feelings-surprised-girl",
+   "feelings-silly-girl",
+   "feelings-love-girl",
+   "feelings-yummy-girl"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "clothes.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "clothes-shirt",
+   "clothes-hat",
+   "clothes-shoe",
+   "clothes-sock",
+   "clothes-dress",
+   "clothes-coat",
+   "clothes-glasses",
+   "clothes-pants",
+   "clothes-boot",
+   "clothes-gloves",
+   "clothes-scarf",
+   "clothes-crown"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "shapes.webp",
+  "cols": 3,
+  "rows": 2,
+  "pictures": [
+   "shapes-circle",
+   "shapes-square",
+   "shapes-triangle",
+   "shapes-heart",
+   "shapes-star",
+   "shapes-diamond"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "weather.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "weather-sunny",
+   "weather-rain",
+   "weather-snow",
+   "weather-cloud",
+   "weather-rainbow",
+   "weather-wind",
+   "weather-storm",
+   "weather-lightning",
+   "weather-hot",
+   "weather-cold",
+   "weather-umbrella"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "nature.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "nature-sun",
+   "nature-moon",
+   "nature-star",
+   "nature-tree",
+   "nature-flower",
+   "nature-leaf",
+   "nature-plant",
+   "nature-cactus",
+   "nature-rock",
+   "nature-mountain",
+   "nature-sea",
+   "nature-fire",
+   "nature-earth",
+   "nature-volcano"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "places.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "places-house",
+   "places-school",
+   "places-hospital",
+   "places-shop",
+   "places-castle",
+   "places-tent",
+   "places-beach",
+   "places-park",
+   "places-playground",
+   "places-city",
+   "places-bridge"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "vehicles.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "vehicles-car",
+   "vehicles-bus",
+   "vehicles-train",
+   "vehicles-airplane",
+   "vehicles-boat",
+   "vehicles-bike",
+   "vehicles-truck",
+   "vehicles-rocket",
+   "vehicles-helicopter",
+   "vehicles-tractor",
+   "vehicles-taxi",
+   "vehicles-ambulance",
+   "vehicles-fire-truck",
+   "vehicles-police-car",
+   "vehicles-motorcycle",
+   "vehicles-scooter"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "school.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "school-book",
+   "school-pencil",
+   "school-crayon",
+   "school-pen",
+   "school-scissors",
+   "school-ruler",
+   "school-paint",
+   "school-notebook",
+   "school-bag",
+   "school-computer"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "toys.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "toys-ball",
+   "toys-teddy-bear",
+   "toys-kite",
+   "toys-balloon",
+   "toys-drum",
+   "toys-guitar",
+   "toys-robot",
+   "toys-puzzle",
+   "toys-skateboard",
+   "toys-yo-yo",
+   "toys-doll",
+   "toys-gift"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "home.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "home-bed",
+   "home-chair",
+   "home-sofa",
+   "home-door",
+   "home-window",
+   "home-light",
+   "home-clock",
+   "home-phone",
+   "home-tv",
+   "home-bath",
+   "home-toilet",
+   "home-toothbrush",
+   "home-soap",
+   "home-key",
+   "home-mirror",
+   "home-candle"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "jobs.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "jobs-doctor",
+   "jobs-firefighter",
+   "jobs-police-officer",
+   "jobs-farmer",
+   "jobs-chef",
+   "jobs-teacher",
+   "jobs-pilot",
+   "jobs-astronaut",
+   "jobs-artist",
+   "jobs-builder"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "actions-girl.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "actions-run-girl",
+   "actions-walk-girl",
+   "actions-swim-girl",
+   "actions-climb-girl",
+   "actions-ride-girl",
+   "actions-dance-girl",
+   "actions-sleep-girl",
+   "actions-eat-girl",
+   "actions-drink-girl",
+   "actions-sing-girl",
+   "actions-read-girl",
+   "actions-write-girl",
+   "actions-clap-girl",
+   "actions-wave-girl",
+   "actions-cry-girl",
+   "actions-laugh-girl"
+  ],
+  "separate_people": true
+ },
+ {
+  "sheet": "actions-boy.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "actions-run-boy",
+   "actions-walk-boy",
+   "actions-swim-boy",
+   "actions-climb-boy",
+   "actions-ride-boy",
+   "actions-dance-boy",
+   "actions-sleep-boy",
+   "actions-eat-boy",
+   "actions-drink-boy",
+   "actions-sing-boy",
+   "actions-read-boy",
+   "actions-write-boy",
+   "actions-clap-boy",
+   "actions-wave-boy",
+   "actions-cry-boy",
+   "actions-laugh-boy"
+  ],
+  "separate_people": true
+ },
+ {
+  "sheet": "kitchen.webp",
+  "cols": 3,
+  "rows": 3,
+  "pictures": [
+   "kitchen-spoon",
+   "kitchen-fork",
+   "kitchen-plate",
+   "kitchen-pan",
+   "kitchen-teapot",
+   "kitchen-jar",
+   "kitchen-salt",
+   "kitchen-bottle",
+   "kitchen-ice"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "birds.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "birds-bird",
+   "birds-owl",
+   "birds-parrot",
+   "birds-eagle",
+   "birds-swan",
+   "birds-flamingo",
+   "birds-peacock",
+   "birds-penguin",
+   "birds-chick",
+   "birds-dove"
+  ],
+  "separate_people": false
+ }
+]

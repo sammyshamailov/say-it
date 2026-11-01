@@ -27,7 +27,27 @@
   };
   window.ICONS = I;
   const esc = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  // Word pictures: "img:<id>" -> public/img/words/<id>.webp. Feelings and actions come in a
+  // boy and a girl version; the player's profile picks one. Bump PIC_V when pictures are rebuilt.
+  const PIC_V = 1;
+  const picUrl = id => `img/words/${id}.webp?p=${PIC_V}`;
+  const GENDERED = /^(feelings|actions)-/;
+  function picId(p){
+    let id = p.slice(4);
+    if(GENDERED.test(id)){ const pl = S.player(); id += (pl && pl.gender==="f") ? "-girl" : "-boy"; }
+    return id;
+  }
+  function allPictureUrls(){
+    const ids = new Set();
+    for(const g of WORDS){ for(const s of g.subs){ for(const w of s.w){ const p = w[1];
+      if(!p.startsWith("img:")) continue;
+      const id = p.slice(4);
+      if(GENDERED.test(id)){ ids.add(id+"-boy"); ids.add(id+"-girl"); } else ids.add(id);
+    }}}
+    return [...ids].map(picUrl);
+  }
   function pic(p){
+    if(p.startsWith("img:")) return `<img class="wp" src="${picUrl(picId(p))}" alt="" draggable="false" decoding="async">`;
     if(p.startsWith("color:")) return `<span class="color-blob" style="background:${p.slice(6)}"></span>`;
     if(p.startsWith("num:")) return `<span class="num">${p.slice(4)}</span>`;
     if(p.includes("+")) return `<span class="duo">${p.split("+").map(x=>`<span>${x}</span>`).join("")}</span>`;
@@ -36,7 +56,7 @@
   const heFor = (w, p) => { const [m,f] = w.he.split("|"); return (p && p.gender==="f" && f) ? f : m; };
   const wait = ms => new Promise(r=>setTimeout(r, ms));
   const $ = sel => app.querySelector(sel);
-  window.UI = { esc, pic, I, heFor, starsPill };
+  window.UI = { esc, pic, I, heFor, starsPill, allPictureUrls };
 
   const LANDS = {
     animals:{en:"Animal Jungle", he:"ג'ונגל החיות", c:"mint"},
