@@ -556,5 +556,355 @@
    "birds-dove"
   ],
   "separate_people": false
+ },
+ {
+  "sheet": "wild-3.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "wild-gorilla",
+   "wild-rhino",
+   "wild-leopard",
+   "wild-cheetah",
+   "wild-polar-bear",
+   "wild-hyena",
+   "wild-sloth",
+   "wild-otter",
+   "wild-raccoon",
+   "wild-skunk"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "small-animals.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "wild-frog",
+   "wild-bat",
+   "wild-squirrel",
+   "wild-hedgehog",
+   "wild-lizard",
+   "pets-guinea-pig",
+   "farm-goose",
+   "farm-lamb",
+   "farm-calf",
+   "farm-pony",
+   "farm-llama"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "birds-2.webp",
+  "cols": 4,
+  "rows": 2,
+  "pictures": [
+   "birds-toucan",
+   "birds-crow",
+   "birds-stork",
+   "birds-seagull",
+   "birds-ostrich",
+   "birds-hoopoe",
+   "birds-woodpecker",
+   "birds-hummingbird"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "sea-2.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "sea-starfish",
+   "sea-seahorse",
+   "sea-clownfish",
+   "sea-squid",
+   "sea-stingray",
+   "sea-walrus",
+   "sea-coral",
+   "bugs-cockroach",
+   "bugs-mosquito",
+   "bugs-grasshopper",
+   "bugs-dragonfly",
+   "bugs-scorpion"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "dinos.webp",
+  "cols": 3,
+  "rows": 2,
+  "pictures": [
+   "dinos-t-rex",
+   "dinos-triceratops",
+   "dinos-stegosaurus",
+   "dinos-brontosaurus",
+   "dinos-pterodactyl"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "fruits-2.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "fruits-melon",
+   "fruits-papaya",
+   "fruits-lime",
+   "fruits-guava",
+   "fruits-plum",
+   "fruits-apricot",
+   "fruits-fig",
+   "fruits-date",
+   "fruits-olive",
+   "fruits-grapefruit",
+   "fruits-tangerine",
+   "fruits-pomegranate"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "fruits-3.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "fruits-raspberry",
+   "fruits-passion-fruit",
+   "fruits-persimmon",
+   "veg-chili",
+   "veg-pumpkin",
+   "veg-peas",
+   "veg-zucchini",
+   "veg-cabbage",
+   "veg-beans",
+   "veg-celery",
+   "veg-sweet-potato",
+   "veg-beet"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "veg-3.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "veg-cauliflower",
+   "veg-radish",
+   "veg-spinach",
+   "veg-asparagus",
+   "meals-hummus",
+   "meals-pita",
+   "meals-schnitzel",
+   "meals-yogurt",
+   "meals-butter",
+   "meals-jam"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "clothes-2.webp",
+  "cols": 3,
+  "rows": 3,
+  "pictures": [
+   "accessories-earrings",
+   "accessories-hair-bow",
+   "clothes-pajamas",
+   "clothes-sweater",
+   "clothes-shorts",
+   "clothes-sandals",
+   "clothes-skirt",
+   "clothes-swimsuit",
+   "clothes-slippers"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "accessories.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "accessories-cap",
+   "accessories-mask",
+   "accessories-sunglasses",
+   "accessories-watch",
+   "accessories-ring",
+   "accessories-belt",
+   "accessories-tie",
+   "accessories-helmet",
+   "accessories-wallet",
+   "accessories-purse",
+   "accessories-necklace",
+   "accessories-bracelet"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "body-2.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "body-head",
+   "body-hair",
+   "body-face",
+   "body-tummy",
+   "body-knee",
+   "body-toes",
+   "body-neck",
+   "body-shoulder",
+   "body-elbow",
+   "body-cheek"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "family-2.webp",
+  "cols": 3,
+  "rows": 2,
+  "pictures": [
+   "family-brother",
+   "family-sister",
+   "family-friend",
+   "family-uncle",
+   "family-aunt"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "home-2.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "home-table",
+   "home-pillow",
+   "home-blanket",
+   "home-towel",
+   "home-shower",
+   "home-fridge",
+   "home-oven",
+   "home-stairs",
+   "home-brush",
+   "home-comb",
+   "toys-blocks",
+   "toys-bubbles"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "kitchen-2.webp",
+  "cols": 3,
+  "rows": 3,
+  "pictures": [
+   "kitchen-cup",
+   "kitchen-bowl",
+   "kitchen-knife",
+   "kitchen-pot",
+   "kitchen-napkin",
+   "toys-swing",
+   "toys-spinning-top",
+   "toys-puppet",
+   "toys-jump-rope"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "places-2.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "places-supermarket",
+   "places-zoo",
+   "places-farm",
+   "places-pool",
+   "places-garden",
+   "places-restaurant",
+   "places-library",
+   "places-airport",
+   "vehicles-submarine",
+   "vehicles-hot-air-balloon"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "nature-2.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "nature-sand",
+   "nature-grass",
+   "nature-river",
+   "nature-lake",
+   "nature-forest",
+   "nature-desert",
+   "nature-island",
+   "nature-cave",
+   "nature-waterfall",
+   "shapes-oval",
+   "shapes-rectangle",
+   "shapes-crescent"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "who.webp",
+  "cols": 4,
+  "rows": 2,
+  "pictures": [
+   "who-i-boy",
+   "who-i-girl",
+   "who-you-boy",
+   "who-you-girl",
+   "who-we",
+   "who-they",
+   "who-he",
+   "who-she"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "opposites-1.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "opp-big",
+   "opp-small",
+   "opp-up",
+   "opp-down",
+   "opp-open",
+   "opp-closed",
+   "opp-fast",
+   "opp-slow",
+   "opp-full",
+   "opp-empty",
+   "opp-wet",
+   "opp-dry"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "opposites-2.webp",
+  "cols": 3,
+  "rows": 2,
+  "pictures": [
+   "opp-day",
+   "opp-night",
+   "opp-long",
+   "opp-short",
+   "opp-clean",
+   "opp-dirty"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "positions.webp",
+  "cols": 3,
+  "rows": 2,
+  "pictures": [
+   "pos-in",
+   "pos-on",
+   "pos-under",
+   "pos-next-to",
+   "pos-behind"
+  ],
+  "separate_people": false
  }
 ]

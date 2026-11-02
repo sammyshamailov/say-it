@@ -4,13 +4,13 @@
 // VERSION and SHELL are written by `npm run release <version>` (tools/release.mjs). A new VERSION
 // makes the browser install this worker again, which saves the new app files in a new cache;
 // the page then reloads into it at a calm moment (see js/pwa.js).
-const VERSION = "2.4.0";
+const VERSION = "2.5.0";
 // shell:start
 const SHELL = [
   "./",
   "index.html",
   "manifest.webmanifest",
-  "css/app.css?v=2.4.0",
+  "css/app.css?v=2.5.0",
   "fonts/fredoka.woff",
   "js/core/dom.js",
   "js/core/emitter.js",
@@ -21,8 +21,9 @@ const SHELL = [
   "js/data/index.js",
   "js/data/lands.js",
   "js/data/outfits.js",
+  "js/data/stages.js",
   "js/data/words.js",
-  "js/main.js?v=2.4.0",
+  "js/main.js?v=2.5.0",
   "js/parent/dashboard.js",
   "js/parent/gate.js",
   "js/parent/mic-explain.js",
@@ -38,7 +39,6 @@ const SHELL = [
   "js/round/steps/say.js",
   "js/round/steps/tap.js",
   "js/screens/garden.js",
-  "js/screens/land.js",
   "js/screens/map.js",
   "js/screens/start.js",
   "js/screens/stickers.js",
@@ -63,7 +63,7 @@ const SHELL = [
 
 const APP = "sayit-app-" + VERSION;
 const AUDIO = "sayit-audio";
-const PICS = "sayit-pictures"; // word pictures; their address carries ?p=<picture version>
+const PICS = "sayit-pictures"; // word and map pictures; their address carries ?p= / ?m= <picture version>
 
 self.addEventListener("install", e => {
   // cache:"reload" skips the browser's HTTP cache, so a new version never stores old files
@@ -101,7 +101,7 @@ self.addEventListener("fetch", e => {
   if (url.origin !== location.origin) return;
   if (url.pathname.startsWith("/api/")) return; // transfer codes always go to the network
 
-  if (url.pathname.includes("/img/words/")) {
+  if (url.pathname.includes("/img/words/") || url.pathname.includes("/img/map/")) {
     e.respondWith(cacheFirst(PICS, req));
     return;
   }

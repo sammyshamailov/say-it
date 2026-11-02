@@ -6,7 +6,8 @@ Live: https://say-it-words.netlify.app/
 
 ## How it plays
 
-- **Map**: six lands (Animal Jungle, Yummy Town, Me and Friends, Toy House, Adventure Road, Learning Castle). Each land has stepping stones, one per word group. Finishing stones opens the next land.
+- **Map**: one long trail through six photographed lands (Animal Jungle, Yummy Town, Me and Friends, Toy House, Adventure Road, Learning Castle), about 130 stones, easy at the bottom and hard at the top. Each stone holds 4–7 words of one group; after each tier of a land comes a treasure chest (review round) and every land ends with a party stone. The glowing stone, with the mascot beside it, is what Play starts; any open stone can be tapped. Little things (a zebra, a fruit stall, a sailboat…) appear in a land as it's played. A land with many stones repeats its photo, mirrored, above itself.
+- **Difficulty**: every word has a tier from 1 to 5 (Seed, Sprout, Explorer, Doer, Talker), from how hard it is for a Hebrew-speaking 4-year-old who can't read: can it be pictured, how early English children learn it, sounds Hebrew lacks, look-alike words, and a bonus for words Hebrew already uses (banana, pizza, giraffe). Every land has all tiers. A tier opens across the whole map when 70% of the stones of the tier below are done. Listen & tap shows 2 pictures in tier 1, 3 in tier 2 and 4 from tier 3; words a child mixes up (puppy/dog, lemon/lime) never meet below tier 3, and from tier 3 one may be the wrong answer on purpose.
 - **A round (3–5 minutes)**: meet new words → Listen & tap → Say it → a bonus game (Pop the bubbles or Memory match) → Well done, with stars and a sticker.
 - **Say it**: on Android Chrome the browser's speech recognition checks the word and gives a bonus star. Everywhere else, and after one unheard try, "Echo" records the child, plays their voice back, then the model word. Every real attempt earns a star.
 - **Spaced repetition**: each word has a level per child; a miss lowers it and brings the word back in the same round and later rounds.
@@ -22,16 +23,18 @@ Live: https://say-it-words.netlify.app/
 | `public/css/app.css` | "Toy Box Bright" design |
 | `public/sw.js` | Offline support: opens instantly from the phone, saves pictures and recordings |
 | `public/img/words/` | One picture per word (see `assets/pictures/README.md`) |
+| `public/img/map/` | Land photos, stepping stones, chests and world stickers (made by `tools/pictures/build_map.py` from `assets/map/`) |
 | `public/js/main.js` | Entry point: registers every screen and starts the app |
 | `public/js/core/` | Building blocks with no app knowledge: safe `html` templates, router (screens + back button), sheets (pop-ups), events |
-| `public/js/data/` | The 326 words (`words.js`), word → recording on Wikimedia Commons (`audio-map.js`), lands, hats |
+| `public/js/data/` | The 484 words with their tiers (`words.js`), the map's stones and look-alike pairs (`stages.js`), lands with their photos and trails (`lands.js`), word → recording on Wikimedia Commons (`audio-map.js`), hats |
 | `public/js/services/` | Progress and spaced repetition (`store.js`), sound, speech, shop rules |
 | `public/js/ui/` | Icons, word pictures, the chameleon mascot, shared components (word card, stars pill, buttons) |
-| `public/js/screens/` | Map, land, who's playing, sticker book, garden and shop |
+| `public/js/screens/` | Map, who's playing, sticker book, garden and shop |
 | `public/js/round/` | A round: `round.js` runs the steps; `steps/` has one file per step (meet, tap, say, pop, memory, finish) |
 | `public/js/parent/` | Parent gate, parent area, first run, transfer codes and backups, microphone explanation |
 | `assets/pictures/` | Source sheets, full-size pictures and the prompts used to make them (not deployed) |
 | `tools/pictures/build.py` | Cuts the sheets into pictures |
+| `tools/pictures/build_map.py` | Makes the map pictures |
 | `tools/release.mjs` | Sets the version and refreshes the file lists (`npm run release`) |
 | `netlify/functions/transfer.mjs` | Transfer codes: move progress to another phone |
 | `netlify/functions/transfer-cleanup.mjs` | Daily sweep of unused codes |
@@ -40,7 +43,7 @@ Live: https://say-it-words.netlify.app/
 
 ### How the code fits together
 
-- Every screen is a function registered by name in `main.js`; screens move with `nav.go("land", 2)`, `nav.back()`, `nav.reset("map")`. The Android back button closes an open sheet first, then goes back a screen.
+- Every screen is a function registered by name in `main.js`; screens move with `nav.go("stickers")`, `nav.back()`, `nav.reset("map")`. The Android back button closes an open sheet first, then goes back a screen.
 - Markup is written with the `html` tag from `core/html.js`. It escapes every value, so names and anything restored from a backup or transfer code can't become HTML. Trusted markup (icons, other templates) passes through as is.
 - A round step is a function `(ctx, step)`. `ctx` gives it the player, `frame()` to draw the step, `next()`, `award(stars)`, `requeue(word)` and `alive()`, which turns false the moment the child leaves; a step stops when it does. Timers and recordings registered with `ctx.round.onCleanup()` are stopped for it. To add a mini-game: write `round/steps/<name>.js`, add it to `STEPS` in `round/round.js`, and put it in the round's plan there.
 - The store announces star changes (`store.on("stars", …)`), and every stars pill on screen updates itself.
@@ -59,7 +62,7 @@ Installed apps update themselves: the app opens straight from the phone without 
 
 ## Saved data
 
-Stored in the browser's localStorage under `sayit2`. On first launch it imports profiles and stars from version 1 (`sayit-players`, `sayit-got-*`) and leaves those keys untouched.
+Stored in the browser's localStorage under `sayit2`. On first launch it imports profiles and stars from version 1 (`sayit-players`, `sayit-got-*`) and leaves those keys untouched. Saves from before 2.5 (the big map) are upgraded once: a stone counts as done when its word group was finished before and the child had met one of its words, and the three words that moved group (dinosaur, glasses, crown) keep their progress and garden pets.
 
 ## Moving to another phone
 

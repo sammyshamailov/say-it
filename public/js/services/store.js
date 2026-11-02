@@ -1,10 +1,13 @@
 // Progress lives on this device only (localStorage). Nothing is sent anywhere.
 // createStore() takes its storage and clock as arguments, so tests run it in Node with fakes.
-import { WORDS, WORD } from "../data/index.js";
+import { WORD } from "../data/index.js";
+import { STAGES, LAND_STAGES, MAX_TIER, confusable } from "../data/stages.js";
 import { OUTFITS } from "../data/outfits.js";
 import { Emitter } from "../core/emitter.js";
 
 export const KEY = "sayit2";
+// words that moved to another group in 2.5 (old key -> new key)
+const MOVED = { "wild/dinosaur": "dinos/dinosaur", "clothes/glasses": "accessories/glasses", "clothes/crown": "accessories/crown" };
 const DAY = 864e5;
 const DUE = [0, 10 * 60e3, DAY, 3 * DAY, 7 * DAY, 21 * DAY]; // wait after reaching each level
 
@@ -30,13 +33,29 @@ export function createStore({ storage, now = Date.now } = {}) {
   function newProfile(name, avatar, gender) {
     return { id: "k" + now().toString(36) + Math.random().toString(36).slice(2, 6), name: name || "", avatar: avatar || "🦁",
       gender: gender === "f" ? "f" : "m", stars: 0, spent: 0, owned: [], outfit: null, stickers: [], words: {}, done: {},
-      playMs: 0, rounds: 0, lastPlayed: 0 };
+      stages: {}, mapV: 3, playMs: 0, rounds: 0, lastPlayed: 0 };
   }
 
   // Players from before the shop keep every hat they had already unlocked.
+  // Players from before the big map (2.5) keep their words and see their finished stones done.
   function upgradeProfile(p) {
     if (!Array.isArray(p.owned)) p.owned = OUTFITS.filter(o => (p.stars || 0) >= o.stars).map(o => "hat:" + o.id);
     if (typeof p.spent !== "number") p.spent = 0;
+    if (!p.done) p.done = {};
+    if (!p.stages) p.stages = {};
+    if ((p.mapV || 0) < 3) {
+      const oldSub = {}; // word key -> the group it was in before 2.5
+      for (const [from, to] of Object.entries(MOVED)) {
+        if (p.words[from] && !p.words[to]) p.words[to] = p.words[from];
+        delete p.words[from];
+        p.owned = p.owned.map(id => (id === "pet:" + from ? "pet:" + to : id));
+        oldSub[to] = from.split("/")[0];
+      }
+      // a stone is done if the child finished its group before and met one of its words
+      for (const st of STAGES) if (st.kind === "word" &&
+        st.keys.some(k => p.words[k] && p.done[oldSub[k] || WORD[k].sub.id])) p.stages[st.id] = true;
+      p.mapV = 3;
+    }
     return p;
   }
 
@@ -93,6 +112,7 @@ export function createStore({ storage, now = Date.now } = {}) {
     d.profiles = d.profiles.map(p => {
       const base = newProfile(p.name, p.avatar, p.gender);
       delete base.owned; // an older save without a shop gets its hats from upgradeProfile
+      delete base.mapV; delete base.stages; // and one from before the big map its stones
       return upgradeProfile(Object.assign(base, p));
     });
     if (!d.profiles.some(p => p.id === d.lastId)) d.lastId = d.profiles[0] ? d.profiles[0].id : null;
@@ -142,51 +162,69 @@ export function createStore({ storage, now = Date.now } = {}) {
   }
 
   // ---- map progression ----
-  const subStarted = (p, s) => s.keys.some(k => p.words[k]);
-  const subDone = (p, s) => !!p.done[s.id];
-  const subCrown = (p, s) => s.keys.every(k => learned(p, k));
-  const subProgress = (p, s) => s.keys.filter(k => p.words[k]).length / s.keys.length;
-  function landUnlocked(p, gi) {
-    if (state.settings.unlockAll || gi === 0) return true;
-    const g = WORDS[gi], prev = WORDS[gi - 1];
-    if (g.subs.some(s => subStarted(p, s) || subDone(p, s))) return true;
-    return prev.subs.filter(s => subDone(p, s)).length >= 2 && landUnlocked(p, gi - 1);
+  // A tier opens across the whole map once most stones of the tier below are done; inside an open
+  // tier every stone can be played. A chest opens when the stones of its tier in its land are
+  // done, the party stone when most of the land is.
+  const OPEN_SHARE = 0.7;
+  const wordStones = STAGES.filter(st => st.kind === "word");
+  const stageDone = (p, st) => !!p.stages[st.id];
+  const stageStarted = (p, st) => st.kind === "word" && st.keys.some(k => p.words[k]);
+  const stageProgress = (p, st) => st.keys.filter(k => p.words[k]).length / st.keys.length;
+  const stageCrown = (p, st) => st.keys.every(k => learned(p, k));
+  function tierOpen(p, t) {
+    if (t <= 1 || state.settings.unlockAll) return true;
+    const below = wordStones.filter(st => st.tier === t - 1);
+    if (below.filter(st => stageDone(p, st)).length >= OPEN_SHARE * below.length && tierOpen(p, t - 1)) return true;
+    return wordStones.some(st => st.tier === t && (stageDone(p, st) || stageStarted(p, st)));
   }
-  function subUnlocked(p, s) {
-    if (!landUnlocked(p, WORDS.indexOf(s.group))) return false;
-    if (state.settings.unlockAll) return true;
-    const i = s.group.subs.indexOf(s);
-    return i === 0 || subDone(p, s) || subStarted(p, s) || subDone(p, s.group.subs[i - 1]);
+  function stageOpen(p, st) {
+    if (state.settings.unlockAll || stageDone(p, st)) return true;
+    const land = LAND_STAGES[st.land];
+    if (st.kind === "word") return tierOpen(p, st.tier);
+    if (st.kind === "chest") return land.filter(x => x.kind === "word" && x.tier === st.tier).every(x => stageDone(p, x));
+    const words = land.filter(x => x.kind === "word");
+    return words.filter(x => stageDone(p, x)).length >= OPEN_SHARE * words.length;
   }
-  function nextSub(p) {
-    for (const g of WORDS) for (const s of g.subs) if (subUnlocked(p, s) && !subDone(p, s)) return s;
-    // everything open is done: the stone with the most words due
+  // The stone the map glows on and the Play button starts: the easiest open stone not done yet,
+  // land by land; then the open stone with the most words due for review.
+  function nextStage(p) {
+    for (let t = 1; t <= MAX_TIER; t++) for (const land of LAND_STAGES)
+      for (const st of land) if (st.tier === t && st.kind !== "party" && !stageDone(p, st) && stageOpen(p, st)) return st;
+    for (const st of STAGES) if (st.kind === "party" && !stageDone(p, st) && stageOpen(p, st)) return st;
     let best = null, bestN = -1;
-    for (const g of WORDS) for (const s of g.subs) {
-      if (!subUnlocked(p, s)) continue;
-      const n = dueKeys(p, s.keys).length;
-      if (n > bestN) { best = s; bestN = n; }
+    for (const st of STAGES) {
+      if (!stageOpen(p, st)) continue;
+      const n = dueKeys(p, st.keys).length;
+      if (n > bestN) { best = st; bestN = n; }
     }
-    return best || WORDS[0].subs[0];
+    return best || STAGES[0];
   }
-  const currentLand = p => WORDS.indexOf(nextSub(p).group);
+  const landDone = (p, gi) => LAND_STAGES[gi].filter(st => stageDone(p, st)).length / LAND_STAGES[gi].length;
 
   // ---- build one round for a stone ----
-  function buildRound(p, s) {
-    const fresh = s.keys.filter(k => !p.words[k]).slice(0, 3);
-    const pool = [];
-    WORDS.forEach(g => g.subs.forEach(x => { if (subUnlocked(p, x)) pool.push(...x.keys); }));
-    const review = [];
-    for (const k of [...dueKeys(p, s.keys), ...dueKeys(p, pool)])
-      if (!fresh.includes(k) && !review.includes(k) && review.length < 6 - fresh.length) review.push(k);
-    const words = [...fresh, ...review];
-    if (words.length < 4) for (const k of shuffle(s.keys)) if (!words.includes(k) && words.length < 5) words.push(k);
-    return { sub: s, fresh, words };
+  // Word stone: up to 3 new words, then words due for review (its own first). Below tier 3 a round
+  // never holds two words a child mixes up. Chest and party stones: review only.
+  function buildRound(p, st) {
+    const easy = st.tier < 3;
+    const clash = (k, list) => easy && list.some(x => confusable(k, x));
+    const fresh = [];
+    if (st.kind === "word") for (const k of st.keys) if (!p.words[k] && fresh.length < 3 && !clash(k, fresh)) fresh.push(k);
+    const open = [];
+    for (const x of STAGES) if (x.kind === "word" && (stageDone(p, x) || stageOpen(p, x))) open.push(...x.keys);
+    const met = st.keys.filter(k => p.words[k]);
+    const words = [...fresh];
+    const add = (k, max) => { if (words.length < max && !words.includes(k) && !clash(k, words)) words.push(k); };
+    for (const k of [...dueKeys(p, st.keys), ...dueKeys(p, open)]) add(k, 6);
+    if (words.length < 4) for (const k of shuffle(met)) add(k, 5);
+    if (words.length < 4) for (const k of shuffle(st.keys)) add(k, 5);
+    return { sub: st, fresh, words };
   }
 
-  // A finished round: the stone is done, a sticker is earned.
-  function finishRound(p, sub, sticker, playedMs) {
-    p.done[sub.id] = true; p.rounds++; p.lastPlayed = now();
+  // A finished round earns a sticker. A word stone is done once all its words were met (a stone of
+  // 5-6 words takes one or two rounds); a chest or party stone after one round.
+  function finishRound(p, st, sticker, playedMs) {
+    if (st.kind !== "word" || st.keys.every(k => p.words[k])) p.stages[st.id] = true;
+    p.rounds++; p.lastPlayed = now();
     p.stickers.push({ pic: sticker.pic, en: sticker.en, at: now() });
     p.playMs += playedMs;
     save(true);
@@ -211,7 +249,7 @@ export function createStore({ storage, now = Date.now } = {}) {
     newProfile, addProfile, removeProfile, player, setPlayer,
     rec, meet, mark, markSaid, learned, knows, toPractice, dueKeys,
     purse, owns, addStars, buy,
-    subStarted, subDone, subCrown, subProgress, landUnlocked, subUnlocked, nextSub, currentLand,
+    stageDone, stageStarted, stageProgress, stageCrown, tierOpen, stageOpen, nextStage, landDone,
     buildRound, finishRound, addPlayTime,
     isSave, exportData, replaceAll
   };

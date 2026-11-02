@@ -13,7 +13,7 @@ WORDS.forEach(g => g.subs.forEach(s => {
   SUBS[s.id] = s;
   s.keys = s.w.map(w => {
     const key = s.id + "/" + w[0];
-    WORD[key] = { key, en: w[0], pic: w[1], he: w[2], alts: w[3] || [], sub: s, group: g };
+    WORD[key] = { key, en: w[0], pic: w[1], he: w[2], alts: w[3] || [], tier: w[4] || 1, sub: s, group: g };
     ALL_KEYS.push(key);
     return key;
   });

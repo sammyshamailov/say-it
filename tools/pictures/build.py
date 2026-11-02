@@ -48,7 +48,7 @@ def cutout(c):
     return mask
 
 
-def cut_sheet(path, cols, rows, count, separate_people=False):
+def cut_sheet(path, cols, rows, count, separate_people=False, border_px=BORDER):
     a = np.asarray(Image.open(path).convert("RGB")).astype(int)
     H, W, _ = a.shape
     fg = ndi.binary_opening(~is_background(a), iterations=1)
@@ -78,9 +78,9 @@ def cut_sheet(path, cols, rows, count, separate_people=False):
         ml, mn = ndi.label(mask)
         mask = np.isin(ml, [j for j in range(1, mn + 1)
                             if (own & (ml == j)).sum() > 0.5 * max(1, (anyl & (ml == j)).sum())])
-        p = BORDER + 3
+        p = border_px + 3
         c = np.pad(c, ((p, p), (p, p), (0, 0)), constant_values=255); mask = np.pad(mask, p)
-        border = ndi.binary_dilation(mask, iterations=BORDER)
+        border = ndi.binary_dilation(mask, iterations=border_px) if border_px else mask
         a_obj = ndi.gaussian_filter(mask.astype(float), 0.8)
         a_brd = ndi.gaussian_filter(border.astype(float), 1.0)
         rgb = c * a_obj[..., None] + 255 * (1 - a_obj[..., None])  # picture over its white sticker
