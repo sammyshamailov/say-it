@@ -60,7 +60,7 @@ function landPanels(p, g, gi, next) {
       const [x, y] = pts[nextAt];
       extras.push(html`<div class="map-buddy ${x > 50 ? "left" : "right"}" style="left:${x}%;top:${y}%">${Mascot.svg("idle", p.outfit)}</div>`);
     }
-    panels.push(html`<div class="panel" style="aspect-ratio:${L.ratio}">
+    panels.push(html`<div class="land-panel" style="aspect-ratio:${L.ratio}">
       <img class="bg ${mirrored ? "flip" : ""}" src="${mapImg(g.id)}" alt="" draggable="false" decoding="async" loading="${gi < 1 ? "eager" : "lazy"}">
       ${extras}${part.map((st, i) => stone(p, st, pts[i], st === next))}</div>`);
   }
