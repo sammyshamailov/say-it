@@ -1,31 +1,39 @@
-// Listen & tap: hear the word, tap its picture among two or three.
+// Listen & tap: hear the word, tap its picture among two to four.
 import { html } from "../../core/html.js";
 import { wait, onTap, replay } from "../../core/dom.js";
 import { store } from "../../state.js";
 import { shuffle } from "../../services/store.js";
 import { WORDS, WORD } from "../../data/index.js";
+import { CONFUSABLE, confusable } from "../../data/stages.js";
 import { Sound } from "../../services/sound.js";
 import { I } from "../../ui/icons.js";
 import { pic } from "../../ui/picture.js";
 import { Mascot } from "../../ui/mascot.js";
 import { buddy } from "../../ui/components.js";
 
-// New words get 2 pictures, known ones 3. Well-known words compete with their own group
-// (harder: cow vs sheep), others with pictures from anywhere. Never two of the same picture or word.
-function choices(p, k) {
-  const w = WORD[k], r = store.rec(p, k), n = !r || r.lvl === 0 ? 2 : 3;
-  const same = r && r.lvl >= 2 ? w.sub.keys : [];
+// How many pictures to choose from grows with the word's tier: 2 (tier 1), 3 (tier 2), 4 (tier 3
+// and up), one fewer the first time a word is asked. Well-known words compete with their own group
+// (harder: cow vs sheep), others with pictures from anywhere. Words a child mixes up (puppy/dog)
+// only meet from tier 3 on, once the word is well known: then one is the wrong answer on purpose.
+// Never two of the same picture or word.
+export function choices(p, k) {
+  const w = WORD[k], r = store.rec(p, k), lvl = r ? r.lvl : 0;
+  const n = Math.max(2, Math.min(4, w.tier + 1) - (lvl === 0 ? 1 : 0));
+  const tricky = w.tier >= 3 && lvl >= 2;
+  const same = lvl >= 2 ? w.sub.keys : [];
   let pool = shuffle(same.filter(x => x !== k));
   if (pool.length < n - 1) {
     const all = [];
     WORDS.forEach(g => g.subs.forEach(s => { if (s !== w.sub || same.length) all.push(...s.keys); }));
     pool = pool.concat(shuffle(all));
   }
+  pool = pool.filter(x => !confusable(k, x));
+  if (tricky) pool = shuffle([...(CONFUSABLE[k] || [])]).slice(0, 1).concat(pool);
   const out = [k];
   for (const x of pool) {
     if (out.length >= n) break;
     const o = WORD[x];
-    if (o.en !== w.en && o.pic !== w.pic && !out.some(y => WORD[y].pic === o.pic)) out.push(x);
+    if (o.en !== w.en && o.pic !== w.pic && !out.some(y => WORD[y].pic === o.pic || WORD[y].en === o.en)) out.push(x);
   }
   return shuffle(out);
 }

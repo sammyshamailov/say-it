@@ -4,6 +4,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createStore, isSave, KEY } from "../public/js/services/store.js";
 import { isMatch } from "../public/js/services/match.js";
+import { STAGES, STAGE, confusable } from "../public/js/data/stages.js";
+import { ALL_KEYS } from "../public/js/data/index.js";
 
 function fakeStorage(init = {}) {
   const m = new Map(Object.entries(init));
@@ -99,15 +101,71 @@ test("shop: an animal is for sale once its word was answered right", () => {
   assert.ok(store.knows(p, "farm/cow"));
 });
 
-test("rounds: new words first, never more than six, finishing opens the next stone", () => {
+test("rounds: new words first, never more than six, a stone is done once all its words were met", () => {
   const { store } = newStore();
   const p = store.newProfile("Noa"); store.addProfile(p);
-  const s = store.nextSub(p);
-  assert.equal(s.id, "farm");
-  const r = store.buildRound(p, s);
+  const st = store.nextStage(p);
+  assert.equal(st.id, "farm-1-1", "starts at the bottom of the first land");
+  const r = store.buildRound(p, st);
   assert.equal(r.fresh.length, 3);
-  assert.ok(r.words.length >= 4 && r.words.length <= 6);
-  store.finishRound(p, s, { pic: "img:farm-cow", en: "cow" }, 60000);
+  assert.ok(r.words.length >= 3 && r.words.length <= 6);
+  r.fresh.forEach(k => store.meet(p, k));
+  store.finishRound(p, st, { pic: "img:farm-cow", en: "cow" }, 60000);
   assert.equal(p.rounds, 1); assert.equal(p.stickers.length, 1); assert.equal(p.playMs, 60000);
-  assert.ok(store.subUnlocked(p, s.group.subs[1]), "next stone open");
+  assert.ok(!store.stageDone(p, st), "words left to meet");
+  assert.equal(store.nextStage(p), st, "so it stays the next stone");
+  const r2 = store.buildRound(p, st);
+  assert.ok(r2.fresh.length > 0 && r2.fresh.every(k => !r.fresh.includes(k)), "the rest come next time");
+  r2.fresh.forEach(k => store.meet(p, k));
+  store.finishRound(p, st, { pic: "img:farm-cow", en: "cow" }, 1000);
+  assert.ok(store.stageDone(p, st));
+  assert.notEqual(store.nextStage(p), st);
+});
+
+test("tiers: harder stones open once most easier ones are done", () => {
+  const { store } = newStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const t1 = STAGES.filter(st => st.kind === "word" && st.tier === 1);
+  const t2 = STAGES.find(st => st.kind === "word" && st.tier === 2);
+  assert.ok(t1.every(st => store.stageOpen(p, st)), "every easy stone is open from the start");
+  assert.ok(!store.stageOpen(p, t2));
+  t1.slice(0, Math.ceil(t1.length * 0.7)).forEach(st => (p.stages[st.id] = true));
+  assert.ok(store.stageOpen(p, t2));
+  store.settings.unlockAll = true;
+  assert.ok(STAGES.every(st => store.stageOpen(p, st)), "parents can open everything");
+});
+
+test("rounds below tier 3 never mix up look-alike words", () => {
+  const { store } = newStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  for (const st of STAGES.filter(x => x.kind === "word" && x.tier < 3)) {
+    const { words } = store.buildRound(p, st);
+    for (const a of words) for (const b of words) assert.ok(!confusable(a, b), `${a} and ${b} in ${st.id}`);
+  }
+});
+
+test("a save from before the big map keeps its finished groups and moved words", () => {
+  const old = { v: 2, lastId: "a", settings: {}, profiles: [{ id: "a", name: "Ari", stars: 9, spent: 0, owned: ["pet:wild/dinosaur"],
+    words: { "farm/cow": { lvl: 3, due: 0, right: 2, wrong: 0, said: 1, clear: 1, seen: 1 }, "wild/dinosaur": { lvl: 2, due: 0, right: 1, wrong: 0, said: 0, clear: 0, seen: 1 } },
+    done: { farm: true }, stickers: [], playMs: 0, rounds: 3, lastPlayed: 0 }] };
+  for (const how of ["storage", "restore"]) {
+    const { store } = how === "storage" ? newStore({ [KEY]: JSON.stringify(old) }) : newStore();
+    if (how === "restore") assert.ok(store.replaceAll(JSON.parse(JSON.stringify(old))));
+    const p = store.player();
+    assert.ok(store.stageDone(p, STAGE["farm-1-1"]), how + ": the stone with cow is done");
+    assert.ok(!store.stageDone(p, STAGE["farm-3-1"]), how + ": stones of new farm words are not");
+    assert.ok(p.words["dinos/dinosaur"] && !p.words["wild/dinosaur"], how + ": the dinosaur moved to its own group");
+    assert.deepEqual(p.owned, ["pet:dinos/dinosaur"], how + ": and stays in the garden");
+    assert.equal(p.mapV, 3);
+  }
+});
+
+test("every stone has words, and every word is on exactly one word stone", () => {
+  const seen = new Map();
+  for (const st of STAGES) {
+    assert.ok(st.keys.length > 0, st.id);
+    if (st.kind === "word") st.keys.forEach(k => seen.set(k, (seen.get(k) || 0) + 1));
+  }
+  for (const k of ALL_KEYS) assert.equal(seen.get(k), 1, k);
+  assert.equal(new Set(STAGES.map(st => st.id)).size, STAGES.length, "stone ids are unique");
 });

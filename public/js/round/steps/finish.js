@@ -37,7 +37,7 @@ export async function finish(r) {
   Sound.sfx("fanfare");
   $("#stk").onclick = () => Sound.word(prize.en);
   $("#home").onclick = () => nav.reset("map");
-  $("#again").onclick = () => { nav.base("map"); round.start(store.nextSub(p)); };
+  $("#again").onclick = () => { nav.base("map"); round.start(store.nextStage(p)); };
   $("#book").onclick = () => { nav.base("map"); nav.go("stickers"); };
   if (shopNow) $("#shopnow").onclick = () => { nav.base("map"); nav.go("garden"); };
   await wait(500);
