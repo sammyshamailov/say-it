@@ -1,95 +1,113 @@
-// Tests for the on-device store: export, restore, and the speech matcher.
-// The app files are plain browser scripts, so they run here against small fakes of window and localStorage.
+// Tests for the on-device store (export, restore, migration, shop) and the speech matcher.
+// The store is a factory that takes its storage, so it runs here against an in-memory fake.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import vm from "node:vm";
+import { createStore, isSave, KEY } from "../public/js/services/store.js";
+import { isMatch } from "../public/js/services/match.js";
 
-function loadApp(stored = {}) {
-  const ls = new Map(Object.entries(stored));
-  const listeners = {};
-  const ctx = {
-    localStorage: { getItem: k => ls.has(k) ? ls.get(k) : null, setItem: (k, v) => ls.set(k, String(v)) },
-    navigator: {}, addEventListener: (n, f) => { listeners[n] = f; },
-    document: { addEventListener() {}, hidden: false },
-    matchMedia: () => ({ matches: false }), setTimeout, clearTimeout, console
-  };
-  ctx.window = ctx;
-  vm.createContext(ctx);
-  for (const f of ["words.js", "store.js", "speech.js"]) vm.runInContext(readFileSync(new URL("../public/js/" + f, import.meta.url), "utf8"), ctx);
-  return { ctx, ls, listeners, Store: ctx.Store, Speech: ctx.Speech };
+function fakeStorage(init = {}) {
+  const m = new Map(Object.entries(init));
+  return { m, getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)) };
 }
+const newStore = (init) => { const storage = fakeStorage(init); return { storage, store: createStore({ storage }) }; };
 
 test("export then restore on a fresh phone gives the same progress", () => {
-  const a = loadApp();
-  const p = a.Store.newProfile("Noa", "🦄", "f");
-  a.Store.state.profiles.push(p); a.Store.state.lastId = p.id;
-  a.Store.mark(p, "farm/cow", true); a.Store.addStars(p, 3);
-  const data = JSON.parse(JSON.stringify(a.Store.exportData()));
+  const a = newStore().store;
+  const p = a.newProfile("Noa", "🦄", "f");
+  a.addProfile(p);
+  a.mark(p, "farm/cow", true); a.addStars(p, 3);
+  const data = JSON.parse(JSON.stringify(a.exportData()));
 
-  const b = loadApp();
-  assert.equal(b.Store.state.profiles.length, 0);
-  assert.ok(b.Store.replaceAll(data));
-  assert.equal(b.Store.player().name, "Noa");
-  assert.equal(b.Store.player().stars, 3);
-  assert.equal(b.Store.player().words["farm/cow"].lvl, 1);
-  assert.equal(JSON.parse(b.ls.get("sayit2")).profiles[0].name, "Noa", "saved to localStorage at once");
+  const { store: b, storage } = newStore();
+  assert.equal(b.state.profiles.length, 0);
+  assert.ok(b.replaceAll(data));
+  assert.equal(b.player().name, "Noa");
+  assert.equal(b.player().stars, 3);
+  assert.equal(b.player().words["farm/cow"].lvl, 1);
+  assert.equal(JSON.parse(storage.m.get(KEY)).profiles[0].name, "Noa", "saved to storage at once");
 });
 
 test("restore refuses files that aren't a save and keeps current progress", () => {
-  const a = loadApp();
-  a.Store.state.profiles.push(a.Store.newProfile("Ari"));
-  for (const bad of [null, {}, { v: 1, profiles: [] }, { v: 2, profiles: [{ id: 3 }] }]) assert.equal(a.Store.replaceAll(bad), false);
-  assert.equal(a.Store.state.profiles[0].name, "Ari");
+  const { store } = newStore();
+  store.addProfile(store.newProfile("Ari"));
+  for (const bad of [null, {}, { v: 1, profiles: [] }, { v: 2, profiles: [{ id: 3 }] }]) assert.equal(store.replaceAll(bad), false);
+  assert.equal(store.state.profiles[0].name, "Ari");
+  assert.ok(!isSave("nope"));
 });
 
 test("restore fills in fields an older save is missing", () => {
-  const a = loadApp();
-  assert.ok(a.Store.replaceAll({ v: 2, profiles: [{ id: "x", name: "Tom", words: {} }], lastId: "gone" }));
-  const p = a.Store.player();
-  assert.equal(p.id, "x"); assert.deepEqual([...p.stickers], []); assert.equal(p.stars, 0);
-  assert.equal(a.Store.state.settings.sayMode, "auto");
+  const { store } = newStore();
+  assert.ok(store.replaceAll({ v: 2, profiles: [{ id: "x", name: "Tom", words: {}, stars: 60 }], lastId: "gone" }));
+  const p = store.player();
+  assert.equal(p.id, "x"); assert.deepEqual(p.stickers, []); assert.equal(p.stars, 60);
+  assert.equal(store.settings.sayMode, "auto");
+  assert.deepEqual(p.owned, ["hat:party", "hat:shades"], "hats earned before the shop are kept");
 });
 
-test("leaving the app saves immediately", () => {
-  const a = loadApp();
-  a.Store.state.profiles.push(a.Store.newProfile("Lia"));
-  a.Store.save();               // normally delayed 250 ms
-  a.listeners.pagehide();
-  assert.equal(JSON.parse(a.ls.get("sayit2")).profiles[0].name, "Lia");
+test("a save is written later, or at once when asked", async () => {
+  const { store, storage } = newStore();
+  store.addProfile(store.newProfile("Lia"));
+  store.state.profiles[0].name = "Lia2";
+  store.save();
+  assert.equal(JSON.parse(storage.m.get(KEY)).profiles[0].name, "Lia", "not yet");
+  store.save(true);
+  assert.equal(JSON.parse(storage.m.get(KEY)).profiles[0].name, "Lia2");
+});
+
+test("first-version progress is imported and old keys left alone", () => {
+  const { store, storage } = newStore({ "sayit-players": JSON.stringify([{ id: "p2", name: "Maya", avatar: "🦄" }]), "sayit-got-p2": JSON.stringify({ "farm/cow": 1, "nope/x": 1 }) });
+  const p = store.player();
+  assert.equal(p.name, "Maya"); assert.equal(p.gender, "f"); assert.equal(p.stars, 1);
+  assert.equal(p.words["farm/cow"].lvl, 3);
+  assert.ok(storage.m.has("sayit-players"));
 });
 
 test("speech matcher stays forgiving", () => {
-  const { Speech } = loadApp();
-  assert.ok(Speech.isMatch(["it's a cat"], "cat"));
-  assert.ok(Speech.isMatch(["elefant"], "elephant"));
-  assert.ok(Speech.isMatch(["tree"], "three", ["3", "tree", "free"]));
-  assert.ok(!Speech.isMatch(["dog"], "cat"));
+  assert.ok(isMatch(["it's a cat"], "cat"));
+  assert.ok(isMatch(["elefant"], "elephant"));
+  assert.ok(isMatch(["tree"], "three", ["3", "tree", "free"]));
+  assert.ok(!isMatch(["dog"], "cat"));
 });
 
 test("shop: spending lowers the purse, never the stars earned", () => {
-  const { Store } = loadApp();
-  const p = Store.newProfile("Noa"); Store.state.profiles.push(p);
-  Store.addStars(p, 12);
-  assert.equal(Store.purse(p), 12);
-  assert.ok(Store.buy(p, "pet:farm/cow", 5));
-  assert.equal(Store.purse(p), 7);
+  const { store } = newStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const seen = [];
+  store.on("stars", (_, n) => seen.push(n));
+  store.addStars(p, 12);
+  assert.equal(store.purse(p), 12);
+  assert.ok(store.buy(p, "pet:farm/cow", 5));
+  assert.equal(store.purse(p), 7);
   assert.equal(p.stars, 12, "lifetime stars unchanged");
-  assert.ok(!Store.buy(p, "pet:farm/cow", 5), "can't buy the same thing twice");
-  assert.ok(!Store.buy(p, "hat:crown", 10), "can't buy without enough stars");
-  assert.equal(Store.purse(p), 7);
-  assert.ok(Store.owns(p, "pet:farm/cow"));
-  Store.addStars(p, 3);
-  assert.ok(Store.buy(p, "hat:crown", 10));
-  assert.equal(Store.purse(p), 0);
+  assert.ok(!store.buy(p, "pet:farm/cow", 5), "can't buy the same thing twice");
+  assert.ok(!store.buy(p, "hat:crown", 10), "can't buy without enough stars");
+  assert.equal(store.purse(p), 7);
+  assert.ok(store.owns(p, "pet:farm/cow"));
+  store.addStars(p, 3);
+  assert.ok(store.buy(p, "hat:crown", 10));
+  assert.equal(store.purse(p), 0);
+  assert.deepEqual(seen, [12, -5, 3, -10], "the stars pill hears every change");
 });
 
 test("shop: an animal is for sale once its word was answered right", () => {
-  const { Store } = loadApp();
-  const p = Store.newProfile("Noa"); Store.state.profiles.push(p);
-  assert.ok(!Store.knows(p, "farm/cow"));
-  Store.mark(p, "farm/cow", false);
-  assert.ok(!Store.knows(p, "farm/cow"), "met but missed");
-  Store.mark(p, "farm/cow", true);
-  assert.ok(Store.knows(p, "farm/cow"));
+  const { store } = newStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  assert.ok(!store.knows(p, "farm/cow"));
+  store.mark(p, "farm/cow", false);
+  assert.ok(!store.knows(p, "farm/cow"), "met but missed");
+  store.mark(p, "farm/cow", true);
+  assert.ok(store.knows(p, "farm/cow"));
+});
+
+test("rounds: new words first, never more than six, finishing opens the next stone", () => {
+  const { store } = newStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const s = store.nextSub(p);
+  assert.equal(s.id, "farm");
+  const r = store.buildRound(p, s);
+  assert.equal(r.fresh.length, 3);
+  assert.ok(r.words.length >= 4 && r.words.length <= 6);
+  store.finishRound(p, s, { pic: "img:farm-cow", en: "cow" }, 60000);
+  assert.equal(p.rounds, 1); assert.equal(p.stickers.length, 1); assert.equal(p.playMs, 60000);
+  assert.ok(store.subUnlocked(p, s.group.subs[1]), "next stone open");
 });

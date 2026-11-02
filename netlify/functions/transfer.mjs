@@ -2,7 +2,6 @@
 // POST /api/transfer  {data:{...}}  -> {code, expires}
 // GET  /api/transfer?code=K7P42Q   -> {data:{...}}   (the code is deleted when read)
 // Codes expire after 15 minutes. Nothing else is kept: no names, no IPs, no accounts.
-import { getStore } from "@netlify/blobs";
 
 const TTL = 15 * 60 * 1000;
 const MAX_BYTES = 200 * 1024;
@@ -60,6 +59,8 @@ export async function handle(req, store) {
 
 export default async (req) => {
   try {
+    // loaded here, not at the top, so the tests can import handle() without the Netlify library
+    const { getStore } = await import("@netlify/blobs");
     return await handle(req, getStore({ name: "transfers", consistency: "strong" }));
   } catch (err) {
     console.error("transfer failed", err);

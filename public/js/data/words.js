@@ -1,7 +1,7 @@
 // Word list: groups -> subcategories -> words.
 // Each word: [english, picture, hebrew ("m|f" when it changes by gender), accepted alternatives?]
 // Pictures: "img:<id>" for public/img/words/<id>.webp (feelings and actions add -boy/-girl for the player), emoji, "a+b" for two emoji side by side, "color:#hex" for a colour blob, "num:7" for a number.
-window.WORDS = [
+export const WORDS = [
  {id:"animals", name:"Animals", he:"חיות", pic:"img:wild-lion", subs:[
   {id:"farm", name:"Farm", he:"חיות משק", pic:"img:farm-cow", w:[["cow","img:farm-cow","פרה"],["pig","img:farm-pig","חזיר",["piggy"]],["sheep","img:farm-sheep","כבשה"],["horse","img:farm-horse","סוס"],["chicken","img:farm-chicken","תרנגולת",["hen"]],["rooster","img:farm-rooster","תרנגול"],["duck","img:farm-duck","ברווז"],["goat","img:farm-goat","עז"],["donkey","img:farm-donkey","חמור"],["turkey","img:farm-turkey","תרנגול הודו"]]},
   {id:"pets", name:"Pets", he:"חיות מחמד", pic:"img:pets-dog", w:[["dog","img:pets-dog","כלב",["doggy"]],["puppy","img:pets-puppy","גור כלבים",["dog"]],["cat","img:pets-cat","חתול",["kitty"]],["kitten","img:pets-kitten","חתלתול",["kitty","cat"]],["rabbit","img:pets-rabbit","ארנב",["bunny"]],["hamster","img:pets-hamster","אוגר"],["mouse","img:pets-mouse","עכבר"],["goldfish","img:pets-goldfish","דג זהב",["fish"]]]},

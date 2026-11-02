@@ -14,21 +14,56 @@
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preload" href="fonts/fredoka.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=2.3.0">
+<link rel="stylesheet" href="css/app.css?v=2.4.0">
+<!-- modules: written by tools/release.mjs, so the browser fetches them all at once instead of one import level at a time -->
+<!-- modulepreload:start -->
+<link rel="modulepreload" href="js/core/dom.js">
+<link rel="modulepreload" href="js/core/emitter.js">
+<link rel="modulepreload" href="js/core/html.js">
+<link rel="modulepreload" href="js/core/router.js">
+<link rel="modulepreload" href="js/core/sheet.js">
+<link rel="modulepreload" href="js/data/audio-map.js">
+<link rel="modulepreload" href="js/data/index.js">
+<link rel="modulepreload" href="js/data/lands.js">
+<link rel="modulepreload" href="js/data/outfits.js">
+<link rel="modulepreload" href="js/data/words.js">
+<link rel="modulepreload" href="js/parent/dashboard.js">
+<link rel="modulepreload" href="js/parent/gate.js">
+<link rel="modulepreload" href="js/parent/mic-explain.js">
+<link rel="modulepreload" href="js/parent/profile-form.js">
+<link rel="modulepreload" href="js/parent/setup.js">
+<link rel="modulepreload" href="js/parent/transfer.js">
+<link rel="modulepreload" href="js/pwa.js">
+<link rel="modulepreload" href="js/round/round.js">
+<link rel="modulepreload" href="js/round/steps/finish.js">
+<link rel="modulepreload" href="js/round/steps/meet.js">
+<link rel="modulepreload" href="js/round/steps/memory.js">
+<link rel="modulepreload" href="js/round/steps/pop.js">
+<link rel="modulepreload" href="js/round/steps/say.js">
+<link rel="modulepreload" href="js/round/steps/tap.js">
+<link rel="modulepreload" href="js/screens/garden.js">
+<link rel="modulepreload" href="js/screens/land.js">
+<link rel="modulepreload" href="js/screens/map.js">
+<link rel="modulepreload" href="js/screens/start.js">
+<link rel="modulepreload" href="js/screens/stickers.js">
+<link rel="modulepreload" href="js/screens/who.js">
+<link rel="modulepreload" href="js/services/match.js">
+<link rel="modulepreload" href="js/services/shop.js">
+<link rel="modulepreload" href="js/services/sound.js">
+<link rel="modulepreload" href="js/services/speech.js">
+<link rel="modulepreload" href="js/services/store.js">
+<link rel="modulepreload" href="js/state.js">
+<link rel="modulepreload" href="js/ui/components.js">
+<link rel="modulepreload" href="js/ui/icons.js">
+<link rel="modulepreload" href="js/ui/mascot.js">
+<link rel="modulepreload" href="js/ui/picture.js">
+<link rel="modulepreload" href="js/version.js">
+<!-- modulepreload:end -->
+<script type="module" src="js/main.js?v=2.4.0"></script>
 </head>
 <body>
 <div class="sky" aria-hidden="true"></div>
 <main id="app" aria-live="polite"></main>
 <noscript><p style="padding:24px;font-size:20px">Say It! needs JavaScript turned on.</p></noscript>
-<script src="js/words.js?v=2.3.0"></script>
-<script src="js/audio-map.js?v=2.3.0"></script>
-<script src="js/store.js?v=2.3.0"></script>
-<script src="js/audio.js?v=2.3.0"></script>
-<script src="js/speech.js?v=2.3.0"></script>
-<script src="js/mascot.js?v=2.3.0"></script>
-<script src="js/app.js?v=2.3.0"></script>
-<script src="js/shop.js?v=2.3.0"></script>
-<script src="js/parent.js?v=2.3.0"></script>
-<script src="js/boot.js?v=2.3.0"></script>
 </body>
 </html>

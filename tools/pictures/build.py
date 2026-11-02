@@ -5,8 +5,8 @@ Reads   tools/pictures/sheets.json      which sheet holds which pictures, in rea
         assets/pictures/sheets/*.webp   the sheets as they came out of the image generator
 Writes  assets/pictures/master/<id>.webp    full-size cut-outs (keep these, they are the source)
         public/img/words/<id>.webp          320 px copies the app shows
-        public/img/words-sprite.webp        every picture on one combined sheet
-        public/img/words-sprite.json        where each picture sits on the combined sheet
+        assets/pictures/words-sprite.webp   every picture on one combined sheet (not deployed)
+        assets/pictures/words-sprite.json   where each picture sits on the combined sheet
 
 Each picture is found by its outline (not by the grid), its white background is removed,
 and a uniform white sticker border is added, so stray grid lines, uneven spacing or
@@ -24,7 +24,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 SHEETS = os.path.join(ROOT, "assets/pictures/sheets")
 MASTER = os.path.join(ROOT, "assets/pictures/master")
 WEB = os.path.join(ROOT, "public/img/words")
-SPRITE = os.path.join(ROOT, "public/img/words-sprite")
+SPRITE = os.path.join(ROOT, "assets/pictures/words-sprite")  # not used by the app, so not deployed
 WEB_SIZE = 320      # px, square
 TILE = 256          # px per picture on the combined sheet
 BORDER = 7          # px of white sticker border at master size

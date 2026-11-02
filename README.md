@@ -20,27 +20,42 @@ Live: https://say-it-words.netlify.app/
 | `public/` | Everything Netlify serves (the app) |
 | `public/index.html` | App shell |
 | `public/css/app.css` | "Toy Box Bright" design |
-| `public/js/words.js` | The 326 words: picture, Hebrew, accepted alternatives |
+| `public/sw.js` | Offline support: opens instantly from the phone, saves pictures and recordings |
 | `public/img/words/` | One picture per word (see `assets/pictures/README.md`) |
-| `public/img/words-sprite.webp`, `.json` | All word pictures on one combined sheet, with positions |
-| `assets/pictures/` | Source sheets, full-size pictures and the prompts used to make them |
-| `tools/pictures/build.py` | Cuts the sheets into pictures and builds the combined sheet |
-| `public/js/audio-map.js` | Word → recording on Wikimedia Commons |
-| `public/js/store.js` | Progress, profiles, spaced repetition, migration from version 1 |
-| `public/js/audio.js` | Recordings, device voices, effects, music |
-| `public/js/speech.js` | Microphone, Echo recording, speech recognition, forgiving match |
-| `public/js/mascot.js` | The chameleon mascot and outfits (SVG) |
-| `public/js/app.js` | Screens and mini-games |
-| `public/js/shop.js` | The garden and star shop |
-| `public/js/parent.js` | Parent gate and parent area |
-| `public/js/boot.js` | Registers offline support (separate file so no inline scripts are needed) |
-| `public/sw.js` | Offline support |
+| `public/js/main.js` | Entry point: registers every screen and starts the app |
+| `public/js/core/` | Building blocks with no app knowledge: safe `html` templates, router (screens + back button), sheets (pop-ups), events |
+| `public/js/data/` | The 326 words (`words.js`), word → recording on Wikimedia Commons (`audio-map.js`), lands, hats |
+| `public/js/services/` | Progress and spaced repetition (`store.js`), sound, speech, shop rules |
+| `public/js/ui/` | Icons, word pictures, the chameleon mascot, shared components (word card, stars pill, buttons) |
+| `public/js/screens/` | Map, land, who's playing, sticker book, garden and shop |
+| `public/js/round/` | A round: `round.js` runs the steps; `steps/` has one file per step (meet, tap, say, pop, memory, finish) |
+| `public/js/parent/` | Parent gate, parent area, first run, transfer codes and backups, microphone explanation |
+| `assets/pictures/` | Source sheets, full-size pictures and the prompts used to make them (not deployed) |
+| `tools/pictures/build.py` | Cuts the sheets into pictures |
+| `tools/release.mjs` | Sets the version and refreshes the file lists (`npm run release`) |
 | `netlify/functions/transfer.mjs` | Transfer codes: move progress to another phone |
 | `netlify/functions/transfer-cleanup.mjs` | Daily sweep of unused codes |
 | `test/` | Tests, run with `npm test` (Node 20+) |
 | `netlify.toml` | Netlify settings |
 
-No build step for the app: edit and push. Installed apps update themselves: when the app opens or comes back to the screen it checks for a new version, and reloads into it on the map (never mid-round or in the parent area). When you change files, bump the version (`?v=` in `public/index.html`, `VERSION` and the file list in `public/sw.js`, `VERSION` in `public/js/parent.js`) so phones pick up the update. `package.json` only exists so Netlify installs `@netlify/blobs` for the transfer function.
+### How the code fits together
+
+- Every screen is a function registered by name in `main.js`; screens move with `nav.go("land", 2)`, `nav.back()`, `nav.reset("map")`. The Android back button closes an open sheet first, then goes back a screen.
+- Markup is written with the `html` tag from `core/html.js`. It escapes every value, so names and anything restored from a backup or transfer code can't become HTML. Trusted markup (icons, other templates) passes through as is.
+- A round step is a function `(ctx, step)`. `ctx` gives it the player, `frame()` to draw the step, `next()`, `award(stars)`, `requeue(word)` and `alive()`, which turns false the moment the child leaves; a step stops when it does. Timers and recordings registered with `ctx.round.onCleanup()` are stopped for it. To add a mini-game: write `round/steps/<name>.js`, add it to `STEPS` in `round/round.js`, and put it in the round's plan there.
+- The store announces star changes (`store.on("stars", …)`), and every stars pill on screen updates itself.
+
+## Releasing
+
+No build step: edit and push. Before pushing a change, run
+
+```
+npm run release 2.5.0
+```
+
+with the next version number. It writes the version into `public/js/version.js`, `public/sw.js` and `public/index.html`, and refreshes the list of files the phone saves for offline use and preloads. `npm test` fails if you forgot (or added a file without running it).
+
+Installed apps update themselves: the app opens straight from the phone without waiting for the network, the browser checks for a new version in the background (and each time the app comes back to the screen), and the app reloads into it on the map (never mid-round or in the parent area). `package.json` only exists so Netlify installs `@netlify/blobs` for the transfer function, and for the test and release scripts.
 
 ## Saved data
 
@@ -54,4 +69,4 @@ Parent area → "העברה לטלפון אחר". The old phone uploads its prog
 
 - Word recordings: Wiktionary and Lingua Libre contributors on [Wikimedia Commons](https://commons.wikimedia.org), CC BY-SA (each file's page on Commons names its author and exact licence). Played as Commons' MP3 versions. Words without a recording use the device's voice.
 - Font: [Fredoka](https://github.com/google/fonts/tree/main/ofl/fredoka), SIL Open Font License (`fonts/OFL.txt`), subset to Latin + Hebrew.
-- Pictures: the device's emoji.
+- Pictures: illustrations made for the app (see `assets/pictures/README.md`). Colours and numbers are drawn by the app.
