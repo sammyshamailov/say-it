@@ -40,10 +40,11 @@ function stone(p, st, [x, y], next) {
 
 function landPanels(p, g, gi, next) {
   const L = LANDS[g.id], stones = LAND_STAGES[gi], n = panelsFor(L, stones.length);
-  const per = Math.ceil(stones.length / n), done = store.landDone(p, gi);
+  const done = store.landDone(p, gi);
   const panels = [];
   for (let j = 0; j < n; j++) {
-    const part = stones.slice(j * per, (j + 1) * per), mirrored = j % 2 === 1;
+    // stones shared out evenly, so the last photo of a land isn't left nearly empty
+    const part = stones.slice(Math.round(j * stones.length / n), Math.round((j + 1) * stones.length / n)), mirrored = j % 2 === 1;
     const pts = trailPoints(L, part.length, mirrored);
     const nextAt = part.indexOf(next);
     const extras = [];
