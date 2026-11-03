@@ -106,6 +106,9 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .spot.chest,.spot.party{width:clamp(66px,18vw,92px)}
 .spot.next{z-index:3;animation:hopstone 1.4s ease-in-out infinite}
 .spot.next:before{content:"";position:absolute;inset:-10%;border-radius:50%;background:radial-gradient(circle,#FFE98Acc 30%,#FFD23F55 55%,transparent 70%);animation:shine 1.4s ease-in-out infinite;z-index:-1}
+/* a locked stone shakes in place: its own keyframes keep the translate that centres it on the trail */
+.spot.wiggle{animation:stonewiggle .4s ease-in-out}
+@keyframes stonewiggle{0%,100%{transform:translate(-50%,-62%)}25%{transform:translate(calc(-50% - 4px),-62%) rotate(-4deg)}50%{transform:translate(calc(-50% + 4px),-62%) rotate(4deg)}75%{transform:translate(calc(-50% - 2px),-62%) rotate(-2deg)}}
 @keyframes hopstone{0%,100%{transform:translate(-50%,-62%)}45%{transform:translate(-50%,-74%)}}
 @keyframes shine{0%,100%{opacity:.6;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
 .map-buddy{position:absolute;width:clamp(70px,19vw,100px);transform:translate(30%,-80%);pointer-events:none;z-index:4;display:flex;flex-direction:column;align-items:center;gap:2px}

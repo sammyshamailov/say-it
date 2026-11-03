@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createStore, isSave, KEY } from "../public/js/services/store.js";
 import { isMatch } from "../public/js/services/match.js";
-import { STAGES, STAGE, confusable } from "../public/js/data/stages.js";
+import { STAGES, STAGE, LAND_STAGES, confusable } from "../public/js/data/stages.js";
 import { ALL_KEYS } from "../public/js/data/index.js";
 
 function fakeStorage(init = {}) {
@@ -122,17 +122,33 @@ test("rounds: new words first, never more than six, a stone is done once all its
   assert.notEqual(store.nextStage(p), st);
 });
 
-test("tiers: harder stones open once most easier ones are done", () => {
+test("lands: one at a time up the trail; inside a land, harder stones open once most easier ones are done", () => {
   const { store } = newStore();
   const p = store.newProfile("Noa"); store.addProfile(p);
-  const t1 = STAGES.filter(st => st.kind === "word" && st.tier === 1);
-  const t2 = STAGES.find(st => st.kind === "word" && st.tier === 2);
-  assert.ok(t1.every(st => store.stageOpen(p, st)), "every easy stone is open from the start");
+  const words = gi => LAND_STAGES[gi].filter(st => st.kind === "word");
+  const t1 = words(0).filter(st => st.tier === 1);
+  const t2 = words(0).find(st => st.tier === 2);
+  assert.ok(t1.every(st => store.stageOpen(p, st)), "the first land's easy stones are open from the start");
   assert.ok(!store.stageOpen(p, t2));
+  assert.ok(LAND_STAGES.slice(1).flat().every(st => !store.stageOpen(p, st)), "later lands start locked");
   t1.slice(0, Math.ceil(t1.length * 0.7)).forEach(st => (p.stages[st.id] = true));
   assert.ok(store.stageOpen(p, t2));
+  assert.ok(!store.landOpen(p, 1), "the next land waits for most of this one");
+  words(0).slice(0, Math.ceil(words(0).length * 0.7)).forEach(st => (p.stages[st.id] = true));
+  assert.ok(store.landOpen(p, 1));
+  assert.ok(words(1).filter(st => st.tier === 1).every(st => store.stageOpen(p, st)));
+  assert.ok(!store.landOpen(p, 2));
   store.settings.unlockAll = true;
   assert.ok(STAGES.every(st => store.stageOpen(p, st)), "parents can open everything");
+});
+
+test("lands: a land already played in stays open", () => {
+  const { store } = newStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const st = LAND_STAGES[3].find(x => x.kind === "word" && x.tier === 1);
+  p.stages[st.id] = true;
+  assert.ok(store.landOpen(p, 3));
+  assert.ok(LAND_STAGES[3].filter(x => x.kind === "word" && x.tier === 1).every(x => store.stageOpen(p, x)));
 });
 
 test("rounds below tier 3 never mix up look-alike words", () => {

@@ -1,7 +1,7 @@
 // Progress lives on this device only (localStorage). Nothing is sent anywhere.
 // createStore() takes its storage and clock as arguments, so tests run it in Node with fakes.
 import { WORD } from "../data/index.js";
-import { STAGES, LAND_STAGES, MAX_TIER, confusable } from "../data/stages.js";
+import { STAGES, LAND_STAGES, confusable } from "../data/stages.js";
 import { OUTFITS } from "../data/outfits.js";
 import { Emitter } from "../core/emitter.js";
 
@@ -164,35 +164,41 @@ export function createStore({ storage, now = Date.now } = {}) {
   }
 
   // ---- map progression ----
-  // A tier opens across the whole map once most stones of the tier below are done; inside an open
-  // tier every stone can be played. A chest opens when the stones of its tier in its land are
-  // done, the party stone when most of the land is.
+  // The map is played one land at a time, up the trail. The first land is open from the start;
+  // a land opens once most word stones of the land below it are done (or the child has already
+  // played in it, so older progress keeps its stones open). Inside a land, a tier opens once most
+  // stones of the tier below are done, and every stone of an open tier can be played. A chest
+  // opens when the stones of its tier are done, the party stone when most of the land is.
   const OPEN_SHARE = 0.7;
-  const wordStones = STAGES.filter(st => st.kind === "word");
   const stageDone = (p, st) => !!p.stages[st.id];
   const stageStarted = (p, st) => st.kind === "word" && st.keys.some(k => p.words[k]);
   const stageProgress = (p, st) => st.keys.filter(k => p.words[k]).length / st.keys.length;
   const stageCrown = (p, st) => st.keys.every(k => learned(p, k));
-  function tierOpen(p, t) {
+  const landWords = LAND_STAGES.map(land => land.filter(st => st.kind === "word"));
+  const mostlyDone = (p, list) => list.filter(st => stageDone(p, st)).length >= OPEN_SHARE * list.length;
+  function landOpen(p, gi) {
+    if (gi <= 0 || state.settings.unlockAll) return true;
+    if (landWords[gi].some(st => stageDone(p, st) || stageStarted(p, st))) return true;
+    return mostlyDone(p, landWords[gi - 1]) && landOpen(p, gi - 1);
+  }
+  function tierOpen(p, gi, t) {
+    if (!landOpen(p, gi)) return false;
     if (t <= 1 || state.settings.unlockAll) return true;
-    const below = wordStones.filter(st => st.tier === t - 1);
-    if (below.filter(st => stageDone(p, st)).length >= OPEN_SHARE * below.length && tierOpen(p, t - 1)) return true;
-    return wordStones.some(st => st.tier === t && (stageDone(p, st) || stageStarted(p, st)));
+    const words = landWords[gi];
+    if (mostlyDone(p, words.filter(st => st.tier === t - 1)) && tierOpen(p, gi, t - 1)) return true;
+    return words.some(st => st.tier === t && (stageDone(p, st) || stageStarted(p, st)));
   }
   function stageOpen(p, st) {
     if (state.settings.unlockAll || stageDone(p, st)) return true;
-    const land = LAND_STAGES[st.land];
-    if (st.kind === "word") return tierOpen(p, st.tier);
-    if (st.kind === "chest") return land.filter(x => x.kind === "word" && x.tier === st.tier).every(x => stageDone(p, x));
-    const words = land.filter(x => x.kind === "word");
-    return words.filter(x => stageDone(p, x)).length >= OPEN_SHARE * words.length;
+    if (!landOpen(p, st.land)) return false;
+    if (st.kind === "word") return tierOpen(p, st.land, st.tier);
+    if (st.kind === "chest") return landWords[st.land].filter(x => x.tier === st.tier).every(x => stageDone(p, x));
+    return mostlyDone(p, landWords[st.land]);
   }
-  // The stone the map glows on and the Play button starts: the easiest open stone not done yet,
-  // land by land; then the open stone with the most words due for review.
+  // The stone the map glows on and the Play button starts: the lowest open stone on the trail
+  // not done yet; then the open stone with the most words due for review.
   function nextStage(p) {
-    for (let t = 1; t <= MAX_TIER; t++) for (const land of LAND_STAGES)
-      for (const st of land) if (st.tier === t && st.kind !== "party" && !stageDone(p, st) && stageOpen(p, st)) return st;
-    for (const st of STAGES) if (st.kind === "party" && !stageDone(p, st) && stageOpen(p, st)) return st;
+    for (const st of STAGES) if (!stageDone(p, st) && stageOpen(p, st)) return st;
     let best = null, bestN = -1;
     for (const st of STAGES) {
       if (!stageOpen(p, st)) continue;
@@ -251,7 +257,7 @@ export function createStore({ storage, now = Date.now } = {}) {
     newProfile, addProfile, removeProfile, player, setPlayer,
     rec, meet, mark, markSaid, learned, knows, toPractice, dueKeys,
     purse, owns, addStars, buy,
-    stageDone, stageStarted, stageProgress, stageCrown, tierOpen, stageOpen, nextStage, landDone,
+    stageDone, stageStarted, stageProgress, stageCrown, landOpen, tierOpen, stageOpen, nextStage, landDone,
     buildRound, finishRound, addPlayTime,
     isSave, exportData, replaceAll
   };

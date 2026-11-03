@@ -28,40 +28,77 @@ export const LANDS = {
     stickers: [["palm", 10, 76, .3], ["rainbow", 50, 52, .65]] }
 };
 
-// Room for stones: on a phone (about 390 px wide) stones sit about 68 px apart along the trail.
-const GAP = 68 / 390; // in widths of the picture
+// Room for stones: a stone is about 16% of the screen wide (a chest 18%, its lock pokes out a
+// little more), so no two stones of one photo may sit closer than MIN picture widths, measured
+// straight across the picture, not along the trail: where the trail bends back on itself,
+// stones far apart on the trail can still land on top of each other.
+const MIN = 0.22; // in widths of the picture
 
-function trailLength(L) {
-  let len = 0;
-  for (let i = 1; i < L.path.length; i++) {
-    const [x0, y0] = L.path[i - 1], [x1, y1] = L.path[i];
-    len += Math.hypot((x1 - x0) / 100, (y1 - y0) / 100 / L.ratio);
-  }
-  return len;
-}
+const gap = (L, a, b) => Math.hypot((a[0] - b[0]) / 100, (a[1] - b[1]) / 100 / L.ratio);
 
-// How many copies of the photo a land needs for n stones.
-export const panelsFor = (L, n) => Math.max(1, Math.ceil(n * GAP / (trailLength(L) * 0.92)));
-
-// n points spread evenly along the trail (bottom to top), as [x%, y%]; mirrored for the copies.
-export function trailPoints(L, n, mirrored = false) {
-  const seg = [];
+// The trail as a list of points about 1% of a picture width apart, with the distance along the
+// trail at each one.
+const traces = new Map();
+function trace(L) {
+  if (traces.has(L)) return traces.get(L);
+  const out = [];
   let total = 0;
   for (let i = 1; i < L.path.length; i++) {
-    const [x0, y0] = L.path[i - 1], [x1, y1] = L.path[i];
-    const d = Math.hypot((x1 - x0) / 100, (y1 - y0) / 100 / L.ratio);
-    seg.push([x0, y0, x1, y1, total, d]); total += d;
+    const p0 = L.path[i - 1], p1 = L.path[i], d = gap(L, p0, p1), steps = Math.max(1, Math.ceil(d / 0.01));
+    for (let k = i === 1 ? 0 : 1; k <= steps; k++) {
+      const f = k / steps;
+      out.push({ x: p0[0] + (p1[0] - p0[0]) * f, y: p0[1] + (p1[1] - p0[1]) * f, t: total + d * f });
+    }
+    total += d;
   }
+  traces.set(L, out);
+  return out;
+}
+
+// Walk up the trail, dropping a stone once it is at least `step` along the trail from the last
+// one and at least MIN away from every stone so far.
+function walk(L, step, max = Infinity) {
+  const tr = trace(L), total = tr[tr.length - 1].t, from = total * 0.04, to = total * 0.96;
   const out = [];
-  for (let k = 0; k < n; k++) {
-    const t = total * (0.04 + 0.92 * (n === 1 ? 0.5 : k / (n - 1)));
-    const s = seg.find(q => t <= q[4] + q[5]) || seg[seg.length - 1];
-    const f = s[5] ? Math.min(1, (t - s[4]) / s[5]) : 0;
-    const x = s[0] + (s[2] - s[0]) * f, y = s[1] + (s[3] - s[1]) * f;
-    out.push([mirrored ? 100 - x : x, y]);
+  let lastT = -Infinity;
+  for (const q of tr) {
+    if (out.length >= max) break;
+    if (q.t < from || q.t > to || q.t - lastT < step) continue;
+    if (out.some(o => gap(L, o, [q.x, q.y]) < MIN)) continue;
+    out.push([q.x, q.y]); lastT = q.t;
   }
   return out;
 }
+
+// most stones one photo holds
+const capacity = L => walk(L, MIN).length;
+
+// n stones spread as widely as the trail allows (bottom to top), as [x%, y%]; mirrored for the copies.
+export function trailPoints(L, n, mirrored = false) {
+  if (n <= 0) return [];
+  let pts;
+  if (n === 1) {
+    const tr = trace(L), mid = tr[tr.length - 1].t / 2;
+    const q = tr.find(o => o.t >= mid);
+    pts = [[q.x, q.y]];
+  } else {
+    // the longest step along the trail that still fits n stones
+    let lo = MIN, hi = trace(L).at(-1).t;
+    for (let i = 0; i < 24; i++) { const s = (lo + hi) / 2; if (walk(L, s).length >= n) lo = s; else hi = s; }
+    pts = walk(L, lo, n);
+  }
+  return pts.map(([x, y]) => [mirrored ? 100 - x : x, y]);
+}
+
+// closest two of these points, in picture widths
+export function closest(L, pts) {
+  let min = Infinity;
+  for (let a = 0; a < pts.length; a++) for (let b = a + 1; b < pts.length; b++) min = Math.min(min, gap(L, pts[a], pts[b]));
+  return min;
+}
+
+// How many copies of the photo a land needs for n stones.
+export const panelsFor = (L, n) => Math.max(1, Math.ceil(n / capacity(L)));
 
 const SUB_COLORS = ["mint", "pink", "purple", "sky", "orange", "yellow"];
 export const subColor = s => SUB_COLORS[(groupIndex(s.group) + subIndex(s)) % SUB_COLORS.length];
