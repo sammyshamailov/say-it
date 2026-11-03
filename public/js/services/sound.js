@@ -38,40 +38,100 @@ function sfx(name) { if (settings().sfx && SFX[name]) SFX[name](); }
 const el = new Audio();
 el.preload = "auto";
 
-// ---------- gentle pentatonic music loop ----------
-// The music steps aside whenever something needs to be heard (a word, Hebrew help, feedback)
-// or recorded (the child's voice), and comes back a moment after it's quiet again.
-const MEL = [523, 587, 659, 784, 880, 784, 659, 587, 523, 659, 784, 1047, 880, 784, 659, 523];
-const BASS = [131, 131, 196, 196, 175, 175, 196, 196];
+// ---------- soundtrack ----------
+// One looping track per place: the theme (start, who's playing, sticker book), each land of the
+// map (the land in view; in a round, the stone's land), the mini-games and the garden. The party
+// stone gets a short jingle. Files are made by tools/music/build.py and saved for offline play.
+//
+// The music steps aside whenever something needs to be heard (a word, Hebrew help, feedback):
+// it drops to a whisper, and goes silent while the child's voice is recorded. It comes back a
+// moment after it's quiet again.
+export const MUSIC_V = 1; // bump when the music files change, so phones fetch the new ones
+const TRACKS = ["theme", "animals", "food", "people", "things", "outside", "learning", "games", "garden", "party"];
+const musicUrl = name => `music/${name}.m4a?v=${MUSIC_V}`;
+const LEVEL = 0.3;      // the music under everything else
+const UNDER_VOICE = 0.12; // while a voice is talking
 const RETURN_MS = 900;
-let musicTimer = null, musicStep = 0, bus = null, hushCount = 0, quietUntil = 0;
+let bus = null, hushCount = 0, quietUntil = 0, watchTimer = null;
+let musicOn = false, want = "theme", cur = null; // cur: the track playing now {name, el, g}
+const players = new Map(); // name -> {el, g, ready: Promise}
 
 function musicBus() {
   const c = ac(); if (!c) return null;
-  if (!bus) { bus = c.createGain(); bus.connect(c.destination); }
+  if (!bus) {
+    const master = c.createGain(); master.gain.value = LEVEL; master.connect(c.destination);
+    bus = c.createGain(); bus.connect(master);
+  }
   return bus;
 }
-function duck() { // fade the notes already sounding, in about 0.1 s
+function rampTo(param, v, tc) { if (!ctx) return; param.cancelScheduledValues(ctx.currentTime); param.setTargetAtTime(v, ctx.currentTime, tc); }
+function duck() { // the music steps back in about 0.1 s
   quietUntil = Date.now() + RETURN_MS;
-  if (bus && ctx) { bus.gain.cancelScheduledValues(ctx.currentTime); bus.gain.setTargetAtTime(0, ctx.currentTime, 0.03); }
+  if (bus) rampTo(bus.gain, hushCount > 0 ? 0 : UNDER_VOICE, 0.03);
 }
 function hush(on) { hushCount = Math.max(0, hushCount + (on ? 1 : -1)); duck(); }
 const voiceBusy = () => hushCount > 0 || (("speechSynthesis" in window) && speechSynthesis.speaking) || (!el.paused && !el.ended);
-function musicTick() {
-  if (voiceBusy()) { duck(); return; }
-  if (Date.now() < quietUntil) return;
-  const b = musicBus(); if (!b) return;
-  if (b.gain.value < 1) { b.gain.cancelScheduledValues(ctx.currentTime); b.gain.setTargetAtTime(1, ctx.currentTime, 0.15); }
-  tone(MEL[musicStep % MEL.length], 0, .28, "triangle", .035, null, b);
-  if (musicStep % 2 === 0) tone(BASS[(musicStep / 2) % BASS.length], 0, .55, "sine", .05, null, b);
-  musicStep++;
+function watch() {
+  if (voiceBusy()) return duck();
+  if (Date.now() >= quietUntil && bus && bus.gain.value < .99) rampTo(bus.gain, 1, 0.25);
+}
+
+// A player per track: an <audio> element fed from a downloaded copy (no streaming, so it works
+// offline and loops cleanly), routed through Web Audio so its volume can be faded on every phone.
+function player(name) {
+  if (players.has(name)) return players.get(name);
+  const c = ac(), b = musicBus(); if (!c || !b) return null;
+  const a = new Audio(); a.loop = name !== "party"; a.preload = "auto";
+  const g = c.createGain(); g.gain.value = 0;
+  try { c.createMediaElementSource(a).connect(g); } catch (e) { return null; }
+  g.connect(b);
+  const pl = { name, el: a, g };
+  pl.ready = fetch(musicUrl(name)).then(r => { if (!r.ok) throw new Error("music " + r.status); return r.blob(); })
+    .then(blob => { a.src = URL.createObjectURL(blob); });
+  pl.ready.catch(() => players.delete(name)); // try again next time
+  players.set(name, pl);
+  return pl;
+}
+function fadeOut(pl) {
+  rampTo(pl.g.gain, 0, 0.35);
+  setTimeout(() => { if (cur !== pl) pl.el.pause(); }, 1500);
+}
+async function switchTo(name) {
+  if (cur && cur.name === name) { if (cur.el.src) { rampTo(cur.g.gain, 1, 0.5); if (cur.el.paused) cur.el.play().catch(() => {}); } return; }
+  if (cur) fadeOut(cur);
+  const pl = player(name); cur = pl;
+  if (!pl) return;
+  try { await pl.ready; } catch (e) { return; }
+  if (cur !== pl || !musicOn) return;
+  if (pl.el.ended || name === "party") pl.el.currentTime = 0; // a land you come back to carries on where it was
+  rampTo(pl.g.gain, 1, 0.5);
+  pl.el.play().catch(() => {}); // blocked until the next touch on some phones; see main.js
+}
+// The screen says which music belongs to it.
+function scene(name) {
+  if (!TRACKS.includes(name) || name === "party") return;
+  want = name;
+  if (musicOn && !(cur && cur.name === "party" && !cur.el.paused)) switchTo(name);
+}
+// The party stone's jingle, instead of the fanfare. Then the music carries on. False if music is off.
+function jingle() {
+  if (!musicOn) return false;
+  const pl = player("party"); if (!pl) return false;
+  switchTo("party");
+  pl.el.onended = () => { if (cur === pl && musicOn) switchTo(want); };
+  return true;
 }
 function music(on) {
-  clearInterval(musicTimer); musicTimer = null;
-  if (on && settings().sfx) musicTimer = setInterval(musicTick, 340);
+  musicOn = !!on;
+  clearInterval(watchTimer); watchTimer = null;
+  if (musicOn) { watchTimer = setInterval(watch, 200); switchTo(want); }
+  else if (cur) { const pl = cur; cur = null; fadeOut(pl); }
 }
 // music follows the settings: on only when both sounds and music are on
 const syncMusic = () => music(settings().sfx && settings().music);
+// after a touch: start music a phone wouldn't let start on its own
+const nudgeMusic = () => { if (musicOn && cur && cur.el.paused && cur.el.src && !(cur.name === "party" && cur.el.ended)) cur.el.play().catch(() => {}); };
+const musicUrls = () => TRACKS.map(musicUrl);
 
 // ---------- device voices ----------
 let enVoice = null, heVoice = null, keep = null;
@@ -176,6 +236,6 @@ function talk(key, gender) {
 }
 
 export const Sound = {
-  sfx, music, syncMusic, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, hush,
-  recordingUrls, unlock: () => ac()
+  sfx, music, syncMusic, scene, jingle, nudgeMusic, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, hush,
+  recordingUrls, musicUrls, unlock: () => ac()
 };

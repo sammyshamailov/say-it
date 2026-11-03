@@ -17,7 +17,7 @@ export function shuffle(a) {
   return a;
 }
 
-const blankSettings = () => ({ music: false, sfx: true, sayMode: "auto", hebrew: true, unlockAll: false, mascot: "Pipo" });
+const blankSettings = () => ({ music: true, musicV: 2, sfx: true, sayMode: "auto", hebrew: true, unlockAll: false, mascot: "Pipo" });
 const blank = now => ({ v: 2, profiles: [], lastId: null, created: now, settings: blankSettings() });
 const newRecord = now => ({ lvl: 0, due: 0, right: 0, wrong: 0, said: 0, clear: 0, seen: now });
 
@@ -94,6 +94,8 @@ export function createStore({ storage, now = Date.now } = {}) {
   try { state = JSON.parse(read(KEY) || "null"); } catch (e) {}
   if (!state || state.v !== 2) state = migrate() || blank(now());
   state.settings = Object.assign(blankSettings(), state.settings || {});
+  // 2.6 brought a real soundtrack: switch the music on once (parents can still turn it off)
+  if (!(state.settings.musicV >= 2)) Object.assign(state.settings, { music: true, musicV: 2 });
   state.profiles.forEach(upgradeProfile);
 
   let saveTimer = null;

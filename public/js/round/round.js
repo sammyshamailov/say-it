@@ -112,6 +112,7 @@ function show() {
     Speech.release();
     return finish(r);
   }
+  Sound.scene(step.t === "pop" || step.t === "memory" ? "games" : r.sub.group.id);
   STEPS[step.t](contextFor(r), step);
 }
 

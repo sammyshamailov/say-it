@@ -12,6 +12,7 @@ Live: https://say-it-words.netlify.app/
 - **Say it**: on Android Chrome the browser's speech recognition checks the word and gives a bonus star. Everywhere else, and after one unheard try, "Echo" records the child, plays their voice back, then the model word. Every real attempt earns a star.
 - **Spaced repetition**: each word has a level per child; a miss lowers it and brings the word back in the same round and later rounds.
 - **Rewards**: stars, a sticker book (tap a sticker to hear its word), and the garden: kids spend stars to adopt any animal whose English word they've answered correctly (5 stars each; it lives in their garden and says its name when tapped) and to buy hats for the mascot (6–10 stars). Prices are shown as rows of stars, not numbers. Total stars earned never goes down; only the purse does. Nothing bought is ever lost, and nothing can be bought with real money.
+- **Music**: each place has its own soundtrack: a main theme (start, who's playing, sticker book), one track per land (the land in view on the map, and the stone's land during a round), the bonus games, and the garden. Finishing a land's party stone plays a short jingle. The music drops to a whisper whenever a word, Hebrew help or feedback is spoken, and goes silent while the child is recorded. Parents can turn it off in the parent area.
 - **Parent area**: type three numbers written as Hebrew words (a 4-year-old can't read them). Words learned, words to practice, time played, profiles, settings (sounds, music, Hebrew help, speaking mode, unlock all), microphone info, credits. Hebrew, right to left.
 
 ## Files
@@ -21,6 +22,7 @@ Live: https://say-it-words.netlify.app/
 | `public/` | Everything Netlify serves (the app) |
 | `public/index.html` | App shell |
 | `public/css/app.css` | "Toy Box Bright" design |
+| `public/music/` | The soundtrack: 9 seamless loops and the party jingle, AAC in M4A, about 1 MB each (made by `tools/music/build.py`) |
 | `public/sw.js` | Offline support: opens instantly from the phone, saves pictures and recordings |
 | `public/img/words/` | One picture per word (see `assets/pictures/README.md`) |
 | `public/img/map/` | Land photos, stepping stones, chests and world stickers (made by `tools/pictures/build_map.py` from `assets/map/`) |
@@ -35,6 +37,7 @@ Live: https://say-it-words.netlify.app/
 | `assets/pictures/` | Source sheets, full-size pictures and the prompts used to make them (not deployed) |
 | `tools/pictures/build.py` | Cuts the sheets into pictures |
 | `tools/pictures/build_map.py` | Makes the map pictures |
+| `tools/music/build.py` | Makes the soundtrack loops from the Suno WAVs: same loudness, beat-matched crossfade at the loop point. Bump `MUSIC_V` in `services/sound.js` when the files change |
 | `tools/release.mjs` | Sets the version and refreshes the file lists (`npm run release`) |
 | `netlify/functions/transfer.mjs` | Transfer codes: move progress to another phone |
 | `netlify/functions/transfer-cleanup.mjs` | Daily sweep of unused codes |
@@ -71,5 +74,6 @@ Parent area → "העברה לטלפון אחר". The old phone uploads its prog
 ## Credits
 
 - Word recordings: Wiktionary and Lingua Libre contributors on [Wikimedia Commons](https://commons.wikimedia.org), CC BY-SA (each file's page on Commons names its author and exact licence). Played as Commons' MP3 versions. Words without a recording use the device's voice.
+- Music: made for the app with [Suno](https://suno.com) on a paid plan (commercial use allowed).
 - Font: [Fredoka](https://github.com/google/fonts/tree/main/ofl/fredoka), SIL Open Font License (`fonts/OFL.txt`), subset to Latin + Hebrew.
 - Pictures: illustrations made for the app (see `assets/pictures/README.md`). Colours and numbers are drawn by the app.

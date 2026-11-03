@@ -34,7 +34,8 @@ export async function finish(r) {
       <button class="b3 play c-yellow" id="again" aria-label="Play more">${I.play}</button>
       ${iconButton({ id: "book", color: "purple", icon: I.book, label: "Sticker book" })}
     </div></div>`);
-  Sound.sfx("fanfare");
+  // the party stone (end of a land) gets its jingle; otherwise the fanfare
+  if (!(r.sub.kind === "party" && Sound.jingle())) Sound.sfx("fanfare");
   $("#stk").onclick = () => Sound.word(prize.en);
   $("#home").onclick = () => nav.reset("map");
   $("#again").onclick = () => { nav.base("map"); round.start(store.nextStage(p)); };

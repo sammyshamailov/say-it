@@ -60,7 +60,7 @@ function landPanels(p, g, gi, next) {
       const [x, y] = pts[nextAt];
       extras.push(html`<div class="map-buddy ${x > 50 ? "left" : "right"}" style="left:${x}%;top:${y}%">${Mascot.svg("idle", p.outfit)}</div>`);
     }
-    panels.push(html`<div class="land-panel" style="aspect-ratio:${L.ratio}">
+    panels.push(html`<div class="land-panel" data-land-of="${g.id}" style="aspect-ratio:${L.ratio}">
       <img class="bg ${mirrored ? "flip" : ""}" src="${mapImg(g.id)}" alt="" draggable="false" decoding="async" loading="${gi < 1 ? "eager" : "lazy"}">
       ${extras}${part.map((st, i) => stone(p, st, pts[i], st === next))}</div>`);
   }
@@ -98,8 +98,19 @@ export function map() {
     const a = s.getBoundingClientRect(), b = mapEl.getBoundingClientRect();
     findBtn.hidden = a.bottom > b.top && a.top < b.bottom;
   };
+  // the music of the land in the middle of the screen
+  const panelsEls = [...root.querySelectorAll("[data-land-of]")];
+  let musicFrame = 0;
+  const syncMusic = () => {
+    musicFrame = 0;
+    const b = mapEl.getBoundingClientRect(), mid = (b.top + b.bottom) / 2;
+    const at = panelsEls.find(x => { const r = x.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; });
+    if (at) Sound.scene(at.dataset.landOf);
+  };
   mapEl.addEventListener("scroll", syncFind, { passive: true });
+  mapEl.addEventListener("scroll", () => { if (!musicFrame) musicFrame = requestAnimationFrame(syncMusic); }, { passive: true });
   requestAnimationFrame(syncFind);
+  requestAnimationFrame(syncMusic);
   findBtn.onclick = () => toNext(true);
 
   onTap(root, "[data-st]", b => {

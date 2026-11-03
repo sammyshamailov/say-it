@@ -4,13 +4,13 @@
 // VERSION and SHELL are written by `npm run release <version>` (tools/release.mjs). A new VERSION
 // makes the browser install this worker again, which saves the new app files in a new cache;
 // the page then reloads into it at a calm moment (see js/pwa.js).
-const VERSION = "2.5.1";
+const VERSION = "2.6.0";
 // shell:start
 const SHELL = [
   "./",
   "index.html",
   "manifest.webmanifest",
-  "css/app.css?v=2.5.1",
+  "css/app.css?v=2.6.0",
   "fonts/fredoka.woff",
   "js/core/dom.js",
   "js/core/emitter.js",
@@ -23,7 +23,7 @@ const SHELL = [
   "js/data/outfits.js",
   "js/data/stages.js",
   "js/data/words.js",
-  "js/main.js?v=2.5.1",
+  "js/main.js?v=2.6.0",
   "js/parent/dashboard.js",
   "js/parent/gate.js",
   "js/parent/mic-explain.js",
@@ -64,6 +64,7 @@ const SHELL = [
 const APP = "sayit-app-" + VERSION;
 const AUDIO = "sayit-audio";
 const PICS = "sayit-pictures"; // word and map pictures; their address carries ?p= / ?m= <picture version>
+const MUSIC = "sayit-music";  // the soundtrack; its address carries ?v= <music version>
 
 self.addEventListener("install", e => {
   // cache:"reload" skips the browser's HTTP cache, so a new version never stores old files
@@ -105,6 +106,10 @@ self.addEventListener("fetch", e => {
     e.respondWith(cacheFirst(PICS, req));
     return;
   }
+  if (url.pathname.includes("/music/")) {
+    e.respondWith(cacheFirst(MUSIC, req));
+    return;
+  }
 
   // Opening the app: straight from the phone, no waiting for the network. A newer version is
   // found by the browser's own check of this worker file, installed in the background, and
@@ -124,11 +129,11 @@ self.addEventListener("fetch", e => {
   e.respondWith(cacheFirst(APP, req));
 });
 
-// Download every word recording and picture once, a few at a time, so words work offline.
+// Download every word recording, picture and music track once, a few at a time, so words work offline.
 const busy = {};
 self.addEventListener("message", e => {
   const d = e.data || {};
-  const name = d.type === "cache-audio" ? AUDIO : d.type === "cache-pictures" ? PICS : null;
+  const name = { "cache-audio": AUDIO, "cache-pictures": PICS, "cache-music": MUSIC }[d.type] || null;
   if (!name || busy[name]) return;
   busy[name] = true;
   const files = d.files || [];
@@ -137,7 +142,7 @@ self.addEventListener("message", e => {
       const c = await caches.open(name);
       const have = new Set((await c.keys()).map(k => k.url));
       const abs = f => new URL(f, self.registration.scope).href;
-      if (name === PICS) { // forget pictures from an older picture version
+      if (name === PICS || name === MUSIC) { // forget pictures or music from an older version
         const keep = new Set(files.map(abs));
         await Promise.all([...have].filter(u => !keep.has(u)).map(u => c.delete(u)));
       }

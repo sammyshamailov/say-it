@@ -31,7 +31,10 @@ nav.register("start", start).register("setup", setup).register("who", who)
   .register("map", map).register("stickers", stickers).register("garden", garden)
   .register("round", round.show).register("gate", gate).register("dashboard", dashboard);
 // leaving the round for any other screen stops it
-nav.beforeShow(name => { if (name !== "round") round.leave(); });
+// the music that belongs to each screen (the map and the round choose their land's music themselves;
+// the parent area keeps whatever was playing)
+const SCENE = { start: "theme", setup: "theme", who: "theme", stickers: "theme", garden: "garden" };
+nav.beforeShow(name => { if (name !== "round") round.leave(); if (SCENE[name]) Sound.scene(SCENE[name]); });
 // the back button closes an open sheet first
 nav.interceptBack(closeTopSheet);
 nav.attachHistory();
@@ -47,13 +50,15 @@ app.addEventListener("pointerdown", e => {
 });
 // browsers only allow sound after the first touch
 addEventListener("pointerdown", () => { Sound.unlock(); Sound.syncMusic(); }, { once: true });
+// some phones (iPhone) only let music start right after a touch: try again on the next one
+addEventListener("pointerdown", () => Sound.nudgeMusic(), { passive: true });
 // no music while the app is in the background
 document.addEventListener("visibilitychange", () => { if (document.hidden) Sound.music(false); else Sound.syncMusic(); });
 
 registerServiceWorker({
   // safe to reload for an update: not in a round, no sheet open, not in the parent area or first-run form
   isCalm: () => !round.active && !anySheetOpen() && !document.querySelector(".parent, .gate"),
-  downloads: () => ({ pictures: [...allPictureUrls(), ...mapPictureUrls()], recordings: Sound.recordingUrls() })
+  downloads: () => ({ pictures: [...allPictureUrls(), ...mapPictureUrls()], recordings: Sound.recordingUrls(), music: Sound.musicUrls() })
 });
 
 // modules run after the document is parsed, so the app can start right away
