@@ -1,6 +1,6 @@
-// The mascot: an original little chameleon. Moods: idle, happy, listen, oops. Hats come from the shop.
+// The mascot: an original little chameleon. Moods: idle, happy, listen, oops. Outfits come from the shop.
 import { raw } from "../core/html.js";
-import { OUTFITS } from "../data/outfits.js";
+import { OUTFITS, OUTFIT, worn } from "../data/outfits.js";
 
 const O = "#1A1640";
 const EYES = {
@@ -28,12 +28,16 @@ const BODY = `<path d="M26 72 C 8 72 6 50 19 46 C 30 43 34 55 25 58" fill="none"
       <rect x="72" y="82" width="12" height="14" rx="6" fill="#20A86E" stroke="${O}" stroke-width="3"/>
       <circle cx="98" cy="64" r="4.5" fill="#FF8FB5" opacity=".8"/>`;
 
-const hatSvg = id => OUTFITS.find(x => x.id === id)?.svg || "";
+// outfit: one id or a list; behind the mascot first, then neck, face, head on top
+const ORDER = { back: 0, neck: 1, face: 2, head: 3 };
+const layers = outfit => worn(outfit).map(id => OUTFIT[id]).sort((a, b) => ORDER[a.slot] - ORDER[b.slot]);
+const backSvg = outfit => layers(outfit).map(o => o.back || "").join("");
+const frontSvg = outfit => layers(outfit).map(o => o.svg || "").join("");
 
 // mood decides face and arm; extra classes (idle animation, happy bounce) go in cls
 function svg(mood = "idle", outfit = null, cls = "") {
   return raw(`<svg class="buddy ${mood} ${cls}" viewBox="0 -8 124 108" aria-hidden="true"><g class="body">
-      ${ARMS[mood] || ""}${BODY}${EYES[mood] || ""}${MOUTHS[mood] || ""}${hatSvg(outfit)}
+      ${backSvg(outfit)}${ARMS[mood] || ""}${BODY}${EYES[mood] || ""}${MOUTHS[mood] || ""}${frontSvg(outfit)}
     </g></svg>`);
 }
 

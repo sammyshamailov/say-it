@@ -20,10 +20,12 @@ export function pets(p) {
     .map((k, i) => ({ kind: "pet", id: petId(k), key: k, w: WORD[k], price: PET_PRICE, known: store.knows(p, k), r: rank(k) * 1e4 + WORD[k].tier * 1e3 + i }))
     .sort((a, b) => a.r - b.r);
 }
-export const hats = () => OUTFITS.map(o => ({ kind: "hat", id: hatId(o.id), hat: o.id, price: o.price, known: true }));
+// a land's outfit shows as a shadow until that land of the map is open
+export const hats = p => OUTFITS.map(o => ({ kind: "hat", id: hatId(o.id), hat: o.id, price: o.price, land: o.land,
+  known: !o.land || store.owns(p, hatId(o.id)) || store.landOpen(p, WORDS.findIndex(g => g.id === o.land)) }));
 
 // Is there anything the child could buy right now? (makes the shop button glow)
 export function canBuy(p) {
   const n = store.purse(p);
-  return pets(p).some(x => x.known && x.price <= n) || hats().some(x => !store.owns(p, x.id) && x.price <= n);
+  return pets(p).some(x => x.known && x.price <= n) || hats(p).some(x => x.known && !store.owns(p, x.id) && x.price <= n);
 }

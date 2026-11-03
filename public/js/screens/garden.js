@@ -7,20 +7,26 @@ import { store } from "../state.js";
 import { WORD } from "../data/index.js";
 import { Sound } from "../services/sound.js";
 import { pets, hats, ownedPets } from "../services/shop.js";
+import { LANDS } from "../data/lands.js";
+import { worn, toggleWear } from "../data/outfits.js";
 import { I } from "../ui/icons.js";
 import { pic } from "../ui/picture.js";
 import { Mascot } from "../ui/mascot.js";
 import { iconButton, starsPill, nope } from "../ui/components.js";
 
 // Price as a row of star icons (no numbers to read): gold for stars you have, outlines for the rest.
-const priceRow = (price, have) => html`<span class="price" aria-label="${price} stars">${Array.from({ length: price }, (_, i) =>
-  i < have ? I.star("#FFD23F", "#1A1640") : I.star("#EEEAFB", "#B9B3F0"))}</span>`;
+// Big prices use big stars worth five each, so the row still fits on a tile.
+const priceRow = (price, have) => {
+  const big = price > 10, unit = big ? 5 : 1, n = Math.ceil(price / unit);
+  return html`<span class="price ${big ? "big" : ""}" aria-label="${price} stars">${Array.from({ length: n }, (_, i) =>
+    have >= (i + 1) * unit ? I.star("#FFD23F", "#1A1640") : I.star("#EEEAFB", "#B9B3F0"))}</span>`;
+};
 
 function shelfItem(p, x, have) {
   const owned = store.owns(p, x.id);
   const art = x.kind === "pet" ? pic(x.w.pic, { player: p }) : Mascot.svg("idle", x.hat); // hats are shown on the mascot
-  const label = (x.kind === "pet" ? x.w.en : x.hat) + (owned ? "" : x.known ? ", " + x.price + " stars" : ", not learned yet");
-  const on = x.kind === "hat" && p.outfit === x.hat;
+  const label = (x.kind === "pet" ? x.w.en : x.hat) + (owned ? "" : x.known ? ", " + x.price + " stars" : x.land ? ", opens in " + LANDS[x.land].en : ", not learned yet");
+  const on = x.kind === "hat" && worn(p.outfit).includes(x.hat);
   return html`<button class="b3 item c-white ${x.known ? "" : "shadow"} ${on ? "on" : ""}" data-item="${x.id}" aria-label="${label}">
     <span class="art ${x.kind === "hat" ? "onbuddy" : ""}">${art}</span>${owned || !x.known ? "" : priceRow(x.price, have)}</button>`;
 }
@@ -29,7 +35,7 @@ let tab = "pets"; // remembered while the app is open
 
 export function garden({ justBought } = {}) {
   const p = store.player();
-  const shelf = tab === "pets" ? pets(p) : hats();
+  const shelf = tab === "pets" ? pets(p) : hats(p);
   const have = store.purse(p);
   const { root, $ } = mount(document.getElementById("app"), html`<div class="screen">
     <div class="top">${iconButton({ id: "back", icon: I.back, label: "Back" })}<div class="grow"></div>${starsPill(p)}</div>
@@ -42,7 +48,7 @@ export function garden({ justBought } = {}) {
       <button class="b3 c-purple" data-tab="hats" role="tab" aria-pressed="${tab === "hats"}" aria-label="Hats">${I.shirt}</button>
     </div>
     <div class="shelf">
-      ${tab === "hats" ? html`<button class="b3 item c-white ${p.outfit ? "" : "on"}" data-hat="" aria-label="No hat"><span class="art onbuddy">${Mascot.svg("idle", null)}</span></button>` : ""}
+      ${tab === "hats" ? html`<button class="b3 item c-white ${worn(p.outfit).length ? "" : "on"}" data-hat="" aria-label="Nothing on"><span class="art onbuddy">${Mascot.svg("idle", null)}</span></button>` : ""}
       ${shelf.map(x => shelfItem(p, x, have))}
     </div></div>`);
 
@@ -53,8 +59,8 @@ export function garden({ justBought } = {}) {
   onTap(root, "[data-hat]", () => { p.outfit = null; store.save(); nav.refresh(); });
   onTap(root, "[data-item]", b => {
     const x = shelf.find(s => s.id === b.dataset.item);
-    if (x.kind === "hat" && store.owns(p, x.id)) { p.outfit = x.hat; store.save(); Sound.sfx("good"); return nav.refresh(); }
-    if (!x.known) { nope(b); Sound.word(x.w.en); return; } // not learned yet: say it as a hint to keep playing
+    if (x.kind === "hat" && store.owns(p, x.id)) { p.outfit = toggleWear(p.outfit, x.hat); store.save(); Sound.sfx("good"); return nav.refresh(); }
+    if (!x.known) { nope(b); if (x.kind === "pet") Sound.word(x.w.en); return; } // pets not learned yet: say it as a hint to keep playing
     offer(p, x);
   });
 }
@@ -78,7 +84,7 @@ function offer(p, x) {
     sheet.close();
     if (!store.buy(p, x.id, x.price)) return;
     Sound.sfx("unlock");
-    if (x.kind === "hat") { p.outfit = x.hat; store.save(); return nav.refresh(); }
+    if (x.kind === "hat") { p.outfit = toggleWear(p.outfit, x.hat); store.save(); return nav.refresh(); }
     garden({ justBought: x.key });
     setTimeout(() => Sound.word(x.w.en), 450);
   };

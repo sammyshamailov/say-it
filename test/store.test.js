@@ -185,3 +185,17 @@ test("every stone has words, and every word is on exactly one word stone", () =>
   for (const k of ALL_KEYS) assert.equal(seen.get(k), 1, k);
   assert.equal(new Set(STAGES.map(st => st.id)).size, STAGES.length, "stone ids are unique");
 });
+
+test("outfits: one thing per slot, a second tap takes it off, older one-hat saves still work", async () => {
+  const { worn, toggleWear, OUTFITS } = await import("../public/js/data/outfits.js");
+  assert.deepEqual(worn("crown"), ["crown"], "a save from before slots");
+  assert.deepEqual(worn(null), []);
+  let o = toggleWear("crown", "glasses");
+  assert.deepEqual(o, ["crown", "glasses"], "a hat and glasses together");
+  o = toggleWear(o, "pirate");
+  assert.deepEqual(o, ["glasses", "pirate"], "a new hat replaces the old one");
+  o = toggleWear(o, "glasses");
+  assert.deepEqual(o, ["pirate"]);
+  assert.ok(OUTFITS.every(x => ["head", "face", "neck", "back"].includes(x.slot)));
+  assert.equal(new Set(OUTFITS.map(x => x.id)).size, OUTFITS.length);
+});

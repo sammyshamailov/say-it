@@ -294,6 +294,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .item.shadow .art{filter:brightness(0) opacity(.3)}
 .price{display:grid;grid-template-columns:repeat(5,auto);gap:1px;justify-content:center}
 .price svg{width:14px;height:14px}
+.price.big svg{width:17px;height:17px}
+.sheet.buy .price.big svg{width:44px;height:44px}
 .sheet.buy{align-items:center;text-align:center;max-width:340px}
 .sheet.buy .big-art{min-height:150px;display:grid;place-items:center}
 .sheet.buy .pet-big{font-size:110px;line-height:1}
