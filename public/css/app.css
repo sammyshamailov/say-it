@@ -287,7 +287,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .tabs .b3[aria-pressed=true]:after,.item.on:after{content:"";position:absolute;inset:-6px -6px -13px;border:5px solid var(--yellow);border-radius:28px;pointer-events:none}
 .b3.down.on:after,.b3.on:active:after,.tabs .b3[aria-pressed=true]:active:after{inset:-6px -6px -8px}
 .shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:14px;overflow-y:auto;flex:1;min-height:0;padding:10px 10px 20px;align-content:start}
-.item{aspect-ratio:1;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;color:var(--ink)}
+/* every tile the same size: a fixed slot for the picture and one for the price (empty when there's none) */
+.item{border-radius:22px;display:grid;grid-template-rows:68px 34px;align-content:center;justify-items:center;row-gap:6px;padding:12px 6px 10px;color:var(--ink)}
+.item .price{align-self:start}
+.item:not(:has(.price)) .art{grid-row:1/3;align-self:center}
 .item .art{font-size:44px;line-height:1;display:grid;place-items:center}
 .item .art svg{width:66px;height:56px}
 .item .art.onbuddy svg{width:76px;height:66px}
