@@ -101,8 +101,19 @@ test("shop: an animal is for sale once its word was answered right", () => {
   assert.ok(store.knows(p, "farm/cow"));
 });
 
-test("rounds: new words first, never more than six, a stone is done once all its words were met", () => {
-  const { store } = newStore();
+// a fake clock, so tests can move to the next day
+function clockStore(init) {
+  const clock = { t: new Date(2026, 10, 4, 9, 0).getTime() };
+  const storage = fakeStorage(init);
+  return { clock, store: createStore({ storage, now: () => clock.t }) };
+}
+const HOUR = 36e5;
+// every word of these stones answered right on two days
+const remember = (p, stones) => stones.forEach(st => st.keys.forEach(k =>
+  (p.words[k] = { lvl: 2, due: 0, right: 2, wrong: 0, said: 0, clear: 0, seen: 0, days: 2 })));
+
+test("rounds: new words first, never more than six; a stone is met once all its words were shown", () => {
+  const { store } = clockStore();
   const p = store.newProfile("Noa"); store.addProfile(p);
   const st = store.nextStage(p);
   assert.equal(st.id, "farm-1-1", "starts at the bottom of the first land");
@@ -112,18 +123,52 @@ test("rounds: new words first, never more than six, a stone is done once all its
   r.fresh.forEach(k => store.meet(p, k));
   store.finishRound(p, st, { pic: "img:farm-cow", en: "cow" }, 60000);
   assert.equal(p.rounds, 1); assert.equal(p.stickers.length, 1); assert.equal(p.playMs, 60000);
-  assert.ok(!store.stageDone(p, st), "words left to meet");
+  assert.ok(!store.stageMet(p, st), "words left to meet");
   assert.equal(store.nextStage(p), st, "so it stays the next stone");
   const r2 = store.buildRound(p, st);
   assert.ok(r2.fresh.length > 0 && r2.fresh.every(k => !r.fresh.includes(k)), "the rest come next time");
   r2.fresh.forEach(k => store.meet(p, k));
   store.finishRound(p, st, { pic: "img:farm-cow", en: "cow" }, 1000);
+  assert.ok(store.stageMet(p, st));
+  assert.ok(!store.stageDone(p, st), "met is not done");
+  assert.notEqual(store.nextStage(p), st, "Play moves on to new words");
+});
+
+test("a word stone is done once every word was answered right on two different days", () => {
+  const { store, clock } = clockStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const st = STAGE["farm-1-1"];
+  st.keys.forEach(k => store.meet(p, k));
+  st.keys.forEach(k => store.mark(p, k, true));
+  clock.t += HOUR;
+  st.keys.forEach(k => store.mark(p, k, true));
+  assert.ok(!store.stageDone(p, st), "right twice on the same day is not enough");
+  assert.equal(store.stageProgress(p, st), 0.5, "met, not yet remembered");
+  clock.t += 24 * HOUR;
+  st.keys.slice(1).forEach(k => store.mark(p, k, true));
+  assert.ok(!store.stageDone(p, st), "one word still waits for its second day");
+  store.mark(p, st.keys[0], true);
   assert.ok(store.stageDone(p, st));
-  assert.notEqual(store.nextStage(p), st);
+  assert.equal(store.stageProgress(p, st), 1);
+  const q = store.newProfile("Ari"); store.addProfile(q);
+  st.keys.forEach(k => { store.mark(q, k, false); });
+  clock.t += 24 * HOUR;
+  st.keys.forEach(k => { store.mark(q, k, false); });
+  assert.ok(!store.stageDone(q, st), "wrong answers never count");
+});
+
+test("when every open stone was met, Play picks the stone with words due for review", () => {
+  const { store, clock } = clockStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const open = STAGES.filter(st => st.kind === "word" && store.stageOpen(p, st));
+  open.forEach(st => st.keys.forEach(k => { store.meet(p, k); store.mark(p, k, true); }));
+  clock.t += 2 * HOUR;
+  const next = store.nextStage(p);
+  assert.ok(open.includes(next) && store.dueKeys(p, next.keys).length > 0);
 });
 
 test("lands: one at a time up the trail; inside a land, harder stones open once most easier ones are done", () => {
-  const { store } = newStore();
+  const { store } = clockStore();
   const p = store.newProfile("Noa"); store.addProfile(p);
   const words = gi => LAND_STAGES[gi].filter(st => st.kind === "word");
   const t1 = words(0).filter(st => st.tier === 1);
@@ -131,22 +176,27 @@ test("lands: one at a time up the trail; inside a land, harder stones open once 
   assert.ok(t1.every(st => store.stageOpen(p, st)), "the first land's easy stones are open from the start");
   assert.ok(!store.stageOpen(p, t2));
   assert.ok(LAND_STAGES.slice(1).flat().every(st => !store.stageOpen(p, st)), "later lands start locked");
-  t1.slice(0, Math.ceil(t1.length * 0.7)).forEach(st => (p.stages[st.id] = true));
+  remember(p, t1.slice(0, Math.ceil(t1.length * 0.7)));
   assert.ok(store.stageOpen(p, t2));
-  assert.ok(!store.landOpen(p, 1), "the next land waits for most of this one");
-  words(0).slice(0, Math.ceil(words(0).length * 0.7)).forEach(st => (p.stages[st.id] = true));
-  assert.ok(store.landOpen(p, 1));
-  assert.ok(words(1).filter(st => st.tier === 1).every(st => store.stageOpen(p, st)));
-  assert.ok(!store.landOpen(p, 2));
-  store.settings.unlockAll = true;
-  assert.ok(STAGES.every(st => store.stageOpen(p, st)), "parents can open everything");
+  const easy = words(0).filter(st => st.tier <= 2);
+  const need = Math.ceil(easy.length * 0.4);
+  const { store: s2 } = clockStore();
+  const q = s2.newProfile("Ari"); s2.addProfile(q);
+  remember(q, easy.slice(0, need - 1));
+  assert.ok(!s2.landOpen(q, 1), "the next land waits for 40% of this land's easy stones");
+  remember(q, easy.slice(need - 1, need));
+  assert.ok(s2.landOpen(q, 1));
+  assert.ok(words(1).filter(st => st.tier === 1).every(st => s2.stageOpen(q, st)));
+  assert.ok(!s2.landOpen(q, 2));
+  s2.settings.unlockAll = true;
+  assert.ok(STAGES.every(st => s2.stageOpen(q, st)), "parents can open everything");
 });
 
 test("lands: a land already played in stays open", () => {
-  const { store } = newStore();
+  const { store } = clockStore();
   const p = store.newProfile("Noa"); store.addProfile(p);
   const st = LAND_STAGES[3].find(x => x.kind === "word" && x.tier === 1);
-  p.stages[st.id] = true;
+  store.meet(p, st.keys[0]);
   assert.ok(store.landOpen(p, 3));
   assert.ok(LAND_STAGES[3].filter(x => x.kind === "word" && x.tier === 1).every(x => store.stageOpen(p, x)));
 });
@@ -168,8 +218,7 @@ test("a save from before the big map keeps its finished groups and moved words",
     const { store } = how === "storage" ? newStore({ [KEY]: JSON.stringify(old) }) : newStore();
     if (how === "restore") assert.ok(store.replaceAll(JSON.parse(JSON.stringify(old))));
     const p = store.player();
-    assert.ok(store.stageDone(p, STAGE["farm-1-1"]), how + ": the stone with cow is done");
-    assert.ok(!store.stageDone(p, STAGE["farm-3-1"]), how + ": stones of new farm words are not");
+    assert.ok(store.stageStarted(p, STAGE["farm-1-1"]), how + ": the stone with cow is started");
     assert.ok(p.words["dinos/dinosaur"] && !p.words["wild/dinosaur"], how + ": the dinosaur moved to its own group");
     assert.deepEqual(p.owned, ["pet:dinos/dinosaur"], how + ": and stays in the garden");
     assert.equal(p.mapV, 3);

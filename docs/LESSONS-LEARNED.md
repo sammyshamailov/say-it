@@ -4,6 +4,11 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Map and layout
 
+**Stones counted as done after the words were only seen (changed in 2.8.0)**
+- What happened: by design a word stone was done once each word had been shown once, and everything that unlocks (tiers, lands, chests) followed "done". A child could clear the trail without remembering a word; research on 4–5-year-olds shows a word seen once is mostly gone minutes later, and spreading exposures over days is what makes it stick. The land order also put 113 animals (hoopoe, walrus, pterodactyl) before mom, eye, red, one, eat and happy.
+- Fix (Sammy chose this, after a council review): done = every word answered right on two different days; reviews show at least 3 pictures; a land opens at 40% of the easy stones below; first words moved to tier 1; a free-recall step ("What's this?").
+- Rule: unlocks must follow what the child remembers, not what the app showed. Check new content against early-vocabulary order (first words in any language come first), not just by topic.
+
 **A tapped locked stone jumped off the trail (fixed in 2.6.1)**
 - What happened: the shared `wiggle` animation sets `transform` in every keyframe, which replaced the stone's `translate(-50%,-62%)` centring. The stone snapped half its size up and sideways while shaking.
 - Fix: a stone-only `stonewiggle` that keeps the translate in every frame, with a smaller shake.

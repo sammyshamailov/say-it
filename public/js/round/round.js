@@ -19,7 +19,7 @@ import { pop } from "./steps/pop.js";
 import { memory } from "./steps/memory.js";
 import { finish } from "./steps/finish.js";
 
-const STEPS = { meet, tap, say, pop, memory };
+const STEPS = { meet, tap, say, whats: say, pop, memory };
 
 class Round {
   constructor(player, sub, words, steps) {
@@ -40,12 +40,16 @@ class Round {
 
 let current = null;
 
-// The order of steps for one round.
+// The order of steps for one round. "What's this?" asks for words met in earlier rounds, before
+// the round says them again; "Say it" is for the new ones. Three of the two together at most.
 function plan(p, b) {
   const steps = [];
+  const old = b.words.filter(k => !b.fresh.includes(k));
+  const recall = shuffle(old).slice(0, b.fresh.length ? 1 : 3);
   b.fresh.forEach(k => steps.push({ t: "meet", k }));
+  recall.forEach(k => steps.push({ t: "whats", k }));
   shuffle(b.words).forEach(k => steps.push({ t: "tap", k }));
-  [...b.fresh, ...b.words.filter(k => !b.fresh.includes(k))].slice(0, 3).forEach(k => steps.push({ t: "say", k }));
+  b.fresh.slice(0, 3 - recall.length).forEach(k => steps.push({ t: "say", k }));
   steps.push({ t: p.rounds % 2 ? "memory" : "pop", keys: b.words.slice(0, Math.min(3, b.words.length)) });
   return steps;
 }

@@ -35,7 +35,7 @@ Long-term: Sammy wants it to earn money someday. Current thinking is a parent-pa
 | `public/js/data/` | `words.js` (484 words, tier 1-5 each), `stages.js` (stones built from words), `lands.js` (land photos, trail paths, stone placement), `outfits.js` |
 | `public/js/services/` | `store.js` (progress, spaced repetition, unlock rules, rounds), `sound.js`, `speech.js`, `shop.js`, `match.js` |
 | `public/js/screens/` | map, who, stickers, garden (garden + shop) |
-| `public/js/round/` | `round.js` runs a round; `steps/` meet, tap, say, pop, memory, finish |
+| `public/js/round/` | `round.js` runs a round; `steps/` meet, tap, say (also "What's this?"), pop, memory, finish |
 | `public/js/parent/` | gate, dashboard, setup, transfer, profile form |
 | `public/css/app.css` | All styles ("Toy Box Bright") |
 | `test/` | `node --test` suites |
@@ -53,8 +53,9 @@ Long-term: Sammy wants it to earn money someday. Current thinking is a parent-pa
 
 ## Conventions that matter
 
-- **Stone ids are stable** (`<sub>-<tier>-<n>`, `<land>-<tier>-chest`, `<land>-party`). Saved progress points at them. Never renumber.
-- **Old saves must keep working.** Any change to the save shape needs an upgrade path in `store.js` (`upgradeProfile`/`migrate`) or a tolerant reader (e.g. `worn()` accepts the old single-hat string). Add a test with an old-shaped save.
+- **Stone ids** (`<sub>-<tier>-<n>`, `<land>-<tier>-chest`, `<land>-party`) are built from each word's tier, so moving a word to another tier regroups the stones under those ids. Saved chest/party progress points at them.
+- **Progress rules:** a word stone is done when every word was answered right on two different days (`remembered` in `store.js`); "met" is separate. Only Listen & tap answers move a word's level and day count.
+- **Old saves must keep working** once the game goes to other families. Until then (Sammy, 2026-11-04: still building, not sent to anyone), changes that regroup stones or reset progress are fine; say so in the changelog. Changes to the save shape still need a tolerant reader (e.g. `worn()` accepts the old single-hat string, `days` may be missing on a word record).
 - **Use the `html` tag** for all markup; it escapes values. Names and restored data are untrusted.
 - **Positioned elements and animations:** stones and similar use `transform: translate(...)` to centre themselves. Any animation on them must keep that translate in every keyframe, or the element jumps. Use element-specific keyframes, not the shared `wiggle`/`pop`.
 - **Map pictures** are cache-busted by `MAP_V` in `screens/map.js`; music by `MUSIC_V` in `services/sound.js`. Bump them when the files change.

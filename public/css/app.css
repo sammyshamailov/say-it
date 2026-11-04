@@ -153,6 +153,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .word-card .big{font-size:clamp(96px,min(30vw,16vh),170px);line-height:1.1}
 .word-card .en{font-size:clamp(44px,12vw,66px);font-weight:700;line-height:1;direction:ltr}
 .word-card .he{font-size:22px;font-weight:500;margin-top:4px;direction:rtl;opacity:.92}
+.word-card.secret .en,.word-card.secret .he{visibility:hidden;position:relative}
+.word-card.secret .en::after{content:"?";visibility:visible;position:absolute;inset:0;text-align:center}
 .word-card .corner{position:absolute;top:14px}
 .word-card .corner.r{right:14px} .word-card .corner.l{left:14px}
 .word-card .corner button{width:58px;height:58px;border-radius:18px;font-size:24px;font-weight:700}

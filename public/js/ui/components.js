@@ -52,9 +52,10 @@ export const buddy = (mood, outfit, width, extra = "") =>
   html`<div id="buddy" style="width:${raw(width)}${raw(extra)}">${Mascot.svg(mood, outfit)}</div>`;
 
 // The big word card used by "meet" and "say": picture, English word, Hebrew, hear and Hebrew buttons.
-export function wordCard(w, p, color, { tapPicture = false } = {}) {
+// secret: the word and its Hebrew are hidden behind a "?" until the card loses its .secret class
+export function wordCard(w, p, color, { tapPicture = false, secret = false } = {}) {
   const hebrew = store.settings.hebrew;
-  return html`<div class="word-card b3 c-${color}" style="cursor:default">
+  return html`<div class="word-card b3 c-${color}${secret ? " secret" : ""}" style="cursor:default">
     <div class="corner l">${hebrew ? html`<button class="b3 c-yellow" id="heb" lang="he" aria-label="Hebrew">עב</button>` : ""}</div>
     <div class="corner r"><button class="b3 c-sky" id="hear" aria-label="Hear it">${I.speaker}</button></div>
     <div class="big"${raw(tapPicture ? ' id="big"' : "")}>${pic(w.pic, { player: p })}</div>

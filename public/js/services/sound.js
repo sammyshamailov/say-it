@@ -227,6 +227,7 @@ const TALK = {
   said: { m: ["שמעתי אותך! כל הכבוד!"], f: ["שמעתי אותך! כל הכבוד!"], en: ["I heard you!"] },
   clear: { m: ["וואו, אמרת מושלם!"], f: ["וואו, אמרת מושלם!"], en: ["Wow, perfect!"] },
   done: { m: ["כל הכבוד! סיימת!"], f: ["כל הכבוד! סיימת!"], en: ["Well done!"] },
+  whats: { m: ["מה זה?"], f: ["מה זה?"], en: ["What's this?"] },
   hi: { m: ["היי!"], f: ["היי!"], en: ["Hi!"] }
 };
 function talk(key, gender) {

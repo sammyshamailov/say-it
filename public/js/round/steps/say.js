@@ -1,6 +1,11 @@
 // Say it: the child says the word. Speech recognition checks it where available (bonus star);
 // otherwise, and after one unheard try, "Echo" records the child, plays their voice back, then the word.
 // Every real attempt earns a star. No microphone: the child says it out loud and taps a big star.
+//
+// "What's this?" (step "whats") is the same screen for a word the child already met: the word is
+// hidden, Pipo asks "מה זה?" and the child names the picture from memory. The word is shown and
+// said after the try, or at once when the child taps the speaker. The Hebrew button is a hint
+// that keeps the English hidden.
 import { html } from "../../core/html.js";
 import { wait } from "../../core/dom.js";
 import { store } from "../../state.js";
@@ -15,10 +20,10 @@ import { buddy, wordCard } from "../../ui/components.js";
 import { micExplain } from "../../parent/mic-explain.js";
 
 export async function say(ctx, step) {
-  const { player: p } = ctx, w = WORD[step.k];
-  let busy = false, attempts = 0, rewarded = false, myVoice = null;
+  const { player: p } = ctx, w = WORD[step.k], recall = step.t === "whats";
+  let busy = false, attempts = 0, rewarded = false, myVoice = null, secret = recall;
   const { root, $ } = ctx.frame(html`
-    ${wordCard(w, p, subColor(w.sub))}
+    ${wordCard(w, p, subColor(w.sub), { secret })}
     <div class="say-row" style="min-height:96px">
       ${buddy("listen", p.outfit, "clamp(100px,26vw,130px)")}
       <div class="levels" id="lv" aria-hidden="true">${Array.from({ length: 7 }, () => html`<i></i>`)}</div>
@@ -44,6 +49,8 @@ export async function say(ctx, step) {
     const k = 1 - Math.abs(i - 3) / 4;
     b.style.height = (10 + v * 54 * k * (0.7 + Math.random() * 0.3)) + "px";
   });
+  // show the hidden word (What's this?): after a try, or when the child asks for a hint
+  const reveal = () => { if (!secret) return; secret = false; root.querySelector(".word-card").classList.remove("secret"); };
   const showNext = () => { $("#next").hidden = false; $("#nextph").hidden = true; $("#next").classList.add("glow"); };
 
   // The mic stays locked while the app is talking, so the child waits for the word to finish
@@ -55,12 +62,17 @@ export async function say(ctx, step) {
     try { await play(); } finally { talking--; if (!talking && ctx.alive()) lockMic(false); }
   }
 
-  $("#hear").onclick = () => { if (!busy) talk(() => Sound.word(w.en)); };
-  const hb = $("#heb"); if (hb) hb.onclick = () => { if (!busy) talk(() => Sound.hebrew(heFor(w, p)).then(() => Sound.word(w.en))); };
+  $("#hear").onclick = () => { if (!busy) { reveal(); talk(() => Sound.word(w.en)); } };
+  // in What's this? the Hebrew word is a hint that doesn't give the English away
+  const hb = $("#heb"); if (hb) hb.onclick = () => {
+    if (busy) return;
+    talk(() => secret ? Sound.hebrew(heFor(w, p)) : Sound.hebrew(heFor(w, p)).then(() => Sound.word(w.en)));
+  };
   $("#next").onclick = () => ctx.next();
   $("#echo").onclick = () => { if (myVoice && !busy) talk(async () => { await Sound.playUrl(myVoice, 1); await Sound.word(w.en); }); };
 
   const reward = clear => talk(async () => {
+    reveal();
     mood("happy");
     if (!rewarded) { rewarded = true; store.markSaid(p, step.k, clear); ctx.award(clear ? 2 : 1); }
     Sound.sfx("good");
@@ -71,6 +83,7 @@ export async function say(ctx, step) {
   });
   const missed = () => talk(async () => {
     attempts++;
+    reveal();
     mood("oops");
     await Sound.talk("noHear", p.gender); if (!ctx.alive()) return;
     await Sound.word(w.en);
@@ -130,7 +143,7 @@ export async function say(ctx, step) {
     }
   };
 
-  await talk(async () => { await wait(300); if (ctx.alive()) await Sound.word(w.en); });
+  await talk(async () => { await wait(300); if (ctx.alive()) await (recall ? Sound.talk("whats", p.gender) : Sound.word(w.en)); });
   if (!ctx.alive()) return;
   if (store.settings.micAsked && (await Speech.permission()) === "denied") micDenied();
   if (ctx.alive()) $("#mic").classList.add("glow");

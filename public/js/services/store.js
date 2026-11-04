@@ -10,6 +10,8 @@ export const KEY = "sayit2";
 const MOVED = { "wild/dinosaur": "dinos/dinosaur", "clothes/glasses": "accessories/glasses", "clothes/crown": "accessories/crown" };
 const DAY = 864e5;
 const DUE = [0, 10 * 60e3, DAY, 3 * DAY, 7 * DAY, 21 * DAY]; // wait after reaching each level
+// the calendar day (on this phone) of a moment, to count the days a word was answered right
+const dayOf = t => { const d = new Date(t); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
 
 export function shuffle(a) {
   a = a.slice();
@@ -129,7 +131,11 @@ export function createStore({ storage, now = Date.now } = {}) {
   function meet(p, key) { if (!p.words[key]) { recFor(p, key); save(); } }
   function mark(p, key, ok) {
     const r = recFor(p, key);
-    if (ok) { r.right++; r.lvl = Math.min(5, r.lvl + 1); }
+    if (ok) {
+      r.right++; r.lvl = Math.min(5, r.lvl + 1);
+      const d = dayOf(now());
+      if (r.rightDay !== d) { r.rightDay = d; r.days = (r.days || 0) + 1; }
+    }
     else { r.wrong++; r.lastWrong = now(); r.lvl = Math.max(0, r.lvl - 1); }
     r.due = now() + DUE[r.lvl];
     save();
@@ -140,6 +146,8 @@ export function createStore({ storage, now = Date.now } = {}) {
     save();
   }
   const learned = (p, key) => (p.words[key]?.lvl || 0) >= 3;
+  // remembered: answered right (first try, in Listen & tap) on two different days
+  const remembered = (p, key) => (p.words[key]?.days || 0) >= 2;
   const knows = (p, key) => !!(p.words[key] && p.words[key].right > 0);
   const toPractice = p => Object.keys(p.words).filter(k => WORD[k] && p.words[k].wrong > 0 && p.words[k].lvl <= 1);
   function dueKeys(p, keys) {
@@ -165,21 +173,27 @@ export function createStore({ storage, now = Date.now } = {}) {
 
   // ---- map progression ----
   // The map is played one land at a time, up the trail. The first land is open from the start;
-  // a land opens once most word stones of the land below it are done (or the child has already
-  // played in it, so older progress keeps its stones open). Inside a land, a tier opens once most
-  // stones of the tier below are done, and every stone of an open tier can be played. A chest
-  // opens when the stones of its tier are done, the party stone when most of the land is.
-  const OPEN_SHARE = 0.7;
-  const stageDone = (p, st) => !!p.stages[st.id];
+  // a land opens once 40% of the easy (tier 1-2) word stones of the land below are done (or the
+  // child has already played in it). Inside a land, a tier opens once 70% of the stones of the
+  // tier below are done, and every stone of an open tier can be played. A chest opens when the
+  // stones of its tier are done, the party stone when 70% of the land is.
+  // A word stone is "met" once all its words were shown, and "done" once all of them were
+  // remembered (answered right on two different days). Chests and parties are done after a round.
+  const OPEN_SHARE = 0.7, LAND_SHARE = 0.4;
+  const stageMet = (p, st) => st.keys.every(k => p.words[k]);
+  const stageDone = (p, st) => st.kind === "word" ? st.keys.every(k => remembered(p, k)) : !!p.stages[st.id];
   const stageStarted = (p, st) => st.kind === "word" && st.keys.some(k => p.words[k]);
-  const stageProgress = (p, st) => st.keys.filter(k => p.words[k]).length / st.keys.length;
+  // a word stone fills in two halves: meeting each word, then remembering it on a second day
+  const stageProgress = (p, st) => st.keys.reduce((s, k) => s + (remembered(p, k) ? 2 : p.words[k] ? 1 : 0), 0) / (2 * st.keys.length);
   const stageCrown = (p, st) => st.keys.every(k => learned(p, k));
   const landWords = LAND_STAGES.map(land => land.filter(st => st.kind === "word"));
-  const mostlyDone = (p, list) => list.filter(st => stageDone(p, st)).length >= OPEN_SHARE * list.length;
+  const landEasy = landWords.map(list => list.filter(st => st.tier <= 2));
+  const shareDone = (p, list, share) => list.filter(st => stageDone(p, st)).length >= share * list.length;
+  const mostlyDone = (p, list) => shareDone(p, list, OPEN_SHARE);
   function landOpen(p, gi) {
     if (gi <= 0 || state.settings.unlockAll) return true;
     if (landWords[gi].some(st => stageDone(p, st) || stageStarted(p, st))) return true;
-    return mostlyDone(p, landWords[gi - 1]) && landOpen(p, gi - 1);
+    return shareDone(p, landEasy[gi - 1], LAND_SHARE) && landOpen(p, gi - 1);
   }
   function tierOpen(p, gi, t) {
     if (!landOpen(p, gi)) return false;
@@ -196,16 +210,19 @@ export function createStore({ storage, now = Date.now } = {}) {
     return mostlyDone(p, landWords[st.land]);
   }
   // The stone the map glows on and the Play button starts: the lowest open stone on the trail
-  // not done yet; then the open stone with the most words due for review.
+  // with something new (words not met yet, or a chest/party not played); then the open stone
+  // with the most words due for review; then the lowest open stone not done.
   function nextStage(p) {
-    for (const st of STAGES) if (!stageDone(p, st) && stageOpen(p, st)) return st;
-    let best = null, bestN = -1;
+    for (const st of STAGES) if (!stageDone(p, st) && stageOpen(p, st) && (st.kind !== "word" || !stageMet(p, st))) return st;
+    let best = null, bestN = 0;
     for (const st of STAGES) {
       if (!stageOpen(p, st)) continue;
       const n = dueKeys(p, st.keys).length;
       if (n > bestN) { best = st; bestN = n; }
     }
-    return best || STAGES[0];
+    if (best) return best;
+    for (const st of STAGES) if (!stageDone(p, st) && stageOpen(p, st)) return st;
+    return STAGES[0];
   }
   const landDone = (p, gi) => LAND_STAGES[gi].filter(st => stageDone(p, st)).length / LAND_STAGES[gi].length;
 
@@ -228,10 +245,10 @@ export function createStore({ storage, now = Date.now } = {}) {
     return { sub: st, fresh, words };
   }
 
-  // A finished round earns a sticker. A word stone is done once all its words were met (a stone of
-  // 5-6 words takes one or two rounds); a chest or party stone after one round.
+  // A finished round earns a sticker. A chest or party stone is done after one round; a word
+  // stone is done by its words (see stageDone), so it needs no flag.
   function finishRound(p, st, sticker, playedMs) {
-    if (st.kind !== "word" || st.keys.every(k => p.words[k])) p.stages[st.id] = true;
+    if (st.kind !== "word") p.stages[st.id] = true;
     p.rounds++; p.lastPlayed = now();
     p.stickers.push({ pic: sticker.pic, en: sticker.en, at: now() });
     p.playMs += playedMs;
@@ -255,9 +272,9 @@ export function createStore({ storage, now = Date.now } = {}) {
     on: (t, f) => events.on(t, f),
     save, reset() { state = blank(now()); save(true); },
     newProfile, addProfile, removeProfile, player, setPlayer,
-    rec, meet, mark, markSaid, learned, knows, toPractice, dueKeys,
+    rec, meet, mark, markSaid, learned, remembered, knows, toPractice, dueKeys,
     purse, owns, addStars, buy,
-    stageDone, stageStarted, stageProgress, stageCrown, landOpen, tierOpen, stageOpen, nextStage, landDone,
+    stageDone, stageMet, stageStarted, stageProgress, stageCrown, landOpen, tierOpen, stageOpen, nextStage, landDone,
     buildRound, finishRound, addPlayTime,
     isSave, exportData, replaceAll
   };

@@ -2,6 +2,15 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.8.0 (2026-11-04): remembered, not just seen; first words first; "What's this?"
+From a review of the code against research on how 4–5-year-olds learn words (spaced exposures across days, retrieval practice, early-vocabulary studies). Progress from earlier versions is not carried over exactly: word stones count again from the words' answers (the game hasn't gone to other families yet).
+- **A word stone is done once every word was answered right on two different days** (first try, in Listen & tap). Before, a stone was done once each word had been shown once, so a child could clear the trail without remembering anything. "Met" (every word shown) is kept separately; the stone's progress bar fills half for meeting the words and half for remembering them.
+- Play goes to the lowest open stone with new words; when everything open was met, to the stone with the most words due for review.
+- Listen & tap shows at least 3 pictures when a word comes back for review, so a lucky tap is less likely (2 the very first time in tier 1, as before).
+- **A land opens once 40% of the easy (tier 1–2) stones of the land below are done** (was 70% of all its stones): Yummy Town after about 6 stones instead of most of Animal Jungle, rare animals included.
+- **Word order:** first words moved to tier 1: girl, grandma, grandpa, ear, mouth, foot, head, yellow, four, five, happy, sad, eat, drink, sleep. Most actions and feelings to tier 2 (run, walk, swim, dance, sing, clap, cry, laugh, angry, scared, sleepy, love, yummy), the rest to tier 3. Hyena, raccoon, triceratops and stegosaurus up to tier 4. Stones are rebuilt from the new tiers (135 stones, 18 chests).
+- **New step "What's this?"**: for words met in earlier rounds, the picture shows with a "?" instead of the word, Pipo asks "מה זה?", and the child names it from memory. The word appears and is said after the try, or when the child taps the speaker. The Hebrew button says the Hebrew word as a hint and keeps the English hidden. A round with new words has one; a review round up to three, in place of Say it.
+
 ## 2.7.1 (2026-11-04): shop tiles all the same size
 - Shop tiles have a fixed slot for the picture and one for the price, so every tile is the same height. Tiles with no price (shadows, owned items) centre their picture.
 

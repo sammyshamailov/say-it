@@ -12,13 +12,15 @@ import { Mascot } from "../../ui/mascot.js";
 import { buddy } from "../../ui/components.js";
 
 // How many pictures to choose from grows with the word's tier: 2 (tier 1), 3 (tier 2), 4 (tier 3
-// and up), one fewer the first time a word is asked. Well-known words compete with their own group
+// and up), one fewer the first time a word is asked. A word asked again (a review, the answer
+// that counts towards "remembered") always gets at least 3, so a lucky tap is less likely.
+// Well-known words compete with their own group
 // (harder: cow vs sheep), others with pictures from anywhere. Words a child mixes up (puppy/dog)
 // only meet from tier 3 on, once the word is well known: then one is the wrong answer on purpose.
 // Never two of the same picture or word.
 export function choices(p, k) {
   const w = WORD[k], r = store.rec(p, k), lvl = r ? r.lvl : 0;
-  const n = Math.max(2, Math.min(4, w.tier + 1) - (lvl === 0 ? 1 : 0));
+  const n = lvl === 0 ? Math.max(2, Math.min(4, w.tier + 1) - 1) : Math.max(3, Math.min(4, w.tier + 1));
   const tricky = w.tier >= 3 && lvl >= 2;
   const same = lvl >= 2 ? w.sub.keys : [];
   let pool = shuffle(same.filter(x => x !== k));

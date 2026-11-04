@@ -20,35 +20,36 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 | Learning Castle | learning | colours, numbers, shapes |
 
 - Each land is a felt/clay diorama photo with the trail drawn into it (`path` in `lands.js`). A land with more stones than one photo holds repeats its photo, mirrored, above itself (17 photos in all).
-- **Stones** (134 in all) are placed along the trail so no two are closer than 0.22 picture widths in a straight line, and a land's stones are shared evenly over its photos.
+- **Stones** (135 in all) are placed along the trail so no two are closer than 0.22 picture widths in a straight line, and a land's stones are shared evenly over its photos.
 - Kinds of stone:
   - **Word stone**: 4–7 words of one subcategory and tier (small leftovers of several subcategories share one mixed stone). Shows the picture of its first word.
-  - **Treasure chest** (19): after each tier of a land that has at least three stones; a review round of the words met so far in that land.
+  - **Treasure chest** (18): after each tier of a land that has at least three stones; a review round of the words met so far in that land.
   - **Party stone**: the end of each land; a review of all its words, with the party jingle.
 - **World stickers** (a zebra, a fruit stall, a sailboat…) appear in a land at 30% and 65% done.
 - The glowing stone, with Pipo beside it, is what Play starts. Any open stone can be tapped. A locked stone wiggles and makes a soft sound. A floating Pipo button scrolls back to the glowing stone when it's off screen.
 
 ## Difficulty and unlocking (`services/store.js`)
 
-- Every word has a tier 1–5: Seed, Sprout, Explorer, Doer, Talker. Tiers come from how hard a word is for a Hebrew-speaking 4-year-old: can it be pictured, how early English children learn it, sounds Hebrew lacks, look-alikes, and a bonus for words Hebrew already uses (banana, pizza, giraffe).
-- **One land at a time:** the first land is open from the start. A land opens once 70% of the word stones of the land below are done, or once the child has already played in it (so older progress never relocks).
+- Every word has a tier 1–5: Seed, Sprout, Explorer, Doer, Talker. Tiers come from how hard a word is for a Hebrew-speaking 4-year-old: can it be pictured, how early English children learn it, sounds Hebrew lacks, look-alikes, and a bonus for words Hebrew already uses (banana, pizza, giraffe). Tier 1 also holds the first words children learn in any language (early-vocabulary research): family, basic body parts, the first colours, one to five, happy/sad, eat/drink/sleep. Most actions and feelings are tier 2; rare animals and dinosaurs tier 4.
+- **One land at a time:** the first land is open from the start. A land opens once 40% of the easy (tier 1–2) word stones of the land below are done, or once the child has already played in it (so older progress never relocks).
 - **Inside a land:** tier 1 is open; a tier opens once 70% of the tier below is done. Every stone in an open tier can be played.
 - A chest opens when every word stone of its tier is done; the party stone when 70% of the land is done.
-- Next stone (Play): the lowest open stone on the trail that isn't done. When everything open is done, the open stone with the most words due for review.
+- **Done means remembered:** a word stone is *met* once all its words were shown, and *done* once every word was answered right (first try, Listen & tap) on two different days. The stone's progress bar fills half for meeting, half for remembering. Chests and parties are done after one round.
+- Next stone (Play): the lowest open stone with something new (words not met yet, or a chest/party not played). When everything open was met, the open stone with the most words due for review; then the lowest open stone not done.
 - Parents can switch on "unlock all".
 
 ## A round (`round/round.js`, `round/steps/`)
 
-3–5 minutes: **Meet** new words → **Listen & tap** → **Say it** → a bonus game (**Pop the bubbles** or **Memory match**) → **Well done** with stars and a sticker.
+3–5 minutes: **Meet** new words → **What's this?** → **Listen & tap** → **Say it** → a bonus game (**Pop the bubbles** or **Memory match**) → **Well done** with stars and a sticker.
 
 - Up to 3 new words per round, then words due for review, at most 6 words.
-- Listen & tap shows 2 pictures in tier 1, 3 in tier 2, 4 from tier 3. Look-alike pairs (puppy/dog, lemon/lime; list in `stages.js`) never meet below tier 3; from tier 3 one may be the wrong answer on purpose.
-- **Say it**: on Android Chrome speech recognition checks the word and gives a bonus star. Otherwise, and after one unheard try, **Echo** records the child, plays their voice back, then the model word. Every real attempt earns a star.
-- A word stone is done once all its words were met (one or two rounds); chests and parties after one round.
+- Listen & tap shows 2 pictures in tier 1, 3 in tier 2, 4 from tier 3 (one fewer the first time a word is asked); a word back for review gets at least 3, so a lucky tap is less likely. Look-alike pairs (puppy/dog, lemon/lime; list in `stages.js`) never meet below tier 3; from tier 3 one may be the wrong answer on purpose.
+- **Say it**: on Android Chrome speech recognition checks the word and gives a bonus star. Otherwise, and after one unheard try, **Echo** records the child, plays their voice back, then the model word. Every real attempt earns a star. Used for the new words of the round.
+- **What's this?** (same screen as Say it, `whats` step): for words met in earlier rounds, before the round says them again. The word is hidden behind a "?", Pipo asks "מה זה?", and the child names the picture from memory (free recall). The word shows and is said after the try, or when the child taps the speaker; the Hebrew button says the Hebrew word as a hint and keeps the English hidden. One per round with new words, up to three in a review round. Say it and What's this? together are at most three per round.
 
 ## Learning model (`services/store.js`)
 
-- Spaced repetition per child and word: a level that goes up with right answers and down with misses. A miss brings the word back in the same round and in later rounds. A word counts as learned at level 3.
+- Spaced repetition per child and word: a level that goes up with right answers and down with misses. A miss brings the word back in the same round and in later rounds. A word counts as learned at level 3 (crown on the stone). Separately, each word counts the days it was answered right; two days make it *remembered*, which is what finishes a stone. Only Listen & tap answers count.
 
 ## Rewards (`services/shop.js`, `screens/garden.js`, `data/outfits.js`)
 
