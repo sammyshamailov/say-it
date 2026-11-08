@@ -496,6 +496,7 @@ export const EN_AUDIO = {
   "You got it!": "en-a299173ee099.m4a?h=7847448b",
   "Amazing!": "en-ee5d85f73e1d.m4a?h=2306b038",
   "Wow!": "en-bb4aa6a3b8cc.m4a?h=968aca64",
+  "Almost! Try again!": "en-f496daa0bde1.m4a?h=ecfb27f1",
   "I didn't hear you. Try again!": "en-ffd9f7dc29f3.m4a?h=76ae5634",
   "I heard you!": "en-249fa2dd3903.m4a?h=7cfd2f0e",
   "Wow, perfect!": "en-b2e595104fca.m4a?h=313d4a9a",

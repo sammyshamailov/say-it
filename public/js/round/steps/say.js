@@ -81,11 +81,13 @@ export async function say(ctx, step) {
     await Sound.word(w.en);
     if (ctx.alive()) showNext();
   });
-  const missed = () => talk(async () => {
+  // nothing heard ("noHear"), or another word ("almost": no praise and no star for it). Either way
+  // the word is played again, and the next try is Echo.
+  const missed = (line = "noHear") => talk(async () => {
     attempts++;
     reveal();
     mood("oops");
-    await Sound.talk("noHear", p.gender); if (!ctx.alive()) return;
+    await Sound.talk(line, p.gender); if (!ctx.alive()) return;
     await Sound.word(w.en);
     if (ctx.alive()) { mood("listen"); if (attempts >= 2) showNext(); }
   });
@@ -119,7 +121,7 @@ export async function say(ctx, step) {
         level(.6);
         const res = await Speech.recognize(); if (!ctx.alive()) return;
         level(0);
-        if (res.heard) await reward(Speech.isMatch(res.heard, w.en, w.alts));
+        if (res.heard) await (Speech.isMatch(res.heard, w.en, w.alts) ? reward(true) : missed("almost"));
         else if (!Speech.hasSR() && Speech.canRecord()) echo = true; // recognition unavailable (offline/blocked): use Echo
         else if (res.error === "not-allowed") micDenied();
         else await missed();

@@ -2,6 +2,9 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.12.0 (2026-11-08): Say it no longer praises the wrong word
+- When speech recognition (Android Chrome) hears a different word, Pipo says "כמעט! נסה שוב!" / "כמעט! נסי שוב!" ("Almost! Try again!" with Hebrew help off), plays the word again, and gives no star. Before, any word earned a star and "שמעתי אותך! כל הכבוד!". The next try is Echo, as after a try that wasn't heard, so a child the recognizer keeps mishearing is never stuck. Echo (iPhone, and the try after a miss) still can't tell words apart and praises any real try. Sammy chose this over stricter retries.
+
 ## 2.11.1 (2026-11-08): the right Hebrew for boys, the first try records
 - A boy heard the girl's form at the end of a round ("כל הכבוד! סיימתְּ!"): the boy and girl lines were spelled the same, so there was one recording, read as the girl form. "סיימת", "אותך" and "אמרת" now have niqqud, and each form has its own recording.
 - On Android, a child's first try at saying a word after an earlier Echo recording heard nothing; only the second try worked. The microphone stayed open from the first recording to the end of the round, so speech recognition couldn't use it. Now the microphone is closed right after each recording (with a short pause while Android switches the sound back from "call" mode, which could also swallow the next sound, such as the end-of-round "כל הכבוד").
