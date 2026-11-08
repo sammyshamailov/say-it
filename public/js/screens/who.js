@@ -4,15 +4,16 @@ import { mount, onTap } from "../core/dom.js";
 import { nav } from "../core/router.js";
 import { store } from "../state.js";
 import { Sound } from "../services/sound.js";
+import { SAY_EN } from "../data/lines.js";
 import { I } from "../ui/icons.js";
 import { iconButton, topBar } from "../ui/components.js";
 import { PROFILE_COLORS } from "../data/lands.js";
 
-// An English name gets "Hi <name>!". Anything else (a Hebrew name, a placeholder) gets Pipo's
-// recorded "היי!": a name can't be recorded ahead of time, and a device voice saying it would
-// sound like someone else.
+// A name can't be recorded ahead of time, and the device's voice saying it would sound like
+// someone else, so Pipo just says hi: in English to an English name, otherwise "היי!" (or "Hi!"
+// when Hebrew help is off).
 function greet(p) {
-  if (/^[a-z\s'-]+$/i.test(p.name) && !/^my (son|daughter)$/i.test(p.name)) Sound.speak("Hi " + p.name + "!", "en", .8);
+  if (/^[a-z\s'-]+$/i.test(p.name) && !/^my (son|daughter)$/i.test(p.name)) Sound.english(SAY_EN.hi);
   else Sound.talk("hi", p.gender);
 }
 

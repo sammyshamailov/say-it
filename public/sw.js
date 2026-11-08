@@ -4,28 +4,28 @@
 // VERSION and SHELL are written by `npm run release <version>` (tools/release.mjs). A new VERSION
 // makes the browser install this worker again, which saves the new app files in a new cache;
 // the page then reloads into it at a calm moment (see js/pwa.js).
-const VERSION = "2.10.0";
+const VERSION = "2.11.0";
 // shell:start
 const SHELL = [
   "./",
   "index.html",
   "manifest.webmanifest",
-  "css/app.css?v=2.10.0",
+  "css/app.css?v=2.11.0",
   "fonts/fredoka.woff",
   "js/core/dom.js",
   "js/core/emitter.js",
   "js/core/html.js",
   "js/core/router.js",
   "js/core/sheet.js",
-  "js/data/audio-map.js",
+  "js/data/en-audio.js",
   "js/data/he-audio.js",
-  "js/data/he-lines.js",
   "js/data/index.js",
   "js/data/lands.js",
+  "js/data/lines.js",
   "js/data/outfits.js",
   "js/data/stages.js",
   "js/data/words.js",
-  "js/main.js?v=2.10.0",
+  "js/main.js?v=2.11.0",
   "js/parent/dashboard.js",
   "js/parent/gate.js",
   "js/parent/mic-explain.js",
@@ -65,10 +65,9 @@ const SHELL = [
 // shell:end
 
 const APP = "sayit-app-" + VERSION;
-const AUDIO = "sayit-audio";
 const PICS = "sayit-pictures"; // word and map pictures; their address carries ?p= / ?m= <picture version>
 const MUSIC = "sayit-music";  // the soundtrack; its address carries ?v= <music version>
-const VOICE = "sayit-voice";  // recorded Hebrew lines; their address carries ?h= <clip contents>
+const VOICE = "sayit-voice";  // recorded words and Hebrew lines; their address carries ?h= <clip contents>
 
 self.addEventListener("install", e => {
   // cache:"reload" skips the browser's HTTP cache, so a new version never stores old files
@@ -79,7 +78,8 @@ self.addEventListener("install", e => {
 
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k.startsWith("sayit-app-") && k !== APP).map(k => caches.delete(k))))
+    // old app versions, and the downloaded word recordings used before 2.11 (now Sarah's clips)
+    .then(keys => Promise.all(keys.filter(k => (k.startsWith("sayit-app-") && k !== APP) || k === "sayit-audio").map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 
@@ -98,11 +98,6 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // word recordings from Wikimedia Commons
-  if (url.hostname === "upload.wikimedia.org") {
-    e.respondWith(cacheFirst(AUDIO, req, { ignoreSearch: true, save: r => r.ok }));
-    return;
-  }
   if (url.origin !== location.origin) return;
   if (url.pathname.startsWith("/api/")) return; // transfer codes always go to the network
 
@@ -114,7 +109,7 @@ self.addEventListener("fetch", e => {
     e.respondWith(cacheFirst(MUSIC, req));
     return;
   }
-  if (url.pathname.includes("/audio/he/")) {
+  if (url.pathname.includes("/audio/")) { // recorded words and Hebrew lines
     e.respondWith(cacheFirst(VOICE, req));
     return;
   }
@@ -137,11 +132,11 @@ self.addEventListener("fetch", e => {
   e.respondWith(cacheFirst(APP, req));
 });
 
-// Download every word recording, Hebrew line, picture and music track once, a few at a time, so words work offline.
+// Download every recorded word and line, picture and music track once, a few at a time, so everything works offline.
 const busy = {};
 self.addEventListener("message", e => {
   const d = e.data || {};
-  const name = { "cache-audio": AUDIO, "cache-pictures": PICS, "cache-music": MUSIC, "cache-voice": VOICE }[d.type] || null;
+  const name = { "cache-pictures": PICS, "cache-music": MUSIC, "cache-voice": VOICE }[d.type] || null;
   if (!name || busy[name]) return;
   busy[name] = true;
   const files = d.files || [];
@@ -150,17 +145,16 @@ self.addEventListener("message", e => {
       const c = await caches.open(name);
       const have = new Set((await c.keys()).map(k => k.url));
       const abs = f => new URL(f, self.registration.scope).href;
-      if (name !== AUDIO) { // forget pictures, music or Hebrew lines from an older version
-        const keep = new Set(files.map(abs));
-        await Promise.all([...have].filter(u => !keep.has(u)).map(u => c.delete(u)));
-      }
+      // forget pictures, music or clips from an older version
+      const keep = new Set(files.map(abs));
+      await Promise.all([...have].filter(u => !keep.has(u)).map(u => c.delete(u)));
       const todo = files.filter(f => !have.has(abs(f)));
       let i = 0;
       const worker = async () => {
         while (i < todo.length) {
           const f = todo[i++];
-          try { const r = await fetch(f, name === AUDIO ? { mode: "cors" } : {}); if (r.ok) await c.put(f, r); } catch (err) {}
-          await new Promise(r => setTimeout(r, name === AUDIO ? 150 : 30));
+          try { const r = await fetch(f); if (r.ok) await c.put(f, r); } catch (err) {}
+          await new Promise(r => setTimeout(r, 30));
         }
       };
       await Promise.all([worker(), worker(), worker()]);

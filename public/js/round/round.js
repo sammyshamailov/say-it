@@ -7,7 +7,6 @@ import { mount } from "../core/dom.js";
 import { nav } from "../core/router.js";
 import { store } from "../state.js";
 import { shuffle } from "../services/store.js";
-import { WORD } from "../data/index.js";
 import { Sound } from "../services/sound.js";
 import * as Speech from "../services/speech.js";
 import { I } from "../ui/icons.js";
@@ -59,7 +58,6 @@ function start(sub) {
   const b = store.buildRound(p, sub);
   leave();
   current = new Round(p, sub, b.words, plan(p, b));
-  Sound.prefetch(b.words.map(k => WORD[k].en));
   nav.go("round");
 }
 

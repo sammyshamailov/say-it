@@ -72,6 +72,11 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Sound and speech
 
+**Generating voices: what the API doesn't do (2026-11-08, 2.11.0)**
+- What happened: ElevenLabs' `speed` 0.7 made a single word no slower than 0.9 (strawberry 0.89 s vs 1.05 s), so it can't make a "slow" version of a word. A second script run next to the main generation got `429 concurrent_limit_exceeded`, and since it didn't check the status it handed the error text to ffmpeg as audio. The key also has no speech-to-text permission, so clips can't be transcribed to check them.
+- Fix: the turtle button slows Sarah's clip in the player (0.65, pitch kept); the tool checks every response and retries 429/5xx; durations are compared per letter to spot clipped or rushed takes, and Sammy listens.
+- Rule: never run two generation scripts at once; check `r.ok` before using a response. Measure an API setting's effect before relying on it. A clip nobody has listened to isn't checked.
+
 **The app recorded its own voice (fixed in 2.1.1)**
 - What happened: the mic could be pressed while the app was still saying the word or feedback.
 - Fix: the mic is locked (dimmed) while anything is speaking.

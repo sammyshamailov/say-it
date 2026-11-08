@@ -9,7 +9,7 @@ import { WORDS } from "../data/index.js";
 import { LANDS, panelsFor, trailPoints } from "../data/lands.js";
 import { LAND_STAGES, STAGE } from "../data/stages.js";
 import { Sound } from "../services/sound.js";
-import { SAY } from "../data/he-lines.js";
+import { SAY } from "../data/lines.js";
 import { canBuy } from "../services/shop.js";
 import { round } from "../round/round.js";
 import { I } from "../ui/icons.js";
@@ -128,7 +128,7 @@ export function map() {
   });
   onTap(root, "[data-land]", async b => {
     const L = LANDS[WORDS[+b.dataset.land].id];
-    await Sound.speak(L.en, "en", .8);
+    await Sound.english(L.en);
     if (store.settings.hebrew) Sound.hebrew(L.he);
   });
   $("#play").onclick = () => round.start(store.nextStage(p));

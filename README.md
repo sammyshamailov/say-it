@@ -25,13 +25,14 @@ More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/GAME-DESIG
 | `public/index.html` | App shell |
 | `public/css/app.css` | "Toy Box Bright" design |
 | `public/music/` | The soundtrack: 9 seamless loops and the party jingle, AAC in M4A, about 1 MB each (made by `tools/music/build.py`) |
+| `public/audio/en/` | All English in one recorded voice (Sarah): every word, the land names, Pipo's English lines, about 6 KB each (made by `tools/voice/build.mjs --set en`) |
 | `public/audio/he/` | Recorded Hebrew: every word (boy and girl forms), land name and Pipo line, about 7 KB each (made by `tools/voice/build.mjs`) |
 | `public/sw.js` | Offline support: opens instantly from the phone, saves pictures and recordings |
 | `public/img/words/` | One picture per word (see `assets/pictures/README.md`) |
 | `public/img/map/` | Land photos, stepping stones, chests and world stickers (made by `tools/pictures/build_map.py` from `assets/map/`) |
 | `public/js/main.js` | Entry point: registers every screen and starts the app |
 | `public/js/core/` | Building blocks with no app knowledge: safe `html` templates, router (screens + back button), sheets (pop-ups), events |
-| `public/js/data/` | The 484 words with their tiers (`words.js`), the map's stones and look-alike pairs (`stages.js`), lands with their photos and trails (`lands.js`), word → recording on Wikimedia Commons (`audio-map.js`), Pipo's Hebrew lines (`he-lines.js`), Hebrew text → recorded clip (`he-audio.js`, written by `tools/voice/build.mjs`), hats |
+| `public/js/data/` | The 484 words with their tiers (`words.js`), the map's stones and look-alike pairs (`stages.js`), lands with their photos and trails (`lands.js`), Pipo's lines in Hebrew and English (`lines.js`), Hebrew text → recorded clip (`he-audio.js`) and English text → recorded clip (`en-audio.js`), both written by `tools/voice/build.mjs`, hats |
 | `public/js/services/` | Progress and spaced repetition (`store.js`), sound, speech, shop rules |
 | `public/js/ui/` | Icons, word pictures, the chameleon mascot, shared components (word card, stars pill, buttons) |
 | `public/js/screens/` | Map, who's playing, sticker book, garden and shop |
@@ -41,7 +42,7 @@ More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/GAME-DESIG
 | `tools/pictures/build.py` | Cuts the sheets into pictures |
 | `tools/pictures/build_map.py` | Makes the map pictures |
 | `tools/music/build.py` | Makes the soundtrack loops from the Suno WAVs: same loudness, beat-matched crossfade at the loop point. Bump `MUSIC_V` in `services/sound.js` when the files change |
-| `tools/voice/build.mjs` | Records the Hebrew lines with the ElevenLabs voice Zina (Eleven v4): trims silence, levels loudness, writes small AAC clips and the manifest; skips clips that exist. Run it after adding a word or changing a Hebrew line |
+| `tools/voice/build.mjs` | Records all Hebrew (voice Zina) and all English (voice Sarah) with ElevenLabs (Eleven v4): trims silence, levels loudness, writes small AAC clips and the manifest; skips clips that exist. Run it after adding a word or changing a Hebrew line |
 | `tools/release.mjs` | Sets the version and refreshes the file lists (`npm run release`) |
 | `netlify/functions/transfer.mjs` | Transfer codes: move progress to another phone |
 | `netlify/functions/transfer-cleanup.mjs` | Daily sweep of unused codes |
@@ -77,8 +78,7 @@ Parent area → "העברה לטלפון אחר". The old phone uploads its prog
 
 ## Credits
 
-- Word recordings: Wiktionary and Lingua Libre contributors on [Wikimedia Commons](https://commons.wikimedia.org), CC BY-SA (each file's page on Commons names its author and exact licence). Played as Commons' MP3 versions. Words without a recording use the device's voice.
-- Hebrew voice: "Zina – Young & Soulful" from the [ElevenLabs](https://elevenlabs.io) voice library, generated with Eleven v4 on Sammy's paid plan.
+- Voices: English "Sarah" (premade) and Hebrew "Zina – Young & Soulful" (voice library), from [ElevenLabs](https://elevenlabs.io), generated with Eleven v4 on Sammy's paid plan.
 - Music: made for the app with [Suno](https://suno.com) on a paid plan (commercial use allowed).
 - Font: [Fredoka](https://github.com/google/fonts/tree/main/ofl/fredoka), SIL Open Font License (`fonts/OFL.txt`), subset to Latin + Hebrew.
 - Pictures: illustrations made for the app (see `assets/pictures/README.md`). Colours and numbers are drawn by the app.

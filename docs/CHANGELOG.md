@@ -2,12 +2,19 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.11.0 (2026-11-08): all English in one recorded voice
+- Everything the app says in English is now one voice, "Sarah" (a premade ElevenLabs voice, American, Eleven v4, a little slower than normal), chosen by Sammy over Jessica, Emma and Clara and then against the old recordings: all 482 words, the six land names, Pipo's English lines (used when Hebrew help is off) and "Ask a grown-up!". Before, words came from many different Wikimedia speakers, and 160 of the 482 words (a third) had no recording and used the phone's voice, as did all the other English. Clips are in `public/audio/en/`, about 6 KB each.
+- The Wikimedia recordings are gone (Sammy: Sarah instead of Wikimedia and the phone). Phones delete the saved copies (cache `sayit-audio`), the site no longer allows `upload.wikimedia.org`, and the credit is removed. The device's voice speaks only if a clip can't play (the very first start without internet).
+- The turtle button plays Sarah's clip slower (0.65, pitch kept).
+- Who's playing: an English name hears Sarah's "Hi!" (a name can't be recorded; before, the device voice said "Hi <name>!").
+- `tools/voice/build.mjs` now makes both sets (`--set he`, `--set en`); `npm test` fails while any English or Hebrew line has no clip. Pipo's lines in both languages are in `data/lines.js` (was `he-lines.js`). The parent area's offline line counts the new clips; credits name both voices.
+
 ## 2.10.0 (2026-11-08): recorded Hebrew voice
 - All Hebrew is now spoken by one recorded voice, "Zina – Young & Soulful" (ElevenLabs, Eleven v4, a little slower than normal), instead of the phone's own Hebrew voice: every word's translation (boy and girl forms), the six land names, and all of Pipo's lines (cheers, "didn't hear you", "what's this?", "ask a parent", the parents'-gate line). 512 clips, about 7 KB each, in `public/audio/he/`.
 - Phones without a Hebrew voice now hear Hebrew help too; before they heard nothing (or English feedback). The device voice stays as the fallback for a line without a clip.
 - The clips are saved for offline play in the background like the pictures and music (new service-worker cache `sayit-voice`). Music ducks under them and the microphone stays locked while one plays, as with every other voice.
 - Who's playing: a child with a Hebrew name is greeted with the recorded "היי!" (a name can't be recorded ahead of time). English names still hear "Hi <name>!".
-- New tool `tools/voice/build.mjs` collects every Hebrew line, records only the missing ones, trims silence, levels loudness (−16 LUFS) and writes the manifest `data/he-audio.js`. Pipo's lines moved to `data/he-lines.js` so the app and the tool share them. `npm test` fails while a Hebrew line has no clip.
+- New tool `tools/voice/build.mjs` collects every Hebrew line, records only the missing ones, trims silence, levels loudness (−16 LUFS) and writes the manifest `data/he-audio.js`. Pipo's lines moved to `data/lines.js` so the app and the tool share them. `npm test` fails while a Hebrew line has no clip.
 - Credits in the parent area name the voice.
 
 ## 2.9.1 (2026-11-08): one code, two devices

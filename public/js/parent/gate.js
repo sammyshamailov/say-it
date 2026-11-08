@@ -6,7 +6,7 @@ import { nav } from "../core/router.js";
 import { store } from "../state.js";
 import { shuffle } from "../services/store.js";
 import { Sound } from "../services/sound.js";
-import { SAY } from "../data/he-lines.js";
+import { SAY, SAY_EN } from "../data/lines.js";
 import { I } from "../ui/icons.js";
 import { Mascot } from "../ui/mascot.js";
 import { iconButton } from "../ui/components.js";
@@ -46,5 +46,5 @@ export function gate() {
 
   // for the child: a friendly spoken hint that this part is for grown-ups
   if (store.settings.hebrew && Sound.hasHebrew(SAY.grownUp)) Sound.hebrew(SAY.grownUp);
-  else Sound.speak("Ask a grown-up!", "en", .8);
+  else Sound.english(SAY_EN.grownUp);
 }

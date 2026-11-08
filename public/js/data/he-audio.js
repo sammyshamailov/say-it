@@ -1,5 +1,6 @@
 // Hebrew text -> recorded clip in public/audio/he/ (voice: Zina – Young & Soulful, ElevenLabs Eleven v4).
-// Written by tools/voice/build.mjs; don't edit by hand. Lines missing here use the device's Hebrew voice.
+// Lines missing here use the device's Hebrew voice.
+// Written by tools/voice/build.mjs; don't edit by hand.
 export const HE_AUDIO = {
   "פרה": "he-e2bd9398651d.m4a?h=335b50f0",
   "חזיר": "he-8a6fc6e7f733.m4a?h=650add34",

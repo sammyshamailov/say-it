@@ -1,8 +1,9 @@
-// Sound: word recordings, recorded Hebrew (Zina), device voices (fallback), effects and music.
+// Sound: recorded voices (English: Sarah, Hebrew: Zina; the device's voices only if a clip can't
+// play), effects and music.
 import { store } from "../state.js";
-import { AUDIO_MAP } from "../data/audio-map.js";
+import { EN_AUDIO } from "../data/en-audio.js";
 import { HE_AUDIO } from "../data/he-audio.js";
-import { TALK } from "../data/he-lines.js";
+import { TALK } from "../data/lines.js";
 
 const settings = () => store.settings;
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -166,21 +167,7 @@ function speak(text, lang = "en", rate) {
   });
 }
 
-// ---------- word recordings (Wiktionary contributors on Wikimedia Commons, CC BY-SA) ----------
-const MEDIA = "https://upload.wikimedia.org/wikipedia/commons/transcoded/";
-const mediaUrl = f => (/^https:/.test(f) ? f : MEDIA + f);
-const blobs = new Map(); // file -> Promise<object URL>, so two quick taps share one download
-function blobFor(file) {
-  if (!blobs.has(file)) {
-    const p = fetch(mediaUrl(file), { mode: "cors" })
-      .then(r => { if (!r.ok) throw new Error("audio " + r.status); return r.blob(); })
-      .then(b => URL.createObjectURL(b));
-    p.catch(() => blobs.delete(file)); // try again next time
-    blobs.set(file, p);
-  }
-  return blobs.get(file);
-}
-
+// ---------- recorded clips ----------
 // When a new sound starts (or stop() is called), the sound it cuts off finishes right away
 // with "stopped", instead of waiting for the 8-second safety timer.
 let cutOff = null;
@@ -208,14 +195,19 @@ function stop() {
   if ("speechSynthesis" in window) speechSynthesis.cancel();
 }
 
-async function word(en, slow = false) {
+// ---------- English: Sarah's clips (tools/voice/build.mjs) ----------
+// Every word and every English line has one. The device's voice speaks only if a clip can't play
+// (e.g. the very first start without internet, before the clips are saved).
+export const SLOW_RATE = 0.65; // the turtle button: the clip (already a little slow) slower still, pitch kept
+async function english(text, slow = false) {
   stop();
-  const file = AUDIO_MAP[en];
-  if (file) {
-    try { const ok = await playUrl(await blobFor(file), slow ? .6 : .9); if (ok) return; } catch (e) {}
+  if (EN_AUDIO[text]) {
+    const ok = await playUrl("audio/en/" + EN_AUDIO[text], slow ? SLOW_RATE : 1);
+    if (ok) return; // played, or cut off by the next sound
   }
-  return speak(en, "en", slow ? .38 : .62);
+  return speak(text, "en", slow ? .38 : .62);
 }
+const word = english;
 
 // ---------- Hebrew: recorded clips (tools/voice/build.mjs), the device's Hebrew voice as fallback ----------
 const heUrl = text => (HE_AUDIO[text] ? "audio/he/" + HE_AUDIO[text] : null);
@@ -229,19 +221,19 @@ async function hebrew(text) {
     if (ok) return; // played, or cut off by the next sound
   }
   if (heVoice) return speak(text, "he");
-}function prefetch(list) { list.forEach(en => { const f = AUDIO_MAP[en]; if (f) blobFor(f).catch(() => {}); }); }
-const voiceUrls = () => [...new Set(Object.values(HE_AUDIO))].map(f => "audio/he/" + f);
-const recordingUrls = () => [...new Set(Object.values(AUDIO_MAP))].map(mediaUrl);
+}
 
-// ---------- spoken feedback (Hebrew when Hebrew help is on; lines in data/he-lines.js) ----------
+const voiceUrls = () => [...Object.values(EN_AUDIO).map(f => "audio/en/" + f), ...Object.values(HE_AUDIO).map(f => "audio/he/" + f)];
+
+// ---------- spoken feedback (Hebrew when Hebrew help is on; lines in data/lines.js) ----------
 function talk(key, gender) {
   const t = TALK[key]; if (!t) return Promise.resolve();
   const he = pick(t[gender === "f" ? "f" : "m"]);
   if (settings().hebrew && hasHebrew(he)) return hebrew(he);
-  return speak(pick(t.en), "en", .8);
+  return english(pick(t.en));
 }
 
 export const Sound = {
-  sfx, music, syncMusic, scene, jingle, nudgeMusic, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, hush,
-  recordingUrls, voiceUrls, musicUrls, unlock: () => ac()
+  sfx, music, syncMusic, scene, jingle, nudgeMusic, word, english, hebrew, talk, stop, playUrl, hasHebrew, hush,
+  voiceUrls, musicUrls, unlock: () => ac()
 };

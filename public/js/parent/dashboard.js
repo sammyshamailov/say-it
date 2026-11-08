@@ -4,7 +4,7 @@ import { mount, onTap } from "../core/dom.js";
 import { nav } from "../core/router.js";
 import { store } from "../state.js";
 import { WORD } from "../data/index.js";
-import { AUDIO_MAP } from "../data/audio-map.js";
+import { EN_AUDIO } from "../data/en-audio.js";
 import { Sound } from "../services/sound.js";
 import * as Speech from "../services/speech.js";
 import { I } from "../ui/icons.js";
@@ -79,8 +79,7 @@ export async function dashboard() {
     </div>
 
     <div class="panel"><h2>קרדיטים</h2>
-      <p class="small">הקלטות המילים: תורמי <a href="https://en.wiktionary.org" target="_blank" rel="noopener">Wiktionary</a> ו־<a href="https://lingualibre.org" target="_blank" rel="noopener">Lingua Libre</a>, מתוך <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>, ברישיונות <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA</a>. מילים בלי הקלטה נאמרות בקול של המכשיר.</p>
-      <p class="small">הקול בעברית: Zina (Young &amp; Soulful) מ־<a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a>.</p>
+      <p class="small">הקולות: באנגלית, Sarah; בעברית, Zina (Young &amp; Soulful). שתיהן מ־<a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a>.</p>
       <p class="small">גופן Fredoka ברישיון SIL Open Font License. תמונות: איורים שנוצרו במיוחד לאפליקציה. גרסה <span class="en-ltr">${VERSION}</span>.</p>
     </div>
   </div></div>`);
@@ -127,9 +126,9 @@ export async function dashboard() {
 }
 
 async function offlineStatus(el) {
-  const files = new Set(Object.values(AUDIO_MAP));
   let n = 0;
-  try { n = (await (await caches.open("sayit-audio")).keys()).length; } catch (e) {}
-  const all = new Set(Object.values(WORD).map(w => w.en)).size, withRecording = Object.keys(AUDIO_MAP).length;
-  if (el.isConnected) el.textContent = `האפליקציה עובדת בלי אינטרנט אחרי הפתיחה הראשונה. הקלטות שמורות במכשיר: ${Math.min(n, files.size)} מתוך ${files.size}. ל־${all - withRecording} מילים אין הקלטה והן נאמרות בקול של המכשיר.`;
+  try { n = (await (await caches.open("sayit-voice")).keys()).filter(r => r.url.includes("/audio/en/")).length; } catch (e) {}
+  const all = new Set(Object.values(WORD).map(w => w.en)).size, recorded = Object.keys(EN_AUDIO).length;
+  if (el.isConnected) el.textContent = `האפליקציה עובדת בלי אינטרנט אחרי הפתיחה הראשונה. הקלטות המילים שמורות במכשיר: ${Math.min(n, recorded)} מתוך ${recorded}.` +
+    (all > recorded ? ` ל־${all - recorded} מילים אין הקלטה והן נאמרות בקול של המכשיר.` : "");
 }
