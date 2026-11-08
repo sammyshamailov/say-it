@@ -6,7 +6,12 @@ import { createStore } from "../public/js/services/store.js";
 import { STAGES, LAND_STAGES } from "../public/js/data/stages.js";
 
 const SECRET = "test-secret";
-const post = body => new Request("https://x/api/unlock", { method: "POST", body: JSON.stringify(body) });
+function memStore() {
+  const m = new Map();
+  return { get: async k => m.get(k) ?? null, set: async (k, v) => { m.set(k, v); }, m };
+}
+const PHONE = ["phoneone1234", "phonetwo1234", "phonethree12"];
+const post = body => new Request("https://x/api/unlock", { method: "POST", body: JSON.stringify({ device: PHONE[0], ...body }) });
 
 test("a code made with the secret opens; changed or foreign codes don't", async () => {
   const code = await makeCode(SECRET);
@@ -16,10 +21,23 @@ test("a code made with the secret opens; changed or foreign codes don't", async 
   assert.ok(!(await checkCode(SECRET, wrong)));
   assert.ok(!(await checkCode("other-secret", code)));
   assert.ok(!(await checkCode(SECRET, "short")));
-  assert.equal((await handle(post({ code }), SECRET)).status, 200);
-  assert.equal((await handle(post({ code: wrong }), SECRET)).status, 404);
-  assert.equal((await handle(post({ code }), undefined)).status, 503, "no secret set: not ready, never open");
-  assert.equal((await handle(new Request("https://x/api/unlock"), SECRET)).status, 405);
+  const s = memStore();
+  assert.equal((await handle(post({ code }), SECRET, s)).status, 200);
+  assert.equal((await handle(post({ code: wrong }), SECRET, s)).status, 404);
+  assert.equal((await handle(post({ code }), undefined, s)).status, 503, "no secret set: not ready, never open");
+  assert.equal((await handle(new Request("https://x/api/unlock"), SECRET, s)).status, 405);
+});
+
+test("a code opens two devices, the same device again, and not a third", async () => {
+  const code = await makeCode(SECRET), s = memStore();
+  const on = device => handle(post({ code: formatCode(code), device }), SECRET, s).then(r => r.status);
+  assert.equal(await on(PHONE[0]), 200);
+  assert.equal(await on(PHONE[0]), 200, "entering it again on the same phone is free");
+  assert.equal(await on(PHONE[1]), 200);
+  assert.equal(await on(PHONE[2]), 409, "a third device is refused");
+  assert.equal(await on(PHONE[1]), 200, "the two devices still work");
+  assert.equal(await on("../bad"), 400);
+  assert.deepEqual(JSON.parse(s.m.get(code)), PHONE.slice(0, 2), "only the random device ids are kept");
 });
 
 function fresh() {
@@ -46,13 +64,16 @@ test("only the first land is free; an unlock opens the rest for every child", ()
   assert.ok(store.landPaid(5), "for every child on the phone");
 });
 
-test("the unlock travels with a transfer and survives restoring an older backup", () => {
+test("the unlock stays on its phone: transfers and backups never carry or remove it", () => {
   const a = fresh();
   const before = JSON.parse(JSON.stringify(a.store.exportData()));
   a.store.unlock("ABCDE-FGHJK");
   const b = fresh();
   assert.ok(b.store.replaceAll(JSON.parse(JSON.stringify(a.store.exportData()))));
-  assert.ok(b.store.unlocked(), "moved to the new phone");
+  assert.ok(!b.store.unlocked(), "a transfer doesn't unlock another phone");
+  assert.ok(!("unlocked" in a.store.exportData()));
   assert.ok(a.store.replaceAll(before));
-  assert.ok(a.store.unlocked(), "an older backup doesn't lock the map again");
+  assert.ok(a.store.unlocked(), "restoring a backup keeps this phone's unlock");
+  const forged = { ...a.store.exportData(), unlocked: { at: 1, code: "X" } };
+  assert.ok(b.store.replaceAll(forged) && !b.store.unlocked(), "a backup file edited to say unlocked doesn't unlock");
 });

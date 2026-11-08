@@ -109,7 +109,9 @@ export function createStore({ storage, now = Date.now } = {}) {
   save(true);
 
   // ---- moving progress between phones (transfer code or backup file) ----
-  const exportData = () => JSON.parse(JSON.stringify(state));
+  // The unlock belongs to the phone the code was entered on (a code opens two devices), so
+  // transfers and backups never carry it, and restoring one keeps this phone's own unlock.
+  const exportData = () => { const d = JSON.parse(JSON.stringify(state)); delete d.unlocked; return d; };
   function replaceAll(d) {
     if (!isSave(d)) return false;
     d.settings = Object.assign(blankSettings(), d.settings || {});
@@ -120,7 +122,7 @@ export function createStore({ storage, now = Date.now } = {}) {
       return upgradeProfile(Object.assign(base, p));
     });
     if (!d.profiles.some(p => p.id === d.lastId)) d.lastId = d.profiles[0] ? d.profiles[0].id : null;
-    d.unlocked = d.unlocked || state.unlocked || null; // restoring an older backup never locks the map again
+    d.unlocked = state.unlocked || null;
     state = d;
     save(true);
     return true;
@@ -181,7 +183,7 @@ export function createStore({ storage, now = Date.now } = {}) {
   // A word stone is "met" once all its words were shown, and "done" once all of them were
   // remembered (answered right on two different days). Chests and parties are done after a round.
   // Only the first land is free. A parent unlock code (checked by /api/unlock) opens every land
-  // for every child on the phone; it travels with transfer codes and backups. "Unlock all" and the
+  // for every child on the phone, on up to two devices; it stays on the phone, not in transfers. "Unlock all" and the
   // already-played rule work only inside lands the phone may use.
   const OPEN_SHARE = 0.7, LAND_SHARE = 0.4;
   const FREE_LANDS = 1;

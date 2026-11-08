@@ -2,6 +2,10 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.9.1 (2026-11-08): one code, two devices
+- An unlock code opens at most two devices. The function keeps, per code, only the random ids the two phones made for themselves (Netlify Blobs, store `unlocks`); entering the code again on the same phone is free, a third phone hears the code was already used on two devices. To give a family a fresh start, delete the code's entry in that store.
+- The unlock stays on the phone it was entered on: transfer codes and backups no longer carry it (otherwise a transfer code could open any number of phones), and restoring one keeps the phone's own unlock. A new phone enters the code itself.
+
 ## 2.9.0 (2026-11-08): first land free, a parent code opens the rest
 - Only Animal Jungle is open without an unlock code. Later lands stay locked whatever the progress, "unlock all" or old saves. A child who taps a stone there sees it wiggle and hears, in Hebrew, to ask a parent to open it.
 - New parent-area panel "פתיחת כל המפה": a 10-character code (ABCDE-FGHJK) opens all six lands for every child on the phone. The "unlock all" switch shows only after that.
