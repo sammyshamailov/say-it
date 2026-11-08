@@ -72,6 +72,16 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Sound and speech
 
+**A boy was told "סיימתְּ" (fixed in 2.11.1)**
+- What happened: Hebrew without niqqud doesn't show gender in some second-person words (סיימת, אותך, אמרת). The boy and girl feedback lines were the same text, so the voice tool made one recording, and Zina read it as the girl form. The device voice had hidden this, because it says the letters flatly.
+- Fix: niqqud on the word that changes, so the two forms are different texts with their own recordings; a test fails if a line with a gendered word is shared by both.
+- Rule: a recorded line is read one way. Wherever the boy and girl forms are said differently, write them differently (niqqud), even if they look the same unvocalized.
+
+**The first try at saying a word failed after an Echo recording (fixed in 2.11.1)**
+- What happened: the microphone stream from the first Echo recording was kept open until the round ended. On Android, speech recognition can't get a microphone the page is holding, so each later word's first try (recognition) heard nothing and only the second try (Echo) worked.
+- Fix: close the microphone after every recording, and before recognition starts; wait 300 ms for Android to switch the sound back.
+- Rule: hold the microphone only while recording. Something that works the first time in a round but not after needs a test of the second time.
+
 **Generating voices: what the API doesn't do (2026-11-08, 2.11.0)**
 - What happened: ElevenLabs' `speed` 0.7 made a single word no slower than 0.9 (strawberry 0.89 s vs 1.05 s), so it can't make a "slow" version of a word. A second script run next to the main generation got `429 concurrent_limit_exceeded`, and since it didn't check the status it handed the error text to ffmpeg as audio. The key also has no speech-to-text permission, so clips can't be transcribed to check them.
 - Fix: the turtle button slows Sarah's clip in the player (0.65, pitch kept); the tool checks every response and retries 429/5xx; durations are compared per letter to spot clipped or rushed takes, and Sammy listens.

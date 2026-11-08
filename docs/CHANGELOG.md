@@ -2,6 +2,10 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.11.1 (2026-11-08): the right Hebrew for boys, the first try records
+- A boy heard the girl's form at the end of a round ("כל הכבוד! סיימתְּ!"): the boy and girl lines were spelled the same, so there was one recording, read as the girl form. "סיימת", "אותך" and "אמרת" now have niqqud, and each form has its own recording.
+- On Android, a child's first try at saying a word after an earlier Echo recording heard nothing; only the second try worked. The microphone stayed open from the first recording to the end of the round, so speech recognition couldn't use it. Now the microphone is closed right after each recording (with a short pause while Android switches the sound back from "call" mode, which could also swallow the next sound, such as the end-of-round "כל הכבוד").
+
 ## 2.11.0 (2026-11-08): all English in one recorded voice
 - Everything the app says in English is now one voice, "Sarah" (a premade ElevenLabs voice, American, Eleven v4, a little slower than normal), chosen by Sammy over Jessica, Emma and Clara and then against the old recordings: all 482 words, the six land names, Pipo's English lines (used when Hebrew help is off) and "Ask a grown-up!". Before, words came from many different Wikimedia speakers, and 160 of the 482 words (a third) had no recording and used the phone's voice, as did all the other English. Clips are in `public/audio/en/`, about 6 KB each.
 - The Wikimedia recordings are gone (Sammy: Sarah instead of Wikimedia and the phone). Phones delete the saved copies (cache `sayit-audio`), the site no longer allows `upload.wikimedia.org`, and the credit is removed. The device's voice speaks only if a clip can't play (the very first start without internet).

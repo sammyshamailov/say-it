@@ -26,6 +26,11 @@ async function mic() {
 export function release() {
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
 }
+// The microphone is opened for each recording and closed right after it. While it's open, speech
+// recognition can't get it (on Android it then hears nothing, so the child's next first try
+// failed), and Android plays sound in "call" mode. Closing it switches the audio back, which
+// takes a moment: a sound started during the switch can be lost, so wait before going on.
+const SWITCH_BACK_MS = 300;
 export async function permission() {
   try { return (await navigator.permissions.query({ name: "microphone" })).state; } catch (e) { return "unknown"; }
 }
@@ -66,11 +71,14 @@ export async function record(onLevel) {
   let blob = null;
   if (rec) { await new Promise(r => { rec.onstop = r; rec.stop(); }); blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" }); }
   try { c.close(); } catch (e) {}
+  release();
+  await new Promise(r => setTimeout(r, SWITCH_BACK_MS));
   return { spoke, url: blob && spoke ? URL.createObjectURL(blob) : null };
 }
 
 // Recognition: resolves {heard:[...]} or {error}
-export function recognize() {
+export async function recognize() {
+  if (stream) { release(); await new Promise(r => setTimeout(r, SWITCH_BACK_MS)); } // recognition needs the mic to itself
   return new Promise(res => {
     let r;
     try { r = new SR(); } catch (e) { srBroken = true; return res({ error: "unsupported" }); }

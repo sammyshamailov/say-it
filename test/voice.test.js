@@ -52,6 +52,13 @@ test("every English word and line has a recorded clip (run tools/voice/build.mjs
   }
 });
 
+test("a boy and a girl hear their own form (no shared line with a gendered word)", () => {
+  const same = ["כל הכבוד!", "יופי!", "מעולה!", "וואו!", "איזה יופי!", "מה זה?", "היי!"]; // the same for both
+  for (const [k, t] of Object.entries(TALK))
+    for (const x of t.m.filter(x => t.f.includes(x))) assert.ok(same.includes(x), `${k}: "${x}" is shared; give the boy and girl forms niqqud`);
+  assert.notEqual(TALK.done.m[0], TALK.done.f[0]);
+});
+
 test("no clip files are left over from lines that are gone (tools/voice/build.mjs --prune)", () => {
   for (const [dir, map] of [["he", HE_AUDIO], ["en", EN_AUDIO]]) {
     const used = new Set(Object.values(map).map(f => f.split("?")[0]));
@@ -82,4 +89,12 @@ test("the Wikimedia recordings are gone (Sarah says every word since 2.11)", () 
   for (const f of ["js/services/sound.js", "sw.js", "js/pwa.js", "js/main.js", "js/parent/dashboard.js", "../netlify.toml"])
     assert.doesNotMatch(src(f), /wikimedia|AUDIO_MAP|cache-audio/i, f);
   assert.match(src("sw.js"), /k === "sayit-audio"/, "phones delete the old recordings");
+});
+
+test("the microphone is closed after every recording and before speech recognition", () => {
+  const speech = src("js/services/speech.js");
+  const record = speech.slice(speech.indexOf("export async function record"), speech.indexOf("export async function recognize"));
+  assert.match(record, /release\(\);\s*await new Promise\(r => setTimeout\(r, SWITCH_BACK_MS\)\)/);
+  const recognize = speech.slice(speech.indexOf("export async function recognize"));
+  assert.match(recognize, /if \(stream\) \{ release\(\);/);
 });
