@@ -4,13 +4,13 @@
 // VERSION and SHELL are written by `npm run release <version>` (tools/release.mjs). A new VERSION
 // makes the browser install this worker again, which saves the new app files in a new cache;
 // the page then reloads into it at a calm moment (see js/pwa.js).
-const VERSION = "2.9.1";
+const VERSION = "2.10.0";
 // shell:start
 const SHELL = [
   "./",
   "index.html",
   "manifest.webmanifest",
-  "css/app.css?v=2.9.1",
+  "css/app.css?v=2.10.0",
   "fonts/fredoka.woff",
   "js/core/dom.js",
   "js/core/emitter.js",
@@ -18,12 +18,14 @@ const SHELL = [
   "js/core/router.js",
   "js/core/sheet.js",
   "js/data/audio-map.js",
+  "js/data/he-audio.js",
+  "js/data/he-lines.js",
   "js/data/index.js",
   "js/data/lands.js",
   "js/data/outfits.js",
   "js/data/stages.js",
   "js/data/words.js",
-  "js/main.js?v=2.9.1",
+  "js/main.js?v=2.10.0",
   "js/parent/dashboard.js",
   "js/parent/gate.js",
   "js/parent/mic-explain.js",
@@ -66,6 +68,7 @@ const APP = "sayit-app-" + VERSION;
 const AUDIO = "sayit-audio";
 const PICS = "sayit-pictures"; // word and map pictures; their address carries ?p= / ?m= <picture version>
 const MUSIC = "sayit-music";  // the soundtrack; its address carries ?v= <music version>
+const VOICE = "sayit-voice";  // recorded Hebrew lines; their address carries ?h= <clip contents>
 
 self.addEventListener("install", e => {
   // cache:"reload" skips the browser's HTTP cache, so a new version never stores old files
@@ -111,6 +114,10 @@ self.addEventListener("fetch", e => {
     e.respondWith(cacheFirst(MUSIC, req));
     return;
   }
+  if (url.pathname.includes("/audio/he/")) {
+    e.respondWith(cacheFirst(VOICE, req));
+    return;
+  }
 
   // Opening the app: straight from the phone, no waiting for the network. A newer version is
   // found by the browser's own check of this worker file, installed in the background, and
@@ -130,11 +137,11 @@ self.addEventListener("fetch", e => {
   e.respondWith(cacheFirst(APP, req));
 });
 
-// Download every word recording, picture and music track once, a few at a time, so words work offline.
+// Download every word recording, Hebrew line, picture and music track once, a few at a time, so words work offline.
 const busy = {};
 self.addEventListener("message", e => {
   const d = e.data || {};
-  const name = { "cache-audio": AUDIO, "cache-pictures": PICS, "cache-music": MUSIC }[d.type] || null;
+  const name = { "cache-audio": AUDIO, "cache-pictures": PICS, "cache-music": MUSIC, "cache-voice": VOICE }[d.type] || null;
   if (!name || busy[name]) return;
   busy[name] = true;
   const files = d.files || [];
@@ -143,7 +150,7 @@ self.addEventListener("message", e => {
       const c = await caches.open(name);
       const have = new Set((await c.keys()).map(k => k.url));
       const abs = f => new URL(f, self.registration.scope).href;
-      if (name === PICS || name === MUSIC) { // forget pictures or music from an older version
+      if (name !== AUDIO) { // forget pictures, music or Hebrew lines from an older version
         const keep = new Set(files.map(abs));
         await Promise.all([...have].filter(u => !keep.has(u)).map(u => c.delete(u)));
       }

@@ -2,6 +2,14 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.10.0 (2026-11-08): recorded Hebrew voice
+- All Hebrew is now spoken by one recorded voice, "Zina – Young & Soulful" (ElevenLabs, Eleven v4, a little slower than normal), instead of the phone's own Hebrew voice: every word's translation (boy and girl forms), the six land names, and all of Pipo's lines (cheers, "didn't hear you", "what's this?", "ask a parent", the parents'-gate line). 512 clips, about 7 KB each, in `public/audio/he/`.
+- Phones without a Hebrew voice now hear Hebrew help too; before they heard nothing (or English feedback). The device voice stays as the fallback for a line without a clip.
+- The clips are saved for offline play in the background like the pictures and music (new service-worker cache `sayit-voice`). Music ducks under them and the microphone stays locked while one plays, as with every other voice.
+- Who's playing: a child with a Hebrew name is greeted with the recorded "היי!" (a name can't be recorded ahead of time). English names still hear "Hi <name>!".
+- New tool `tools/voice/build.mjs` collects every Hebrew line, records only the missing ones, trims silence, levels loudness (−16 LUFS) and writes the manifest `data/he-audio.js`. Pipo's lines moved to `data/he-lines.js` so the app and the tool share them. `npm test` fails while a Hebrew line has no clip.
+- Credits in the parent area name the voice.
+
 ## 2.9.1 (2026-11-08): one code, two devices
 - An unlock code opens at most two devices. The function keeps, per code, only the random ids the two phones made for themselves (Netlify Blobs, store `unlocks`); entering the code again on the same phone is free, a third phone hears the code was already used on two devices. To give a family a fresh start, delete the code's entry in that store.
 - The unlock stays on the phone it was entered on: transfer codes and backups no longer carry it (otherwise a transfer code could open any number of phones), and restoring one keeps the phone's own unlock. A new phone enters the code itself.

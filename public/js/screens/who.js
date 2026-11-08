@@ -8,10 +8,11 @@ import { I } from "../ui/icons.js";
 import { iconButton, topBar } from "../ui/components.js";
 import { PROFILE_COLORS } from "../data/lands.js";
 
-// Say hi in the language the name is written in; a placeholder name gets a plain "hi".
+// An English name gets "Hi <name>!". Anything else (a Hebrew name, a placeholder) gets Pipo's
+// recorded "היי!": a name can't be recorded ahead of time, and a device voice saying it would
+// sound like someone else.
 function greet(p) {
-  if (/[֐-׿]/.test(p.name)) Sound.hebrew("היי " + p.name + "!");
-  else if (/^[a-z\s'-]+$/i.test(p.name) && !/^my (son|daughter)$/i.test(p.name)) Sound.speak("Hi " + p.name + "!", "en", .8);
+  if (/^[a-z\s'-]+$/i.test(p.name) && !/^my (son|daughter)$/i.test(p.name)) Sound.speak("Hi " + p.name + "!", "en", .8);
   else Sound.talk("hi", p.gender);
 }
 

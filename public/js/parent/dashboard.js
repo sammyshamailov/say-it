@@ -80,6 +80,7 @@ export async function dashboard() {
 
     <div class="panel"><h2>קרדיטים</h2>
       <p class="small">הקלטות המילים: תורמי <a href="https://en.wiktionary.org" target="_blank" rel="noopener">Wiktionary</a> ו־<a href="https://lingualibre.org" target="_blank" rel="noopener">Lingua Libre</a>, מתוך <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a>, ברישיונות <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA</a>. מילים בלי הקלטה נאמרות בקול של המכשיר.</p>
+      <p class="small">הקול בעברית: Zina (Young &amp; Soulful) מ־<a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a>.</p>
       <p class="small">גופן Fredoka ברישיון SIL Open Font License. תמונות: איורים שנוצרו במיוחד לאפליקציה. גרסה <span class="en-ltr">${VERSION}</span>.</p>
     </div>
   </div></div>`);

@@ -2,7 +2,7 @@
 import { whenIdle } from "./core/dom.js";
 
 // isCalm(): true when reloading for an update won't interrupt anything (on the map, no round, no form)
-// downloads(): {pictures, recordings, music} to keep on the phone for offline play
+// downloads(): {pictures, recordings, voice, music} to keep on the phone for offline play
 export function registerServiceWorker({ isCalm, downloads }) {
   if (!("serviceWorker" in navigator)) return;
   // Was this page already run by a service worker? If not, the first one taking over isn't an update.
@@ -14,9 +14,10 @@ export function registerServiceWorker({ isCalm, downloads }) {
       // phone is idle, so the download never competes with starting the app.
       const send = () => whenIdle(() => {
         const w = reg.active || navigator.serviceWorker.controller; if (!w) return;
-        const { pictures, recordings, music } = downloads();
+        const { pictures, recordings, voice, music } = downloads();
         w.postMessage({ type: "cache-pictures", files: pictures });
         w.postMessage({ type: "cache-audio", files: recordings });
+        w.postMessage({ type: "cache-voice", files: voice });
         w.postMessage({ type: "cache-music", files: music });
       });
       if (reg.active) send(); else navigator.serviceWorker.ready.then(send);

@@ -58,7 +58,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) Sound
 registerServiceWorker({
   // safe to reload for an update: not in a round, no sheet open, not in the parent area or first-run form
   isCalm: () => !round.active && !anySheetOpen() && !document.querySelector(".parent, .gate"),
-  downloads: () => ({ pictures: [...allPictureUrls(), ...mapPictureUrls()], recordings: Sound.recordingUrls(), music: Sound.musicUrls() })
+  downloads: () => ({ pictures: [...allPictureUrls(), ...mapPictureUrls()], recordings: Sound.recordingUrls(), voice: Sound.voiceUrls(), music: Sound.musicUrls() })
 });
 
 // modules run after the document is parsed, so the app can start right away

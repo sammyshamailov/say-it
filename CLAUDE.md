@@ -25,7 +25,7 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 - Vanilla JS ES modules, **no build step**. `public/` is exactly what Netlify serves.
 - Netlify Functions (`netlify/functions/`): transfer codes (Netlify Blobs) and parent unlock codes (`unlock.mjs`, signed with the `UNLOCK_SECRET` environment variable; Blobs store `unlocks` keeps up to two random device ids per code). `package.json` exists only for `@netlify/blobs` and the test/release scripts.
 - Pictures and map art are generated outside (ChatGPT image generation, felt/clay diorama style) and cut by `tools/pictures/*.py`. Music is made with Suno (paid plan) and processed by `tools/music/build.py`. Word recordings come from Wikimedia Commons.
-- **Hebrew voice (chosen 2026-11-08, not built yet):** pre-recorded Hebrew clips will replace the device's Hebrew voice. Sammy picked the ElevenLabs library voice **"Zina – Young & Soulful"** (native Israeli female, model Eleven v4) after an audition by ear against Danit, Nimrod (both over-pronounce ש and ח) and the built-in Jessica. Sammy has an ElevenLabs account (40,000 credits). Bulk generation needs the API: start a chat with `api.elevenlabs.io` allowed in the network setting (it's blocked otherwise) and Sammy's API key; look Zina up by name in the shared-voices API.
+- **Hebrew voice (since 2.10.0):** every Hebrew line the app speaks is a pre-recorded clip in `public/audio/he/`, voice **"Zina – Young & Soulful"** (ElevenLabs library, id `Tbj9UQjXon5RB9MPEyc2`, model Eleven v4, speed 0.9), picked by Sammy by ear over Danit, Nimrod and Jessica. `tools/voice/build.mjs` collects the lines (word translations in both forms, land names, `data/he-lines.js`), records only the missing ones, trims, levels and writes the manifest `data/he-audio.js`. The device's Hebrew voice is only the fallback. **After adding a word or changing any Hebrew line, run the tool**; `npm test` fails while a line has no clip. It needs the `say-it` cloud environment (allows `api.elevenlabs.io`, the key is saved there as a network secret, so pass `ELEVENLABS_API_KEY=proxy-injected NODE_USE_ENV_PROXY=1`). Sammy's key can't add voices or read the account; Zina is already in his voices. A line that's mispronounced: add niqqud for it in `SPELL` in the tool and run `--redo "<line>"`.
 
 ## Code map (short; README has the full table)
 
@@ -33,7 +33,8 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 | --- | --- |
 | `public/js/main.js` | Registers screens, starts the app |
 | `public/js/core/` | `html` template tag (escapes values), router, sheets, events |
-| `public/js/data/` | `words.js` (484 words, tier 1-5 each), `stages.js` (stones built from words), `lands.js` (land photos, trail paths, stone placement), `outfits.js` |
+| `public/js/data/` | `words.js` (484 words, tier 1-5 each), `stages.js` (stones built from words), `lands.js` (land photos, trail paths, stone placement), `outfits.js`, `he-lines.js` (Pipo's Hebrew lines), `he-audio.js` (Hebrew text → clip, generated) |
+| `public/audio/he/` | Recorded Hebrew clips (`tools/voice/build.mjs`) |
 | `public/js/services/` | `store.js` (progress, spaced repetition, unlock rules, rounds), `sound.js`, `speech.js`, `shop.js`, `match.js` |
 | `public/js/screens/` | map, who, stickers, garden (garden + shop) |
 | `public/js/round/` | `round.js` runs a round; `steps/` meet, tap, say (also "What's this?"), pop, memory, finish |
@@ -62,7 +63,7 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 - **Use the `html` tag** for all markup; it escapes values. Names and restored data are untrusted.
 - **Positioned elements and animations:** stones and similar use `transform: translate(...)` to centre themselves. Any animation on them must keep that translate in every keyframe, or the element jumps. Use element-specific keyframes, not the shared `wiggle`/`pop`.
 - **Map pictures** are cache-busted by `MAP_V` in `screens/map.js`; music by `MUSIC_V` in `services/sound.js`. Bump them when the files change.
-- **Sound:** music ducks under any spoken word and goes silent while the child records. The mic is locked while the app is talking. Keep it that way for anything new that speaks.
+- **Sound:** music ducks under any spoken word and goes silent while the child records. The mic is locked while the app is talking. Keep it that way for anything new that speaks. Speak Hebrew only through `Sound.hebrew()` / `Sound.talk()` (clip first, device voice as fallback); new Hebrew text goes in `data/he-lines.js` so the tool records it.
 - **Kid-facing design:** big tap targets, no reading, gentle feedback (a locked thing wiggles and makes a soft sound, it never scolds).
 - Write plain commit messages: a title with the version, then what changed and why.
 

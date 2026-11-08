@@ -127,5 +127,10 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 - Fix: restored them; tests caught it before release.
 - Rule: when replacing a block, list what it defined and check each one still exists. Always run `npm test` before releasing.
 
+**The ElevenLabs API was out of reach at first (2026-11-08)**
+- What happened: the first Hebrew-voice session ran on the Default cloud environment, where `api.elevenlabs.io` is blocked, and `$ELEVENLABS_API_KEY` wasn't set in the container. Sammy's key also lacks the `voices_write` and `user_read` permissions, so "add Zina to my voices" and the credit check failed.
+- Fix: a personal `say-it` cloud environment that allows the host, with the key saved as a network secret (the proxy adds it; scripts get the placeholder `proxy-injected`). Zina was already in Sammy's voices from the audition, so adding her wasn't needed. Node's `fetch` needs `NODE_USE_ENV_PROXY=1` to go through the proxy.
+- Rule: start ElevenLabs work in the `say-it` environment. Check the key's permissions with one cheap call before planning around an endpoint.
+
 **Things that can't be checked here**
 - Audio levels, the real microphone and touch feel need the phone. Say so and ask Sammy to try it, rather than claiming it works.

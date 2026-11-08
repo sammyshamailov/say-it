@@ -1,6 +1,8 @@
-// Sound: word recordings, device voices (fallback + Hebrew), effects and music.
+// Sound: word recordings, recorded Hebrew (Zina), device voices (fallback), effects and music.
 import { store } from "../state.js";
 import { AUDIO_MAP } from "../data/audio-map.js";
+import { HE_AUDIO } from "../data/he-audio.js";
+import { TALK } from "../data/he-lines.js";
 
 const settings = () => store.settings;
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -163,7 +165,6 @@ function speak(text, lang = "en", rate) {
     setTimeout(() => speechSynthesis.speak(u), 60);
   });
 }
-const hasHebrew = () => !!heVoice;
 
 // ---------- word recordings (Wiktionary contributors on Wikimedia Commons, CC BY-SA) ----------
 const MEDIA = "https://upload.wikimedia.org/wikipedia/commons/transcoded/";
@@ -215,28 +216,32 @@ async function word(en, slow = false) {
   }
   return speak(en, "en", slow ? .38 : .62);
 }
-const hebrew = text => (hasHebrew() ? speak(text, "he") : Promise.resolve());
-function prefetch(list) { list.forEach(en => { const f = AUDIO_MAP[en]; if (f) blobFor(f).catch(() => {}); }); }
+
+// ---------- Hebrew: recorded clips (tools/voice/build.mjs), the device's Hebrew voice as fallback ----------
+const heUrl = text => (HE_AUDIO[text] ? "audio/he/" + HE_AUDIO[text] : null);
+// can this line be said in Hebrew on this phone? (always, once it has a clip)
+const hasHebrew = text => !!(text && HE_AUDIO[text]) || !!heVoice;
+async function hebrew(text) {
+  const url = heUrl(text);
+  if (url) {
+    stop();
+    const ok = await playUrl(url);
+    if (ok) return; // played, or cut off by the next sound
+  }
+  if (heVoice) return speak(text, "he");
+}function prefetch(list) { list.forEach(en => { const f = AUDIO_MAP[en]; if (f) blobFor(f).catch(() => {}); }); }
+const voiceUrls = () => [...new Set(Object.values(HE_AUDIO))].map(f => "audio/he/" + f);
 const recordingUrls = () => [...new Set(Object.values(AUDIO_MAP))].map(mediaUrl);
 
-// ---------- spoken feedback (Hebrew when the device has a Hebrew voice) ----------
-const TALK = {
-  cheer: { m: ["כל הכבוד!", "יופי!", "מעולה!", "וואו!", "אלוף!", "איזה יופי!"], f: ["כל הכבוד!", "יופי!", "מעולה!", "וואו!", "אלופה!", "איזה יופי!"],
-    en: ["Great job!", "Yes!", "Super!", "You got it!", "Amazing!", "Wow!"] },
-  noHear: { m: ["לא שמעתי. נסה שוב!"], f: ["לא שמעתי. נסי שוב!"], en: ["I didn't hear you. Try again!"] },
-  said: { m: ["שמעתי אותך! כל הכבוד!"], f: ["שמעתי אותך! כל הכבוד!"], en: ["I heard you!"] },
-  clear: { m: ["וואו, אמרת מושלם!"], f: ["וואו, אמרת מושלם!"], en: ["Wow, perfect!"] },
-  done: { m: ["כל הכבוד! סיימת!"], f: ["כל הכבוד! סיימת!"], en: ["Well done!"] },
-  whats: { m: ["מה זה?"], f: ["מה זה?"], en: ["What's this?"] },
-  hi: { m: ["היי!"], f: ["היי!"], en: ["Hi!"] }
-};
+// ---------- spoken feedback (Hebrew when Hebrew help is on; lines in data/he-lines.js) ----------
 function talk(key, gender) {
   const t = TALK[key]; if (!t) return Promise.resolve();
-  if (settings().hebrew && hasHebrew()) return speak(pick(t[gender === "f" ? "f" : "m"]), "he");
+  const he = pick(t[gender === "f" ? "f" : "m"]);
+  if (settings().hebrew && hasHebrew(he)) return hebrew(he);
   return speak(pick(t.en), "en", .8);
 }
 
 export const Sound = {
   sfx, music, syncMusic, scene, jingle, nudgeMusic, speak, word, hebrew, prefetch, talk, stop, playUrl, hasHebrew, hush,
-  recordingUrls, musicUrls, unlock: () => ac()
+  recordingUrls, voiceUrls, musicUrls, unlock: () => ac()
 };

@@ -9,6 +9,7 @@ import { WORDS } from "../data/index.js";
 import { LANDS, panelsFor, trailPoints } from "../data/lands.js";
 import { LAND_STAGES, STAGE } from "../data/stages.js";
 import { Sound } from "../services/sound.js";
+import { SAY } from "../data/he-lines.js";
 import { canBuy } from "../services/shop.js";
 import { round } from "../round/round.js";
 import { I } from "../ui/icons.js";
@@ -119,7 +120,7 @@ export function map() {
     if (!store.landPaid(st.land)) {
       // a land the phone hasn't unlocked yet: a parent opens it in the parent area
       nope(b);
-      if (store.settings.hebrew) Sound.hebrew("כדי לשחק כאן, צריך לבקש מההורים לפתוח");
+      if (store.settings.hebrew) Sound.hebrew(SAY.landLocked);
       return;
     }
     if (!store.stageOpen(p, st)) return nope(b);
