@@ -31,12 +31,13 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 ## Difficulty and unlocking (`services/store.js`)
 
 - Every word has a tier 1–5: Seed, Sprout, Explorer, Doer, Talker. Tiers come from how hard a word is for a Hebrew-speaking 4-year-old: can it be pictured, how early English children learn it, sounds Hebrew lacks, look-alikes, and a bonus for words Hebrew already uses (banana, pizza, giraffe). Tier 1 also holds the first words children learn in any language (early-vocabulary research): family, basic body parts, the first colours, one to five, happy/sad, eat/drink/sleep. Most actions and feelings are tier 2; rare animals and dinosaurs tier 4.
+- **Only the first land is free:** later lands need a parent unlock code (parent area), which opens all lands for every child on the phone. Until then they stay locked whatever the progress; a child tapping there hears in Hebrew to ask a parent. Codes are checked by `/api/unlock` (HMAC with `UNLOCK_SECRET`, no database); `npm run codes N` makes them.
 - **One land at a time:** the first land is open from the start. A land opens once 40% of the easy (tier 1–2) word stones of the land below are done, or once the child has already played in it (so older progress never relocks).
 - **Inside a land:** tier 1 is open; a tier opens once 70% of the tier below is done. Every stone in an open tier can be played.
 - A chest opens when every word stone of its tier is done; the party stone when 70% of the land is done.
 - **Done means remembered:** a word stone is *met* once all its words were shown, and *done* once every word was answered right (first try, Listen & tap) on two different days. The stone's progress bar fills half for meeting, half for remembering. Chests and parties are done after one round.
 - Next stone (Play) follows the trail, so the glow and Pipo don't hop around the map between sessions: the lowest open stone with something new (words not met yet, or a chest/party not played); then the lowest open stone not done that has words due for review; once everything open is done, the open stone with the most words due (this can be in an earlier land); then the lowest open stone not done.
-- Parents can switch on "unlock all".
+- Parents can switch on "unlock all" (only on an unlocked phone; it never opens a land that isn't paid for).
 
 ## A round (`round/round.js`, `round/steps/`)
 

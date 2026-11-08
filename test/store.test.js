@@ -172,6 +172,7 @@ test("a word stone's round reviews words of its own land only; chests also bring
   const p = store.newProfile("Noa"); store.addProfile(p);
   const landOf = k => STAGES.find(st => st.kind === "word" && st.keys.includes(k)).land;
   // words met in the first two lands, all due again
+  store.unlock("TEST");
   const met = [0, 1].flatMap(gi => LAND_STAGES[gi].filter(st => st.kind === "word").slice(0, 4));
   met.forEach(st => st.keys.forEach(k => { store.meet(p, k); store.mark(p, k, true); }));
   clock.t += 2 * HOUR;
@@ -211,6 +212,7 @@ test("lands: one at a time up the trail; inside a land, harder stones open once 
   const need = Math.ceil(easy.length * 0.4);
   const { store: s2 } = clockStore();
   const q = s2.newProfile("Ari"); s2.addProfile(q);
+  s2.unlock("TEST");
   remember(q, easy.slice(0, need - 1));
   assert.ok(!s2.landOpen(q, 1), "the next land waits for 40% of this land's easy stones");
   remember(q, easy.slice(need - 1, need));
@@ -224,6 +226,7 @@ test("lands: one at a time up the trail; inside a land, harder stones open once 
 test("lands: a land already played in stays open", () => {
   const { store } = clockStore();
   const p = store.newProfile("Noa"); store.addProfile(p);
+  store.unlock("TEST");
   const st = LAND_STAGES[3].find(x => x.kind === "word" && x.tier === 1);
   store.meet(p, st.keys[0]);
   assert.ok(store.landOpen(p, 3));

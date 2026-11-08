@@ -116,6 +116,12 @@ export function map() {
 
   onTap(root, "[data-st]", b => {
     const st = STAGE[b.dataset.st];
+    if (!store.landPaid(st.land)) {
+      // a land the phone hasn't unlocked yet: a parent opens it in the parent area
+      nope(b);
+      if (store.settings.hebrew) Sound.hebrew("כדי לשחק כאן, צריך לבקש מההורים לפתוח");
+      return;
+    }
     if (!store.stageOpen(p, st)) return nope(b);
     round.start(st);
   });

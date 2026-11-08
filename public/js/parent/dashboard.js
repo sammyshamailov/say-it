@@ -12,6 +12,7 @@ import { pic } from "../ui/picture.js";
 import { VERSION } from "../version.js";
 import { profileForm } from "./profile-form.js";
 import { makeCode, enterCode, saveBackup, restoreBackup } from "./transfer.js";
+import { unlockPanel, wireUnlock } from "./unlock.js";
 
 let installEvt = null;
 addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; });
@@ -44,11 +45,13 @@ export async function dashboard() {
     <div id="formhost"></div>
     <button class="b3 pbtn c-mint" id="add" style="align-self:flex-start">+ הוספת ילד או ילדה</button>
 
+    ${unlockPanel()}
+
     <div class="panel"><h2>הגדרות</h2>
       ${toggle("t-sfx", set.sfx, "צלילים ואפקטים")}
       ${toggle("t-music", set.music, "מוזיקת רקע")}
       ${toggle("t-heb", set.hebrew, "עזרה בעברית (תרגום ועידוד)")}
-      ${toggle("t-all", set.unlockAll, "לפתוח את כל המפה")}
+      ${store.unlocked() ? toggle("t-all", set.unlockAll, "לפתוח את כל השלבים בלי לחכות") : ""}
       <div class="field"><span>תרגול דיבור (<span class="en-ltr">Say it</span>)</span>
         <div class="seg"><button data-m="auto" aria-pressed="${set.sayMode !== "echo"}">אוטומטי</button><button data-m="echo" aria-pressed="${set.sayMode === "echo"}">הקלטה והשמעה</button></div>
         <p class="small">אוטומטי: במכשירים שתומכים בזיהוי דיבור, האפליקציה גם בודקת את המילה ונותנת כוכב בונוס. בכל מקרה כל ניסיון מקבל כוכב. "הקלטה והשמעה" משמיעה לילד את הקול שלו ואז את המילה, בלי זיהוי.</p>
@@ -102,7 +105,8 @@ export async function dashboard() {
   bindToggle("t-sfx", "sfx", Sound.syncMusic);
   bindToggle("t-music", "music", Sound.syncMusic);
   bindToggle("t-heb", "hebrew");
-  bindToggle("t-all", "unlockAll");
+  if ($("#t-all")) bindToggle("t-all", "unlockAll");
+  wireUnlock(root, () => nav.refresh());
   onTap(root, "[data-m]", b => {
     set.sayMode = b.dataset.m; store.save();
     $$("[data-m]").forEach(x => x.setAttribute("aria-pressed", x === b));

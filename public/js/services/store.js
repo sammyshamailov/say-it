@@ -120,6 +120,7 @@ export function createStore({ storage, now = Date.now } = {}) {
       return upgradeProfile(Object.assign(base, p));
     });
     if (!d.profiles.some(p => p.id === d.lastId)) d.lastId = d.profiles[0] ? d.profiles[0].id : null;
+    d.unlocked = d.unlocked || state.unlocked || null; // restoring an older backup never locks the map again
     state = d;
     save(true);
     return true;
@@ -179,7 +180,14 @@ export function createStore({ storage, now = Date.now } = {}) {
   // stones of its tier are done, the party stone when 70% of the land is.
   // A word stone is "met" once all its words were shown, and "done" once all of them were
   // remembered (answered right on two different days). Chests and parties are done after a round.
+  // Only the first land is free. A parent unlock code (checked by /api/unlock) opens every land
+  // for every child on the phone; it travels with transfer codes and backups. "Unlock all" and the
+  // already-played rule work only inside lands the phone may use.
   const OPEN_SHARE = 0.7, LAND_SHARE = 0.4;
+  const FREE_LANDS = 1;
+  const unlocked = () => !!state.unlocked;
+  const landPaid = gi => gi < FREE_LANDS || unlocked();
+  function unlock(code) { state.unlocked = { at: now(), code: String(code || "").slice(0, 12) }; save(true); }
   const stageMet = (p, st) => st.keys.every(k => p.words[k]);
   const stageDone = (p, st) => st.kind === "word" ? st.keys.every(k => remembered(p, k)) : !!p.stages[st.id];
   const stageStarted = (p, st) => st.kind === "word" && st.keys.some(k => p.words[k]);
@@ -191,6 +199,7 @@ export function createStore({ storage, now = Date.now } = {}) {
   const shareDone = (p, list, share) => list.filter(st => stageDone(p, st)).length >= share * list.length;
   const mostlyDone = (p, list) => shareDone(p, list, OPEN_SHARE);
   function landOpen(p, gi) {
+    if (!landPaid(gi)) return false;
     if (gi <= 0 || state.settings.unlockAll) return true;
     if (landWords[gi].some(st => stageDone(p, st) || stageStarted(p, st))) return true;
     return shareDone(p, landEasy[gi - 1], LAND_SHARE) && landOpen(p, gi - 1);
@@ -203,6 +212,7 @@ export function createStore({ storage, now = Date.now } = {}) {
     return words.some(st => st.tier === t && (stageDone(p, st) || stageStarted(p, st)));
   }
   function stageOpen(p, st) {
+    if (!landPaid(st.land)) return false;
     if (state.settings.unlockAll || stageDone(p, st)) return true;
     if (!landOpen(p, st.land)) return false;
     if (st.kind === "word") return tierOpen(p, st.land, st.tier);
@@ -279,6 +289,7 @@ export function createStore({ storage, now = Date.now } = {}) {
     newProfile, addProfile, removeProfile, player, setPlayer,
     rec, meet, mark, markSaid, learned, remembered, knows, toPractice, dueKeys,
     purse, owns, addStars, buy,
+    unlocked, landPaid, unlock,
     stageDone, stageMet, stageStarted, stageProgress, stageCrown, landOpen, tierOpen, stageOpen, nextStage, landDone,
     buildRound, finishRound, addPlayTime,
     isSave, exportData, replaceAll

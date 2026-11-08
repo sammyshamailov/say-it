@@ -2,6 +2,13 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.9.0 (2026-11-08): first land free, a parent code opens the rest
+- Only Animal Jungle is open without an unlock code. Later lands stay locked whatever the progress, "unlock all" or old saves. A child who taps a stone there sees it wiggle and hears, in Hebrew, to ask a parent to open it.
+- New parent-area panel "פתיחת כל המפה": a 10-character code (ABCDE-FGHJK) opens all six lands for every child on the phone. The "unlock all" switch shows only after that.
+- Codes are checked by a new Netlify Function (`/api/unlock`): 5 random letters plus 5 signed from them with `UNLOCK_SECRET`, so there's no database and no account. Make codes with `UNLOCK_SECRET=... npm run codes 10`.
+- The unlock is saved with the progress, travels with transfer codes and backups, and restoring an older backup doesn't lock the map again.
+- How parents buy a code isn't built yet.
+
 ## 2.8.1 (2026-11-08): rounds keep to the land the child chose
 From a review of why the game "felt random".
 - A word stone's round reviews words of its own land only. Before, review words came from any open stone on the map, so the fruit stone could bring a cow and a colour. Chests and party stones review their land and the lands below, which is where older lands come back.

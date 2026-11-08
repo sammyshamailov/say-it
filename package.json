@@ -5,7 +5,8 @@
   "description": "Say It! Words. The app itself has no build step; this file only brings in the library the transfer-code function needs.",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "release": "node tools/release.mjs"
+    "release": "node tools/release.mjs",
+    "codes": "node tools/unlock-codes.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^8.1.0"

@@ -18,12 +18,12 @@ Hard constraints, set by Sammy:
 - Every screen must work for a non-reader: no numbers or text a child has to read. Prices are rows of stars; the parent gate uses Hebrew words.
 - Hebrew help everywhere for the child (spoken), Hebrew UI for the parent area (right to left).
 
-Long-term: Sammy wants it to earn money someday. Current thinking is a parent-paid unlock (free first land), validated with real families first. Ads and tracking are ruled out.
+Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land is free; a parent unlock code opens all lands for all children on the phone (one-time, family-wide; ~79₪ suggested, to validate with real families). How codes are sold isn't built yet. Ads and tracking are ruled out.
 
 ## Stack
 
 - Vanilla JS ES modules, **no build step**. `public/` is exactly what Netlify serves.
-- One Netlify Function pair for transfer codes (`netlify/functions/`), using Netlify Blobs. `package.json` exists only for `@netlify/blobs` and the test/release scripts.
+- Netlify Functions (`netlify/functions/`): transfer codes (Netlify Blobs) and parent unlock codes (`unlock.mjs`, signed with the `UNLOCK_SECRET` environment variable, no storage). `package.json` exists only for `@netlify/blobs` and the test/release scripts.
 - Pictures and map art are generated outside (ChatGPT image generation, felt/clay diorama style) and cut by `tools/pictures/*.py`. Music is made with Suno (paid plan) and processed by `tools/music/build.py`. Word recordings come from Wikimedia Commons.
 
 ## Code map (short; README has the full table)
@@ -54,6 +54,7 @@ Long-term: Sammy wants it to earn money someday. Current thinking is a parent-pa
 ## Conventions that matter
 
 - **Stone ids** (`<sub>-<tier>-<n>`, `<land>-<tier>-chest`, `<land>-party`) are built from each word's tier, so moving a word to another tier regroups the stones under those ids. Saved chest/party progress points at them.
+- **Free first land:** `landPaid()` in `store.js` is checked before every other unlock rule, including "unlock all" and the already-played rule. Don't add a way into a later land that skips it.
 - **Rounds keep to the land:** a word stone reviews only words of its own land; mixing across lands happens in chests and parties. Play follows the trail.
 - **Progress rules:** a word stone is done when every word was answered right on two different days (`remembered` in `store.js`); "met" is separate. Only Listen & tap answers move a word's level and day count.
 - **Old saves must keep working** once the game goes to other families. Until then (Sammy, 2026-11-04: still building, not sent to anyone), changes that regroup stones or reset progress are fine; say so in the changelog. Changes to the save shape still need a tolerant reader (e.g. `worn()` accepts the old single-hat string, `days` may be missing on a word record).
