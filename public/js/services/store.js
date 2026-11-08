@@ -209,11 +209,14 @@ export function createStore({ storage, now = Date.now } = {}) {
     if (st.kind === "chest") return landWords[st.land].filter(x => x.tier === st.tier).every(x => stageDone(p, x));
     return mostlyDone(p, landWords[st.land]);
   }
-  // The stone the map glows on and the Play button starts: the lowest open stone on the trail
-  // with something new (words not met yet, or a chest/party not played); then the open stone
-  // with the most words due for review; then the lowest open stone not done.
+  // The stone the map glows on and the Play button starts. It follows the trail, so Pipo doesn't
+  // hop around the map between sessions: the lowest open stone with something new (words not met
+  // yet, or a chest/party not played); then the lowest open stone not done that has words due;
+  // then (everything open is done) the open stone with the most words due, which can be in an
+  // earlier land; then the lowest open stone not done.
   function nextStage(p) {
     for (const st of STAGES) if (!stageDone(p, st) && stageOpen(p, st) && (st.kind !== "word" || !stageMet(p, st))) return st;
+    for (const st of STAGES) if (!stageDone(p, st) && stageOpen(p, st) && dueKeys(p, st.keys).length) return st;
     let best = null, bestN = 0;
     for (const st of STAGES) {
       if (!stageOpen(p, st)) continue;
@@ -227,16 +230,18 @@ export function createStore({ storage, now = Date.now } = {}) {
   const landDone = (p, gi) => LAND_STAGES[gi].filter(st => stageDone(p, st)).length / LAND_STAGES[gi].length;
 
   // ---- build one round for a stone ----
-  // Word stone: up to 3 new words, then words due for review (its own first). Below tier 3 a round
-  // never holds two words a child mixes up. Chest and party stones: review only.
+  // Word stone: up to 3 new words, then words due for review: its own first, then from the same
+  // land only, so a round keeps to the place the child chose (no cow in the fruit stone). Chest
+  // and party stones: review only, of their land and then of the lands below, which is where
+  // older lands come back. Below tier 3 a round never holds two words a child mixes up.
   function buildRound(p, st) {
     const easy = st.tier < 3;
     const clash = (k, list) => easy && list.some(x => confusable(k, x));
     const fresh = [];
     if (st.kind === "word") for (const k of st.keys) if (!p.words[k] && fresh.length < 3 && !clash(k, fresh)) fresh.push(k);
+    const near = x => st.kind === "word" ? x.land === st.land : x.land <= st.land;
     const open = [];
-    for (const x of STAGES) if (x.kind === "word" && (stageDone(p, x) || stageOpen(p, x))) open.push(...x.keys);
-    const met = st.keys.filter(k => p.words[k]);
+    for (const x of STAGES) if (x.kind === "word" && near(x) && (stageDone(p, x) || stageOpen(p, x))) open.push(...x.keys);    const met = st.keys.filter(k => p.words[k]);
     const words = [...fresh];
     const add = (k, max) => { if (words.length < max && !words.includes(k) && !clash(k, words)) words.push(k); };
     for (const k of [...dueKeys(p, st.keys), ...dueKeys(p, open)]) add(k, 6);

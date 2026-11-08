@@ -167,6 +167,35 @@ test("when every open stone was met, Play picks the stone with words due for rev
   assert.ok(open.includes(next) && store.dueKeys(p, next.keys).length > 0);
 });
 
+test("a word stone's round reviews words of its own land only; chests also bring back lands below", () => {
+  const { store, clock } = clockStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const landOf = k => STAGES.find(st => st.kind === "word" && st.keys.includes(k)).land;
+  // words met in the first two lands, all due again
+  const met = [0, 1].flatMap(gi => LAND_STAGES[gi].filter(st => st.kind === "word").slice(0, 4));
+  met.forEach(st => st.keys.forEach(k => { store.meet(p, k); store.mark(p, k, true); }));
+  clock.t += 2 * HOUR;
+  const fruit = LAND_STAGES[1].find(st => st.kind === "word" && st.tier === 1);
+  const { words } = store.buildRound(p, fruit);
+  assert.ok(words.length >= 4);
+  assert.ok(words.every(k => landOf(k) === 1), "no animals in a Yummy Town stone: " + words.join(", "));
+  const chest = LAND_STAGES[1].find(st => st.kind === "chest");
+  const animalsDue = store.dueKeys(p, met.filter(st => st.land === 0).flatMap(st => st.keys));
+  p.words = Object.fromEntries(Object.entries(p.words).filter(([k]) => landOf(k) === 0));
+  assert.ok(animalsDue.length && store.buildRound(p, chest).words.some(k => landOf(k) === 0), "a chest reviews the land below too");
+});
+
+test("Play follows the trail: a stone with words due stays the glowing stone", () => {
+  const { store, clock } = clockStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const open = STAGES.filter(st => st.kind === "word" && store.stageOpen(p, st));
+  open.forEach(st => st.keys.forEach(k => { store.meet(p, k); store.mark(p, k, true); }));
+  // the last stone gets more words due than the first, which the old rule would jump to
+  clock.t += 2 * HOUR;
+  open.slice(1).forEach(st => st.keys.forEach(k => store.mark(p, k, false)));
+  assert.equal(store.nextStage(p), open[0], "the lowest stone not done, not the one with most due");
+});
+
 test("lands: one at a time up the trail; inside a land, harder stones open once most easier ones are done", () => {
   const { store } = clockStore();
   const p = store.newProfile("Noa"); store.addProfile(p);

@@ -54,6 +54,7 @@ Long-term: Sammy wants it to earn money someday. Current thinking is a parent-pa
 ## Conventions that matter
 
 - **Stone ids** (`<sub>-<tier>-<n>`, `<land>-<tier>-chest`, `<land>-party`) are built from each word's tier, so moving a word to another tier regroups the stones under those ids. Saved chest/party progress points at them.
+- **Rounds keep to the land:** a word stone reviews only words of its own land; mixing across lands happens in chests and parties. Play follows the trail.
 - **Progress rules:** a word stone is done when every word was answered right on two different days (`remembered` in `store.js`); "met" is separate. Only Listen & tap answers move a word's level and day count.
 - **Old saves must keep working** once the game goes to other families. Until then (Sammy, 2026-11-04: still building, not sent to anyone), changes that regroup stones or reset progress are fine; say so in the changelog. Changes to the save shape still need a tolerant reader (e.g. `worn()` accepts the old single-hat string, `days` may be missing on a word record).
 - **Use the `html` tag** for all markup; it escapes values. Names and restored data are untrusted.

@@ -2,6 +2,13 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.8.1 (2026-11-08): rounds keep to the land the child chose
+From a review of why the game "felt random".
+- A word stone's round reviews words of its own land only. Before, review words came from any open stone on the map, so the fruit stone could bring a cow and a colour. Chests and party stones review their land and the lands below, which is where older lands come back.
+- Play and the glowing stone follow the trail: once every open stone was met, Play goes to the lowest unfinished stone with words due, not the stone with the most due anywhere, so Pipo no longer jumps around the map between sessions.
+- Answer order, wrong-answer pictures and the sticker stay random on purpose (a child can't learn where the right picture sits).
+- Simulated with the real rules: the whole map takes about 230–300 rounds (15–20 hours): ~5 months at 2 rounds a day.
+
 ## 2.8.0 (2026-11-04): remembered, not just seen; first words first; "What's this?"
 From a review of the code against research on how 4–5-year-olds learn words (spaced exposures across days, retrieval practice, early-vocabulary studies). Progress from earlier versions is not carried over exactly: word stones count again from the words' answers (the game hasn't gone to other families yet).
 - **A word stone is done once every word was answered right on two different days** (first try, in Listen & tap). Before, a stone was done once each word had been shown once, so a child could clear the trail without remembering anything. "Met" (every word shown) is kept separately; the stone's progress bar fills half for meeting the words and half for remembering them.

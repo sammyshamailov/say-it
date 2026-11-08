@@ -35,14 +35,15 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 - **Inside a land:** tier 1 is open; a tier opens once 70% of the tier below is done. Every stone in an open tier can be played.
 - A chest opens when every word stone of its tier is done; the party stone when 70% of the land is done.
 - **Done means remembered:** a word stone is *met* once all its words were shown, and *done* once every word was answered right (first try, Listen & tap) on two different days. The stone's progress bar fills half for meeting, half for remembering. Chests and parties are done after one round.
-- Next stone (Play): the lowest open stone with something new (words not met yet, or a chest/party not played). When everything open was met, the open stone with the most words due for review; then the lowest open stone not done.
+- Next stone (Play) follows the trail, so the glow and Pipo don't hop around the map between sessions: the lowest open stone with something new (words not met yet, or a chest/party not played); then the lowest open stone not done that has words due for review; once everything open is done, the open stone with the most words due (this can be in an earlier land); then the lowest open stone not done.
 - Parents can switch on "unlock all".
 
 ## A round (`round/round.js`, `round/steps/`)
 
 3–5 minutes: **Meet** new words → **What's this?** → **Listen & tap** → **Say it** → a bonus game (**Pop the bubbles** or **Memory match**) → **Well done** with stars and a sticker.
 
-- Up to 3 new words per round, then words due for review, at most 6 words.
+- Up to 3 new words per round, then words due for review, at most 6 words. A word stone reviews its own words first, then words of the **same land** only, so a round keeps to the place the child chose (no cow in a fruit stone). Chests and party stones review their land and then the lands below; that is where older lands come back.
+- Finishing the whole map takes about 230–300 rounds, 15–20 hours of play: about 5 months at 2 rounds a day, 7–8 months at one (simulated with the real store rules).
 - Listen & tap shows 2 pictures in tier 1, 3 in tier 2, 4 from tier 3 (one fewer the first time a word is asked); a word back for review gets at least 3, so a lucky tap is less likely. Look-alike pairs (puppy/dog, lemon/lime; list in `stages.js`) never meet below tier 3; from tier 3 one may be the wrong answer on purpose.
 - **Say it**: on Android Chrome speech recognition checks the word and gives a bonus star. Otherwise, and after one unheard try, **Echo** records the child, plays their voice back, then the model word. Every real attempt earns a star. Used for the new words of the round.
 - **What's this?** (same screen as Say it, `whats` step): for words met in earlier rounds, before the round says them again. The word is hidden behind a "?", Pipo asks "מה זה?", and the child names the picture from memory (free recall). The word shows and is said after the try, or when the child taps the speaker; the Hebrew button says the Hebrew word as a hint and keeps the English hidden. One per round with new words, up to three in a review round. Say it and What's this? together are at most three per round.

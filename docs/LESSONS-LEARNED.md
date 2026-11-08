@@ -4,6 +4,11 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Map and layout
 
+**The game felt random (changed in 2.8.1)**
+- What happened: review words for a round came from any open stone on the map, and Play jumped to whichever stone had the most words due. Each choice was sound for spaced repetition, but a non-reader finds their way only by place and picture, and both kept changing: tap the fruit stone, get a cow; Pipo somewhere else tomorrow.
+- Fix (Sammy chose same-land review after a council review): word stones review their own land only, chests and parties also bring back lands below; Play follows the trail.
+- Rule: what a stone shows is a promise to the child. A round must teach what the tapped stone shows; put mixing where the map says "review" (chests, parties). Keep randomness only where it helps learning (answer positions).
+
 **Stones counted as done after the words were only seen (changed in 2.8.0)**
 - What happened: by design a word stone was done once each word had been shown once, and everything that unlocks (tiers, lands, chests) followed "done". A child could clear the trail without remembering a word; research on 4–5-year-olds shows a word seen once is mostly gone minutes later, and spreading exposures over days is what makes it stick. The land order also put 113 animals (hoopoe, walrus, pterodactyl) before mom, eye, red, one, eat and happy.
 - Fix (Sammy chose this, after a council review): done = every word answered right on two different days; reviews show at least 3 pictures; a land opens at 40% of the easy stones below; first words moved to tier 1; a free-recall step ("What's this?").
