@@ -63,7 +63,7 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 
 ## Sound (`services/sound.js`)
 
-- Word recordings: Wiktionary/Lingua Libre speakers from Wikimedia Commons; the device voice for the few without one. Hebrew uses the device's Hebrew voice.
+- Word recordings: Wiktionary/Lingua Libre speakers from Wikimedia Commons; the device voice for the few without one. Hebrew uses the device's Hebrew voice. Planned: recorded Hebrew clips (word translations and Pipo's lines) in one ElevenLabs voice, "Zina", so Hebrew sounds the same on every phone and works without a device Hebrew voice.
 - Soundtrack: a main theme, one loop per land (on the map, the land in the middle of the screen), bonus games, garden, and a party jingle.
 - Music ducks to a whisper under any spoken word and goes silent while the child records. The mic is locked while the app is talking.
 
