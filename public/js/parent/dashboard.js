@@ -13,13 +13,27 @@ import { VERSION } from "../version.js";
 import { profileForm } from "./profile-form.js";
 import { makeCode, enterCode, saveBackup, restoreBackup } from "./transfer.js";
 import { unlockPanel, wireUnlock } from "./unlock.js";
-
-let installEvt = null;
-addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; });
+import { installPanel } from "./install.js";
 
 const mins = ms => Math.round(ms / 60000);
 const toggle = (id, on, label) => html`<div class="row"><label id="l-${id}">${label}</label><button class="toggle" role="switch" id="${id}" aria-checked="${!!on}" aria-labelledby="l-${id}"></button></div>`;
 const chips = (p, keys) => keys.slice(0, 40).map(k => html`<span class="chip">${pic(WORD[k].pic, { lazy: true, player: p })} ${WORD[k].en}</span>`);
+
+const WEEK = 7 * 864e5;
+
+// "This week's words" for the parent, with what to do with them at home: an adult who plays along
+// and uses the words is what multiplies what a child learns from an app.
+function weekCard(p, keys) {
+  const since = Date.now() - WEEK;
+  const week = keys.filter(k => p.words[k].seen >= since).sort((a, b) => p.words[b].seen - p.words[a].seen);
+  if (!week.length) return "";
+  const w = WORD[week[0]].en;
+  return html`<h3>המילים של השבוע (${week.length})</h3><div class="chips">${chips(p, week)}</div>
+    <div class="tips"><b>שלוש דקות בבית עושות את ההבדל:</b>
+      <ul><li>שואלים באנגלית <span class="en-ltr">“Where is the ${w}?”</span> ונותנים לילד להצביע, בספר, בבית או ברחוב.</li>
+      <li>כשרואים משהו מהרשימה, אומרים את המילה באנגלית ומחכים שהילד יחזור עליה.</li>
+      <li>מבקשים מהילד ללמד אתכם מילה אחת מהמשחק של היום.</li></ul></div>`;
+}
 
 function kidPanel(p) {
   const keys = Object.keys(p.words).filter(k => WORD[k]);
@@ -32,6 +46,7 @@ function kidPanel(p) {
       <div class="fact"><b>${mins(p.playMs)}</b><span>דקות משחק</span></div>
     </div>
     <div class="small">${keys.length} מילים נפגשו מתוך ${Object.keys(WORD).length} · ${p.rounds} סבבים · ⭐ ${p.stars}${p.lastPlayed ? ` · שיחק לאחרונה ${new Date(p.lastPlayed).toLocaleDateString("he-IL")}` : ""}</div>
+    ${weekCard(p, keys)}
     ${practice.length ? html`<h3>מילים לתרגול</h3><div class="chips">${chips(p, practice)}</div>` : ""}
     ${learned.length ? html`<details><summary class="small">מילים שנלמדו (${learned.length})</summary><div class="chips" style="margin-top:8px">${chips(p, learned)}</div></details>` : ""}
   </div>`;
@@ -52,6 +67,10 @@ export async function dashboard() {
       ${toggle("t-music", set.music, "מוזיקת רקע")}
       ${toggle("t-heb", set.hebrew, "עזרה בעברית (תרגום ועידוד)")}
       ${store.unlocked() ? toggle("t-all", set.unlockAll, "לפתוח את כל השלבים בלי לחכות") : ""}
+      <div class="field"><span>כמה סבבים ביום לפני שפיפו הולך לישון</span>
+        <div class="seg">${[2, 4, 6, 0].map(n => html`<button data-dr="${n}" aria-pressed="${(set.dayRounds || 0) === n}">${n || "ללא"}</button>`)}</div>
+        <p class="small">מילה נחשבת זכורה רק אחרי תשובה נכונה בשני ימים שונים, לכן כמה סבבים קצרים כל יום עדיפים על הרבה ביום אחד. אחרי המספר הזה, או כשאין יותר מה ללמוד היום, פיפו נרדם וכפתור המשחק נח עד מחר. עדיין אפשר ללחוץ על אבן במפה, ולשחק בגינה.</p>
+      </div>
       <div class="field"><span>תרגול דיבור (<span class="en-ltr">Say it</span>)</span>
         <div class="seg"><button data-m="auto" aria-pressed="${set.sayMode !== "echo"}">אוטומטי</button><button data-m="echo" aria-pressed="${set.sayMode === "echo"}">הקלטה והשמעה</button></div>
         <p class="small">אוטומטי: במכשירים שתומכים בזיהוי דיבור, האפליקציה גם בודקת את המילה ונותנת כוכב בונוס. בכל מקרה כל ניסיון מקבל כוכב. "הקלטה והשמעה" משמיעה לילד את הקול שלו ואז את המילה, בלי זיהוי.</p>
@@ -75,8 +94,8 @@ export async function dashboard() {
 
     <div class="panel"><h2>שימוש בלי אינטרנט</h2>
       <p class="small" id="offline">בודק…</p>
-      ${installEvt ? html`<button class="b3 pbtn c-yellow" id="install">התקנה כאפליקציה</button>` : ""}
     </div>
+    <div id="installhost" hidden></div>
 
     <div class="panel"><h2>קרדיטים</h2>
       <p class="small">הקולות: באנגלית, Sarah; בעברית, Zina (Young &amp; Soulful). שתיהן מ־<a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a>.</p>
@@ -107,6 +126,10 @@ export async function dashboard() {
   bindToggle("t-heb", "hebrew");
   if ($("#t-all")) bindToggle("t-all", "unlockAll");
   wireUnlock(root, () => nav.refresh());
+  onTap(root, "[data-dr]", b => {
+    set.dayRounds = +b.dataset.dr; store.save();
+    $$("[data-dr]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  });
   onTap(root, "[data-m]", b => {
     set.sayMode = b.dataset.m; store.save();
     $$("[data-m]").forEach(x => x.setAttribute("aria-pressed", x === b));
@@ -116,8 +139,7 @@ export async function dashboard() {
   $("#havecode").onclick = () => enterCode($("#xhost"), restart);
   $("#bk").onclick = saveBackup;
   $("#rs").onclick = () => restoreBackup($("#rsfile"), restart);
-  const ib = $("#install");
-  if (ib) ib.onclick = async () => { installEvt.prompt(); await installEvt.userChoice; installEvt = null; ib.remove(); };
+  installPanel($("#installhost"), { moved: true });
 
   const ms = $("#micstate"), perm = await Speech.permission();
   if (ms.isConnected) ms.textContent = perm === "denied" ? "המיקרופון חסום. כדי לאפשר: הגדרות הדפדפן ← הגדרות אתר ← מיקרופון, ואז לאפשר לאתר הזה."

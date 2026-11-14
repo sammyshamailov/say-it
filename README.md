@@ -37,7 +37,7 @@ More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/GAME-DESIG
 | `public/js/ui/` | Icons, word pictures, the chameleon mascot, shared components (word card, stars pill, buttons) |
 | `public/js/screens/` | Map, who's playing, sticker book, garden and shop |
 | `public/js/round/` | A round: `round.js` runs the steps; `steps/` has one file per step (meet, tap, say, pop, memory, finish) |
-| `public/js/parent/` | Parent gate, parent area, first run, transfer codes and backups, microphone explanation |
+| `public/js/parent/` | Parent gate, parent area, first run, transfer codes and backups, microphone explanation, how to install |
 | `assets/pictures/` | Source sheets, full-size pictures and the prompts used to make them (not deployed) |
 | `tools/pictures/build.py` | Cuts the sheets into pictures |
 | `tools/pictures/build_map.py` | Makes the map pictures |

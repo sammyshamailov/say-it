@@ -18,6 +18,7 @@ export const I = {
   q: raw(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 9a3 3 0 1 1 4 2.8c-.7.3-1 .9-1 1.6V15"/><circle cx="12" cy="18.5" r=".6" fill="currentColor"/></svg>`),
   crown: raw(`<svg class="crown" viewBox="0 0 34 26" role="img" aria-label="all learned"><path d="M3 22 L5 6 L12 13 L17 3 L22 13 L29 6 L31 22 Z" fill="#FFD23F" stroke="#1A1640" stroke-width="2.4" stroke-linejoin="round"/></svg>`),
   bag: raw(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z" fill="currentColor" fill-opacity=".25"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>`),
+  moon: raw(`<svg viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="#FFD23F" stroke="#1A1640" stroke-width="1.8" stroke-linejoin="round"/></svg>`),
   gear: raw(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`)
 };
 // padlock on the parents' button (the name "gear" is kept from the first version's icon)

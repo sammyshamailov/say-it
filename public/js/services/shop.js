@@ -4,8 +4,9 @@
 import { WORDS, WORD } from "../data/index.js";
 import { OUTFITS } from "../data/outfits.js";
 import { store } from "../state.js";
+import { PET_PRICE, petPrice } from "./store.js";
 
-export const PET_PRICE = 5;
+export { PET_PRICE, petPrice }; // an animal costs more the harder its word (see store.js)
 export const ANIMALS = WORDS.find(g => g.id === "animals").subs.flatMap(s => s.keys);
 export const petId = key => "pet:" + key;
 export const hatId = id => "hat:" + id;
@@ -17,7 +18,7 @@ export const ownedPets = p => ANIMALS.filter(k => store.owns(p, petId(k)));
 export function pets(p) {
   const rank = k => store.knows(p, k) ? 0 : p.words[k] ? 1 : 2;
   return ANIMALS.filter(k => !store.owns(p, petId(k)))
-    .map((k, i) => ({ kind: "pet", id: petId(k), key: k, w: WORD[k], price: PET_PRICE, known: store.knows(p, k), r: rank(k) * 1e4 + WORD[k].tier * 1e3 + i }))
+    .map((k, i) => ({ kind: "pet", id: petId(k), key: k, w: WORD[k], price: petPrice(k), known: store.knows(p, k), r: rank(k) * 1e4 + WORD[k].tier * 1e3 + i }))
     .sort((a, b) => a.r - b.r);
 }
 // a land's outfit shows as a shadow until that land of the map is open

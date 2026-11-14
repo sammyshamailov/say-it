@@ -2,6 +2,44 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.14.0 (2026-11-14): what the review found
+From a full review of the game (`REVIEW-2026-11-14.md` in the Claude project). Sammy asked for all of it; what needs new pictures or recordings is prepared in `docs/NEW-WORDS.md` and not in the game yet. Stone progress isn't reset, but the map changes order (below).
+
+Fixes
+- **The first round asked "מה זה?" about a word that was never taught.** A short round was filled up with words of the stone the child hadn't met, and those skipped their Meet card (the first round of the game: cow, pig, horse, then "what's this?" over a duck). A round now holds only new words (with Meet) and words met before; the first round is its three new words.
+- **Listen & tap could be answered without listening.** The wrong pictures for a new word came from all 484 words, so the picture Pipo had just shown stood next to one never seen (a horse beside a globe). Wrong pictures are now the other words of the round, then words met in the same land, then the rest of the land. Pop the bubbles uses words the child has met too.
+- **A word missed and asked again in the same round** no longer counts that second answer as a day it was remembered (its level still comes back).
+
+Learning
+- **Learning Castle is the second land** (was the last): colours, numbers and shapes come right after the first animals instead of after about three months. The order is now Animal Jungle, Learning Castle, Yummy Town, Me and Friends, Toy House, Adventure Road. It is still behind the unlock code: only Animal Jungle is free.
+- **Hebrew at the first meeting** for words a picture can't explain (feelings, actions, family, jobs, weather, places, colours, numbers, shapes): English, Hebrew, English again. Other words still say Hebrew only from the עב button.
+- **More "What's this?", less "Say it":** a round with new words asks two words from memory (was one) and has the child repeat one new word (was two).
+- **Echo no longer says "well done" for any sound.** It can't tell whether the word was right, so it lets the child compare: the word, the child's voice, the word again. The star is for trying. Speech recognition on Android still praises the right word.
+
+Play
+- **Pipo goes to sleep.** After the day's rounds (4; parents choose 2, 4, 6 or no limit), or when nothing is new and nothing is due, Pipo sleeps beside the stone, Play shows a moon and the garden glows; the end of the last round leads to the garden instead of "play more". Stones can still be tapped. Before, a long first day reached rounds that couldn't move anything, with no sign. (No spoken line yet; it needs a recording.)
+- **New bonus game, Feed Pipo:** Pipo asks for something by its word, the child taps its plate and the picture flies to him. Bonus games now go in turn: bubbles, Feed Pipo, memory.
+- **A treasure chest is its own ending:** after its review, the child knocks on the chest three times, it opens and gives 5 stars.
+- **The sticker book is an album:** every word of the open lands, land by land: a shadow until the word was answered right, in colour after that, a gold frame once it is remembered. (Before: one random sticker per round, repeats and all. Stickers already collected aren't shown as such any more.)
+- **Animals cost more the harder the word:** 5, 6, 8 or 10 stars by tier (were all 5), so there is something to save for.
+
+Looks
+- **Rounds are played in their land:** its photo, blurred and dark, lies behind the round instead of flat navy.
+- The turtle (slow) button is bigger.
+
+Parents
+- **"This week's words"** in the parent area: the words met in the last seven days and three things to do with them at home.
+- The daily-rounds setting, with a line on why short daily play beats one long day.
+
+Not in this version: the everyday words (yes, no, big, in, jump…), phrases, second pictures, a garden for all lands, parents listening to recordings, a feedback button (needs an address to send to). A review claim was wrong: the game already asked the browser to keep its storage (`state.js`).
+
+## 2.13.0 (2026-11-14): tablets, an install guide, no scroll bars
+From Sammy trying the game on an iPad.
+- **The map on a wide screen held sideways** (a tablet, or a phone on its side): the buttons stand in a column beside the map, with Pipo in the middle, so the map gets the whole height. Before, the phone layout was only centred: the map was a strip between two rows of buttons. Upright screens are unchanged. The other screens are still a centred column on a tablet.
+- **How to install, for parents.** iPhone and iPad have no install prompt, so nothing ever offered it there. The first-run screen and the parent area now show three steps (the share button, "Add to Home Screen", open it from the home screen) whenever the game runs in a browser tab on iPhone or iPad. They also say that progress made in the browser doesn't follow to the installed game by itself (iPhone and iPad keep the two apart): install before starting, or move it with a transfer code. On Android the install button also shows at first run, as soon as Chrome offers it. Nothing shows once the game is installed.
+- **No scroll bars.** The parent area's bar was drawn on the left, over the edge of the cards (the area is right to left). The parent area, shop shelf, sticker book, garden and sheets now scroll without a bar, like the map.
+- **The screen stays in place after typing on iPhone and iPad.** After the child's name was typed, the page could stay pushed up, with the top buttons under the browser's bar and an empty band at the bottom. The page is put back when typing ends. Not reproduced off the device: check on the iPad.
+
 ## 2.12.0 (2026-11-08): Say it no longer praises the wrong word
 - When speech recognition (Android Chrome) hears a different word, Pipo says "כמעט! נסה שוב!" / "כמעט! נסי שוב!" ("Almost! Try again!" with Hebrew help off), plays the word again, and gives no star. Before, any word earned a star and "שמעתי אותך! כל הכבוד!". The next try is Echo, as after a try that wasn't heard, so a child the recognizer keeps mishearing is never stuck. Echo (iPhone, and the try after a miss) still can't tell words apart and praises any real try. Sammy chose this over stricter retries.
 

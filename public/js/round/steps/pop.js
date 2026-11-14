@@ -28,10 +28,14 @@ export async function pop(ctx, step) {
   const finished = () => ti >= targets.length;
   $("#hear").onclick = () => { if (!finished()) Sound.word(target().en); };
 
-  // distractors never share the target's word ("orange" fruit vs colour) or picture
+  // The other bubbles are words the child has met (all the words of the game only while there are
+  // too few), so the right one is found by its word, not by being the only familiar picture. They
+  // never share the target's word ("orange" fruit vs colour) or picture.
+  const met = Object.keys(p.words).filter(k => WORD[k]);
+  const from = met.length >= 6 ? met : ALL_KEYS;
   let others = [], othersFor = null;
   const distractors = t => {
-    if (othersFor !== t) { othersFor = t; others = ALL_KEYS.filter(k => WORD[k].pic !== t.pic && WORD[k].en !== t.en); }
+    if (othersFor !== t) { othersFor = t; others = from.filter(k => WORD[k].pic !== t.pic && WORD[k].en !== t.en); }
     return others;
   };
 

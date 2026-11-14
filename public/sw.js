@@ -4,13 +4,13 @@
 // VERSION and SHELL are written by `npm run release <version>` (tools/release.mjs). A new VERSION
 // makes the browser install this worker again, which saves the new app files in a new cache;
 // the page then reloads into it at a calm moment (see js/pwa.js).
-const VERSION = "2.12.0";
+const VERSION = "2.14.0";
 // shell:start
 const SHELL = [
   "./",
   "index.html",
   "manifest.webmanifest",
-  "css/app.css?v=2.12.0",
+  "css/app.css?v=2.14.0",
   "fonts/fredoka.woff",
   "js/core/dom.js",
   "js/core/emitter.js",
@@ -25,9 +25,10 @@ const SHELL = [
   "js/data/outfits.js",
   "js/data/stages.js",
   "js/data/words.js",
-  "js/main.js?v=2.12.0",
+  "js/main.js?v=2.14.0",
   "js/parent/dashboard.js",
   "js/parent/gate.js",
+  "js/parent/install.js",
   "js/parent/mic-explain.js",
   "js/parent/profile-form.js",
   "js/parent/setup.js",
@@ -35,6 +36,8 @@ const SHELL = [
   "js/parent/unlock.js",
   "js/pwa.js",
   "js/round/round.js",
+  "js/round/steps/chest.js",
+  "js/round/steps/feed.js",
   "js/round/steps/finish.js",
   "js/round/steps/meet.js",
   "js/round/steps/memory.js",

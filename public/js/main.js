@@ -34,7 +34,11 @@ nav.register("start", start).register("setup", setup).register("who", who)
 // the music that belongs to each screen (the map and the round choose their land's music themselves;
 // the parent area keeps whatever was playing)
 const SCENE = { start: "theme", setup: "theme", who: "theme", stickers: "theme", garden: "garden" };
-nav.beforeShow(name => { if (name !== "round") round.leave(); if (SCENE[name]) Sound.scene(SCENE[name]); });
+nav.beforeShow(name => {
+  if (name !== "round") round.leave();
+  app.classList.toggle("in-round", name === "round"); // the land's photo behind the round (app.css)
+  if (SCENE[name]) Sound.scene(SCENE[name]);
+});
 // the back button closes an open sheet first
 nav.interceptBack(closeTopSheet);
 nav.attachHistory();
@@ -52,6 +56,12 @@ app.addEventListener("pointerdown", e => {
 addEventListener("pointerdown", () => { Sound.unlock(); Sound.syncMusic(); }, { once: true });
 // some phones (iPhone) only let music start right after a touch: try again on the next one
 addEventListener("pointerdown", () => Sound.nudgeMusic(), { passive: true });
+// iPhone and iPad push the page up to make room for the keyboard and can leave it there after the
+// keyboard closes, with the top of the app under the browser's bar. Put it back when typing ends.
+const typing = el => !!el && /^(INPUT|TEXTAREA)$/.test(el.tagName);
+addEventListener("focusout", e => {
+  if (typing(e.target)) setTimeout(() => { if (!typing(document.activeElement)) scrollTo(0, 0); }, 120);
+});
 // no music while the app is in the background
 document.addEventListener("visibilitychange", () => { if (document.hidden) Sound.music(false); else Sound.syncMusic(); });
 

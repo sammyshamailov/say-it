@@ -4,6 +4,11 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Map and layout
 
+**The game was never looked at on a tablet (fixed in 2.13.0)**
+- What happened: every screen was built and checked at one size, a phone held upright (390×844). On Sammy's iPad the game was a centred phone column: the map a strip between two rows of buttons, the parent area's scroll bar lying over the cards (right-to-left puts it on the left), no way offered to install it (iPhone and iPad have no install prompt), and after typing the child's name the page stayed pushed up under the browser's bar. A design review done at the same phone size missed all of it.
+- Fix: a sideways layout for the map, a how-to-install panel for iPhone and iPad, no scroll bars, the page put back after typing.
+- Rule: look at every layout change at three sizes: phone upright (390×844), tablet sideways in a browser (about 1150×670) and phone sideways (844×390). Things only a real iPhone or iPad shows (the keyboard, the browser's bars, installing) can't be checked here: say so and ask Sammy to try.
+
 **The game felt random (changed in 2.8.1)**
 - What happened: review words for a round came from any open stone on the map, and Play jumped to whichever stone had the most words due. Each choice was sound for spaced repetition, but a non-reader finds their way only by place and picture, and both kept changing: tap the fruit stone, get a cow; Pipo somewhere else tomorrow.
 - Fix (Sammy chose same-land review after a council review): word stones review their own land only, chests and parties also bring back lands below; Play follows the trail.
@@ -38,6 +43,22 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 - What happened: the 2.5.0 map added `.panel { pointer-events: none }` and sand-band pseudo-elements. The parent area also used `.panel` for its cards, so it went dead.
 - Fix: the map uses `.land-panel`.
 - Rule: give new styles specific class names; search `app.css` and the JS for an existing class before reusing a generic name. Click through the parent area after any CSS change.
+
+## Rounds and learning
+
+**The first round asked about a word nobody taught (fixed in 2.14.0)**
+- What happened: `buildRound` filled a round of fewer than four words with words of the stone the child hadn't met, and `plan` treated every word that wasn't "new" as an old one. In the very first round the child met cow, pig and horse, then heard "מה זה?" over a duck. It had been there since 2.8.0 and nobody saw it, because every test started from a player who already had words.
+- Fix: a round holds only new words (which get Meet) and words met before. A test plays the first twelve rounds of a new player and checks every word of every round.
+- Rule: test the first minute of a brand-new player, not only a seeded one. Whatever a round contains must have been introduced: check it in the builder, not in each step.
+
+**Listen & tap could be passed without listening (fixed in 2.14.0)**
+- What happened: wrong pictures for a new word were drawn from all the words in the game, so the right answer was the only familiar picture on the screen. The answer that decides "remembered" was partly a test of what was just seen.
+- Fix: wrong pictures come from the round, then from words met in the land.
+- Rule: a wrong answer must be something the child could believe. Judge a question by what else is on the screen, by playing it, not by reading the function that picks it.
+
+**A review said things about the code that weren't so (2026-11-14)**
+- What happened: the review claimed the game never asks the browser for persistent storage; `state.js` does (`navigator.storage?.persist?.()`), and the search missed it because of the `?.`. It also judged the design at one phone size only.
+- Rule: before writing "the code never does X", search for the bare name (`persist`), not for one way of writing it.
 
 ## Shop and garden
 

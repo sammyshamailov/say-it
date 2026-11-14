@@ -1,4 +1,4 @@
-// A round (3–5 minutes): meet new words → listen & tap → say it → a bonus game → well done.
+// A round (3–5 minutes): meet new words → what's this? → listen & tap → say it → a bonus game → well done.
 // Each kind of step is its own module in ./steps, looked up by name (strategy pattern), and gets a
 // StepContext with everything it needs. A step must stop when ctx.alive() turns false: the child
 // may leave the round at any moment (home button, back button, app in the background).
@@ -16,9 +16,15 @@ import { tap } from "./steps/tap.js";
 import { say } from "./steps/say.js";
 import { pop } from "./steps/pop.js";
 import { memory } from "./steps/memory.js";
+import { feed } from "./steps/feed.js";
+import { chest } from "./steps/chest.js";
 import { finish } from "./steps/finish.js";
+import { mapImg } from "../screens/map.js";
 
-const STEPS = { meet, tap, say, whats: say, pop, memory };
+const STEPS = { meet, tap, say, whats: say, pop, memory, feed, chest };
+// the bonus game at the end of a round, in turn; a treasure chest stone ends by opening its chest
+const BONUS = ["pop", "feed", "memory"];
+const isBonus = t => BONUS.includes(t) || t === "chest";
 
 class Round {
   constructor(player, sub, words, steps) {
@@ -40,16 +46,18 @@ class Round {
 let current = null;
 
 // The order of steps for one round. "What's this?" asks for words met in earlier rounds, before
-// the round says them again; "Say it" is for the new ones. Three of the two together at most.
+// the round says them again (naming from memory is the speaking that teaches most, so it gets two
+// of the three turns when there are words for it); "Say it" is for the new ones. Three of the two
+// together at most.
 function plan(p, b) {
   const steps = [];
   const old = b.words.filter(k => !b.fresh.includes(k));
-  const recall = shuffle(old).slice(0, b.fresh.length ? 1 : 3);
+  const recall = shuffle(old).slice(0, b.fresh.length ? 2 : 3);
   b.fresh.forEach(k => steps.push({ t: "meet", k }));
   recall.forEach(k => steps.push({ t: "whats", k }));
   shuffle(b.words).forEach(k => steps.push({ t: "tap", k }));
   b.fresh.slice(0, 3 - recall.length).forEach(k => steps.push({ t: "say", k }));
-  steps.push({ t: p.rounds % 2 ? "memory" : "pop", keys: b.words.slice(0, Math.min(3, b.words.length)) });
+  steps.push({ t: b.sub.kind === "chest" ? "chest" : BONUS[p.rounds % BONUS.length], keys: b.words.slice(0, Math.min(3, b.words.length)) });
   return steps;
 }
 
@@ -92,12 +100,13 @@ function contextFor(r) {
       m.$("#quit").onclick = () => nav.reset("map");
       return m;
     },
-    // put a missed word back in the round, before the bonus game (once per word)
+    // put a missed word back in the round, before the bonus game (once per word); `again` tells
+    // the step that a right answer this time doesn't count as a day the word was remembered
     requeue(k) {
       if (r.requeued.has(k)) return;
       r.requeued.add(k);
-      const at = r.steps.findIndex(x => x.t === "pop" || x.t === "memory");
-      r.steps.splice(at < 0 ? r.steps.length : at, 0, { t: "tap", k });
+      const at = r.steps.findIndex(x => isBonus(x.t));
+      r.steps.splice(at < 0 ? r.steps.length : at, 0, { t: "tap", k, again: true });
     }
   };
 }
@@ -114,7 +123,10 @@ function show() {
     Speech.release();
     return finish(r);
   }
-  Sound.scene(step.t === "pop" || step.t === "memory" ? "games" : r.sub.group.id);
+  // the land's photo, blurred, behind the round (see #app.in-round in app.css)
+  // (a full address: a relative one in a custom property is resolved from the stylesheet's folder)
+  document.getElementById("app").style.setProperty("--round-bg", `url("${new URL(mapImg(r.sub.group.id), document.baseURI).href}")`);
+  Sound.scene(BONUS.includes(step.t) ? "games" : r.sub.group.id);
   STEPS[step.t](contextFor(r), step);
 }
 

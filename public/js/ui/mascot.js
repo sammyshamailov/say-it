@@ -1,4 +1,5 @@
-// The mascot: an original little chameleon. Moods: idle, happy, listen, oops. Outfits come from the shop.
+// The mascot: an original little chameleon. Moods: idle, happy, listen, oops, sleep (resting until
+// tomorrow). Outfits come from the shop.
 import { raw } from "../core/html.js";
 import { OUTFITS, OUTFIT, worn } from "../data/outfits.js";
 
@@ -7,13 +8,16 @@ const EYES = {
   idle: `<circle cx="84" cy="50" r="15" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="88" cy="50" r="7" fill="${O}"/><circle cx="90" cy="47" r="2.2" fill="#fff"/><ellipse class="lid" cx="84" cy="50" rx="16" ry="16" fill="#3DDC97" stroke="${O}" stroke-width="4"/>`,
   happy: `<circle cx="84" cy="50" r="15" fill="#fff" stroke="${O}" stroke-width="4"/><path d="M77 53 Q 84 43 91 53" fill="none" stroke="${O}" stroke-width="4" stroke-linecap="round"/>`,
   listen: `<circle cx="84" cy="50" r="15" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="79" cy="49" r="7" fill="${O}"/><circle cx="81" cy="46" r="2.2" fill="#fff"/>`,
-  oops: `<circle cx="84" cy="50" r="15" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="85" cy="54" r="7" fill="${O}"/><circle cx="87" cy="51" r="2.2" fill="#fff"/>`
+  oops: `<circle cx="84" cy="50" r="15" fill="#fff" stroke="${O}" stroke-width="4"/><circle cx="85" cy="54" r="7" fill="${O}"/><circle cx="87" cy="51" r="2.2" fill="#fff"/>`,
+  sleep: `<circle cx="84" cy="50" r="15" fill="#3DDC97" stroke="${O}" stroke-width="4"/><path d="M76 51 Q 84 58 92 51" fill="none" stroke="${O}" stroke-width="4" stroke-linecap="round"/>
+      <g class="zzz" fill="#fff" stroke="${O}" stroke-width="1" font-family="inherit" font-weight="700"><text x="102" y="30" font-size="17">z</text><text x="112" y="15" font-size="13">z</text></g>`
 };
 const MOUTHS = {
   idle: `<path d="M78 70 Q 88 78 98 70" fill="none" stroke="${O}" stroke-width="3.5" stroke-linecap="round"/>`,
   happy: `<path d="M76 66 Q 88 86 100 66 Z" fill="${O}"/><path d="M82 74 Q 88 80 94 74" fill="#FF4D8D"/>`,
   listen: `<path d="M82 72 Q 88 75 94 71" fill="none" stroke="${O}" stroke-width="3.5" stroke-linecap="round"/>`,
-  oops: `<ellipse cx="90" cy="72" rx="5" ry="4" fill="${O}"/>`
+  oops: `<ellipse cx="90" cy="72" rx="5" ry="4" fill="${O}"/>`,
+  sleep: `<ellipse cx="91" cy="72" rx="3.4" ry="3" fill="${O}"/>`
 };
 const ARMS = {
   happy: `<path d="M44 52 L 30 26" stroke="${O}" stroke-width="12" stroke-linecap="round"/><path d="M44 52 L 30 26" stroke="#20A86E" stroke-width="6" stroke-linecap="round"/>`,

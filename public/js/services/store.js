@@ -13,13 +13,20 @@ const DUE = [0, 10 * 60e3, DAY, 3 * DAY, 7 * DAY, 21 * DAY]; // wait after reach
 // the calendar day (on this phone) of a moment, to count the days a word was answered right
 const dayOf = t => { const d = new Date(t); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
 
+// What an animal costs in the star shop: more the harder its word (tiers 1-5), so there is
+// something to save up for as the game goes on. Never more than ten (a price is a row of stars).
+export const PET_PRICE = 5;
+const PET_PRICES = [5, 5, 5, 6, 8, 10];
+export const petPrice = key => PET_PRICES[WORD[key]?.tier] || PET_PRICE;
+
 export function shuffle(a) {
   a = a.slice();
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
 
-const blankSettings = () => ({ music: true, musicV: 2, sfx: true, sayMode: "auto", hebrew: true, unlockAll: false, mascot: "Pipo" });
+// dayRounds: rounds a day before Pipo rests (0 = no limit)
+const blankSettings = () => ({ music: true, musicV: 2, sfx: true, sayMode: "auto", hebrew: true, unlockAll: false, mascot: "Pipo", dayRounds: 4 });
 const blank = now => ({ v: 2, profiles: [], lastId: null, created: now, settings: blankSettings() });
 const newRecord = now => ({ lvl: 0, due: 0, right: 0, wrong: 0, said: 0, clear: 0, seen: now });
 
@@ -132,12 +139,14 @@ export function createStore({ storage, now = Date.now } = {}) {
   const rec = (p, key) => p.words[key];
   const recFor = (p, key) => p.words[key] || (p.words[key] = newRecord(now()));
   function meet(p, key) { if (!p.words[key]) { recFor(p, key); save(); } }
-  function mark(p, key, ok) {
+  // again: the word was missed a moment ago and is asked again in the same round. The right answer
+  // then lifts its level back, but doesn't count as a day it was remembered.
+  function mark(p, key, ok, { again = false } = {}) {
     const r = recFor(p, key);
     if (ok) {
       r.right++; r.lvl = Math.min(5, r.lvl + 1);
       const d = dayOf(now());
-      if (r.rightDay !== d) { r.rightDay = d; r.days = (r.days || 0) + 1; }
+      if (!again && r.rightDay !== d) { r.rightDay = d; r.days = (r.days || 0) + 1; }
     }
     else { r.wrong++; r.lastWrong = now(); r.lvl = Math.max(0, r.lvl - 1); }
     r.due = now() + DUE[r.lvl];
@@ -241,6 +250,26 @@ export function createStore({ storage, now = Date.now } = {}) {
   }
   const landDone = (p, gi) => LAND_STAGES[gi].filter(st => stageDone(p, st)).length / LAND_STAGES[gi].length;
 
+  // ---- Pipo rests ----
+  // A word is remembered on a second day, so past a point more rounds today can't move anything.
+  // Pipo then goes to sleep: Play rests until tomorrow (stones can still be tapped, for a child who
+  // wants to practise). He also rests after the day's rounds, a number parents set (0 = no limit).
+  // Is there anything left to learn or review right now? New words, an unplayed chest or party, or a
+  // word that is due.
+  function canProgress(p) {
+    for (const st of STAGES) {
+      if (!stageOpen(p, st)) continue;
+      if (st.kind !== "word") { if (!stageDone(p, st)) return true; continue; }
+      if (!stageMet(p, st) || dueKeys(p, st.keys).length) return true;
+    }
+    return false;
+  }
+  const roundsToday = p => (p.day && p.day.d === dayOf(now()) ? p.day.n : 0);
+  function resting(p) {
+    const limit = state.settings.dayRounds;
+    return (limit > 0 && roundsToday(p) >= limit) || (p.rounds > 0 && !canProgress(p));
+  }
+
   // ---- build one round for a stone ----
   // Word stone: up to 3 new words, then words due for review: its own first, then from the same
   // land only, so a round keeps to the place the child chose (no cow in the fruit stone). Chest
@@ -253,12 +282,15 @@ export function createStore({ storage, now = Date.now } = {}) {
     if (st.kind === "word") for (const k of st.keys) if (!p.words[k] && fresh.length < 3 && !clash(k, fresh)) fresh.push(k);
     const near = x => st.kind === "word" ? x.land === st.land : x.land <= st.land;
     const open = [];
-    for (const x of STAGES) if (x.kind === "word" && near(x) && (stageDone(p, x) || stageOpen(p, x))) open.push(...x.keys);    const met = st.keys.filter(k => p.words[k]);
+    for (const x of STAGES) if (x.kind === "word" && near(x) && (stageDone(p, x) || stageOpen(p, x))) open.push(...x.keys);
+    const met = st.keys.filter(k => p.words[k]);
     const words = [...fresh];
     const add = (k, max) => { if (words.length < max && !words.includes(k) && !clash(k, words)) words.push(k); };
     for (const k of [...dueKeys(p, st.keys), ...dueKeys(p, open)]) add(k, 6);
     if (words.length < 4) for (const k of shuffle(met)) add(k, 5);
-    if (words.length < 4) for (const k of shuffle(st.keys)) add(k, 5);
+    // Never pad with a word the child hasn't met: it would be asked without its Meet card (the
+    // first round of the game is just its three new words).
+    if (!words.length) { fresh.push(st.keys[0]); words.push(st.keys[0]); }
     return { sub: st, fresh, words };
   }
 
@@ -267,6 +299,7 @@ export function createStore({ storage, now = Date.now } = {}) {
   function finishRound(p, st, sticker, playedMs) {
     if (st.kind !== "word") p.stages[st.id] = true;
     p.rounds++; p.lastPlayed = now();
+    p.day = { d: dayOf(now()), n: roundsToday(p) + 1 };
     p.stickers.push({ pic: sticker.pic, en: sticker.en, at: now() });
     p.playMs += playedMs;
     save(true);
@@ -293,6 +326,7 @@ export function createStore({ storage, now = Date.now } = {}) {
     purse, owns, addStars, buy,
     unlocked, landPaid, unlock,
     stageDone, stageMet, stageStarted, stageProgress, stageCrown, landOpen, tierOpen, stageOpen, nextStage, landDone,
+    canProgress, roundsToday, resting,
     buildRound, finishRound, addPlayTime,
     isSave, exportData, replaceAll
   };

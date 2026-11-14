@@ -5,6 +5,7 @@ Read this before changing anything. Also see:
 - `docs/GAME-DESIGN.md`: how the game is structured (lands, tiers, stones, rounds, rewards)
 - `docs/CHANGELOG.md`: every version and what it contains
 - `docs/LESSONS-LEARNED.md`: mistakes made so far, how they were fixed, and the rule each one taught. Add to it whenever something goes wrong.
+- `docs/NEW-WORDS.md`: the everyday words waiting to be added (29 with pictures ready, 28 with their picture prompts), and what each still needs.
 
 ## What this is
 
@@ -38,8 +39,8 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 | `public/audio/` | Recorded clips, `he/` (Zina) and `en/` (Sarah), made by `tools/voice/build.mjs` |
 | `public/js/services/` | `store.js` (progress, spaced repetition, unlock rules, rounds), `sound.js`, `speech.js`, `shop.js`, `match.js` |
 | `public/js/screens/` | map, who, stickers, garden (garden + shop) |
-| `public/js/round/` | `round.js` runs a round; `steps/` meet, tap, say (also "What's this?"), pop, memory, finish |
-| `public/js/parent/` | gate, dashboard, setup, transfer, profile form |
+| `public/js/round/` | `round.js` runs a round; `steps/` meet, tap, say (also "What's this?"), pop, feed, memory, chest, finish |
+| `public/js/parent/` | gate, dashboard, setup, transfer, profile form, install (how to put the game on the home screen) |
 | `public/css/app.css` | All styles ("Toy Box Bright") |
 | `test/` | `node --test` suites |
 | `tools/release.mjs` | Version stamping and offline file list |
@@ -49,7 +50,7 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 1. **Clone**: `git clone --depth 1 https://github.com/sammyshamailov/say-it`. Add the repo with push access first.
 2. **Change**, keeping to the conventions below.
 3. **Test**: `npm test`. Add a test for any rule change in `store.js`, `shop.js`, `stages.js`, `lands.js` or `outfits.js`.
-4. **Look at it**: serve `public/` (`python3 -m http.server 8765` from inside `public/`) and screenshot with Playwright at **390×844, deviceScaleFactor 2**. Disable the service worker in the page (`Object.defineProperty(navigator,'serviceWorker',{value:undefined})`). Seed a player through the store: `store.newProfile(...)`, `store.addProfile(p)`, then `nav.reset('map')`. Write screenshots to the scratchpad with **absolute paths**, never into the repo.
+4. **Look at it**: serve `public/` (`python3 -m http.server 8765` from inside `public/`) and screenshot with Playwright at **390×844, deviceScaleFactor 2**. Disable the service worker in the page (`Object.defineProperty(navigator,'serviceWorker',{value:undefined})`). Seed a player through the store: `store.newProfile(...)`, `store.addProfile(p)`, then `nav.reset('map')`. Write screenshots to the scratchpad with **absolute paths**, never into the repo. For anything that changes a layout, also look at a tablet held sideways (about 1150×670) and a phone on its side (844×390): the map has its own sideways layout, and Sammy also tries the game on an iPad. To see what iPhone and iPad get (the install steps), give the browser context an iPad user agent.
 5. **Release**: `npm run release X.Y.Z` (bumps `version.js`, `sw.js`, `index.html`, file lists). `npm test` fails if you forget. Patch for fixes, minor for features.
 6. **Commit and push to `main`**: `git fetch origin main && git rebase origin/main && git push origin HEAD:main`. Netlify deploys in about a minute; phones pick it up next time the app comes to the front.
 7. **Update `docs/CHANGELOG.md`** in the same commit, and `docs/LESSONS-LEARNED.md` if a mistake was fixed.
@@ -58,6 +59,9 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 
 - **Stone ids** (`<sub>-<tier>-<n>`, `<land>-<tier>-chest`, `<land>-party`) are built from each word's tier, so moving a word to another tier regroups the stones under those ids. Saved chest/party progress points at them.
 - **Free first land:** `landPaid()` in `store.js` is checked before every other unlock rule, including "unlock all" and the already-played rule. Don't add a way into a later land that skips it. The unlock is per phone: `exportData()` leaves it out and `replaceAll()` keeps the phone's own, so transfers and backups can't spread it.
+- **The order of the lands** is the order of the groups in `data/words.js` (Animal Jungle, Learning Castle, Yummy Town, Me and Friends, Toy House, Adventure Road). Nothing else stores a land's number, so moving a group moves its land; the first one is the free one.
+- **A round only holds words that were introduced:** new ones (they get Meet) and ones met before. Wrong pictures in Listen & tap come from the round and from words met in the land (`choices()` in `steps/tap.js`).
+- **Pipo rests** (`resting()` in `store.js`) after the day's rounds or when nothing can be learned today; Play waits, stones still open. Anything new that starts rounds from the map or the end of a round must respect it.
 - **Rounds keep to the land:** a word stone reviews only words of its own land; mixing across lands happens in chests and parties. Play follows the trail.
 - **Progress rules:** a word stone is done when every word was answered right on two different days (`remembered` in `store.js`); "met" is separate. Only Listen & tap answers move a word's level and day count.
 - **Old saves must keep working** once the game goes to other families. Until then (Sammy, 2026-11-04: still building, not sent to anyone), changes that regroup stones or reset progress are fine; say so in the changelog. Changes to the save shape still need a tolerant reader (e.g. `worn()` accepts the old single-hat string, `days` may be missing on a word record).
@@ -75,3 +79,4 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 - Answer "why is X like this?" questions directly: say whether it was by design or a bug before changing it.
 - Give opinions when asked "should we…?", with a clear recommendation.
 - Things Claude can't do here: listen to audio, test the real microphone, generate images in the house style. Say so and ask Sammy to check on the phone, or hand him a prompt.
+- A session may be refused push access to the repo. Then nothing is live: say so plainly, hand Sammy the commits as a patch file, and don't describe the work as shipped.

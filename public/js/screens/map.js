@@ -1,6 +1,7 @@
 // The map: one long trail through six photographed lands, easy at the bottom, hard at the top.
 // Every stone is a round. The glowing stone (with the mascot next to it) is the one Play starts;
 // any open stone can be tapped. A land with many stones repeats its photo, mirrored, above itself.
+// On a wide screen held sideways (a tablet) the buttons stand beside the map; see .map-screen in app.css.
 import { html } from "../core/html.js";
 import { mount, onTap } from "../core/dom.js";
 import { nav } from "../core/router.js";
@@ -39,7 +40,7 @@ function stone(p, st, [x, y], next) {
     aria-label="${label}${open ? "" : ", locked"}">${face}${prog}${mark}</button>`;
 }
 
-function landPanels(p, g, gi, next) {
+function landPanels(p, g, gi, next, rest) {
   const L = LANDS[g.id], stones = LAND_STAGES[gi], n = panelsFor(L, stones.length);
   const done = store.landDone(p, gi);
   const panels = [];
@@ -60,11 +61,11 @@ function landPanels(p, g, gi, next) {
     }
     if (nextAt >= 0) {
       const [x, y] = pts[nextAt];
-      extras.push(html`<div class="map-buddy ${x > 50 ? "left" : "right"}" style="left:${x}%;top:${y}%">${Mascot.svg("idle", p.outfit)}</div>`);
+      extras.push(html`<div class="map-buddy ${x > 50 ? "left" : "right"}" style="left:${x}%;top:${y}%">${Mascot.svg(rest ? "sleep" : "idle", p.outfit)}</div>`);
     }
     panels.push(html`<div class="land-panel" data-land-of="${g.id}" style="aspect-ratio:${L.ratio}">
       <img class="bg ${mirrored ? "flip" : ""}" src="${mapImg(g.id)}" alt="" draggable="false" decoding="async" loading="${gi < 1 ? "eager" : "lazy"}">
-      ${extras}${part.map((st, i) => stone(p, st, pts[i], st === next))}</div>`);
+      ${extras}${part.map((st, i) => stone(p, st, pts[i], st === next && !rest))}</div>`);
   }
   return panels;
 }
@@ -73,29 +74,35 @@ export function map() {
   const p = store.player();
   if (!p) return nav.reset("start");
   const next = store.nextStage(p);
+  // Pipo rests (nothing left to learn today, or the day's rounds are played): he sleeps beside the
+  // stone, nothing glows and Play waits for tomorrow. Stones can still be tapped.
+  const rest = store.resting(p);
   // bottom to top: the first land's first stone is at the very bottom
-  const panels = WORDS.flatMap((g, gi) => landPanels(p, g, gi, next));
-  const { root, $ } = mount(document.getElementById("app"), html`<div class="screen">
+  const panels = WORDS.flatMap((g, gi) => landPanels(p, g, gi, next, rest));
+  const { root, $ } = mount(document.getElementById("app"), html`<div class="screen map-screen">
     <div class="top">
       <button class="b3 avatar-btn c-pink" id="who" aria-label="Change player">${p.avatar}</button>
       <div class="grow"></div>${starsPill(p)}${soundButton()}
       ${iconButton({ id: "parent", icon: I.parents, label: "Parents" })}
     </div>
     <div class="map" id="map"><div class="world">${panels.reverse().map((x, i) => html`<div class="layer" style="z-index:${panels.length - i}">${x}</div>`)}</div>
-      <button class="b3 find c-yellow" id="find" aria-label="Show where I am">${Mascot.svg("happy", p.outfit)}</button></div>
+      <button class="b3 find c-yellow" id="find" aria-label="Show where I am">${Mascot.svg(rest ? "sleep" : "happy", p.outfit)}</button></div>
+    <div class="side-buddy" aria-hidden="true">${Mascot.svg(rest ? "sleep" : "happy", p.outfit)}</div>
     <div class="dock">
       ${iconButton({ id: "book", color: "purple", icon: I.book, label: "Sticker book" })}
-      <button class="b3 play c-yellow" id="play" aria-label="Play">${I.play}Play</button>
-      ${iconButton({ id: "shop", color: "mint", icon: I.bag, label: "Garden and shop", cls: canBuy(p) ? "glow" : "" })}
+      ${rest ? html`<button class="b3 play c-tile rest" id="play" aria-label="Pipo is resting until tomorrow">${I.moon}</button>`
+        : html`<button class="b3 play c-yellow" id="play" aria-label="Play">${I.play}Play</button>`}
+      ${iconButton({ id: "shop", color: "mint", icon: I.bag, label: "Garden and shop", cls: rest || canBuy(p) ? "glow" : "" })}
     </div></div>`);
 
   const mapEl = $("#map");
-  const toNext = smooth => root.querySelector(".spot.next")?.scrollIntoView({ block: "center", behavior: smooth ? "smooth" : "auto" });
+  const here = () => root.querySelector(".spot.next, .map-buddy"); // where Pipo is
+  const toNext = smooth => here()?.scrollIntoView({ block: "center", behavior: smooth ? "smooth" : "auto" });
   toNext(false);
   // the button that brings the glowing stone back shows only when it's off screen
   const findBtn = $("#find");
   const syncFind = () => {
-    const s = root.querySelector(".spot.next");
+    const s = here();
     if (!s) return (findBtn.hidden = true);
     const a = s.getBoundingClientRect(), b = mapEl.getBoundingClientRect();
     findBtn.hidden = a.bottom > b.top && a.top < b.bottom;
@@ -131,7 +138,7 @@ export function map() {
     await Sound.english(L.en);
     if (store.settings.hebrew) Sound.hebrew(L.he);
   });
-  $("#play").onclick = () => round.start(store.nextStage(p));
+  $("#play").onclick = () => (rest ? nope($("#play")) : round.start(store.nextStage(p)));
   $("#who").onclick = () => nav.go("who");
   $("#book").onclick = () => nav.go("stickers");
   $("#shop").onclick = () => nav.go("garden");

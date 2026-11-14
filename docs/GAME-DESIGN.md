@@ -13,20 +13,24 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 | Land | Group | Subcategories |
 | --- | --- | --- |
 | Animal Jungle | animals | farm, pets, wild, birds, sea, bugs, dinos |
+| Learning Castle | learning | colours, numbers, shapes |
 | Yummy Town | food | fruits, veg, meals, sweets, drinks |
 | Me and Friends | people | family, body, feelings, clothes, accessories, actions, jobs |
 | Toy House | things | home, kitchen, toys, school |
 | Adventure Road | outside | vehicles, places, nature, weather |
-| Learning Castle | learning | colours, numbers, shapes |
+
+The order of the lands is the order of the groups in `data/words.js`. Learning Castle moved from last to second in 2.14.0, so colours and numbers come early.
 
 - Each land is a felt/clay diorama photo with the trail drawn into it (`path` in `lands.js`). A land with more stones than one photo holds repeats its photo, mirrored, above itself (17 photos in all).
 - **Stones** (135 in all) are placed along the trail so no two are closer than 0.22 picture widths in a straight line, and a land's stones are shared evenly over its photos.
 - Kinds of stone:
   - **Word stone**: 4–7 words of one subcategory and tier (small leftovers of several subcategories share one mixed stone). Shows the picture of its first word.
-  - **Treasure chest** (18): after each tier of a land that has at least three stones; a review round of the words met so far in that land.
+  - **Treasure chest** (18): after each tier of a land that has at least three stones; a review round of the words met so far in that land, which ends with the chest itself: three knocks open it for 5 stars (`steps/chest.js`).
   - **Party stone**: the end of each land; a review of all its words, with the party jingle.
 - **World stickers** (a zebra, a fruit stall, a sailboat…) appear in a land at 30% and 65% done.
 - The glowing stone, with Pipo beside it, is what Play starts. Any open stone can be tapped. A locked stone wiggles and makes a soft sound. A floating Pipo button scrolls back to the glowing stone when it's off screen.
+- **Pipo rests** (`resting()` in `store.js`): after the day's rounds (4 by default; parents choose 2, 4, 6 or no limit) or when nothing is new and no word is due, Pipo sleeps beside the stone, nothing glows, Play shows a moon and the garden button glows. Stones can still be tapped. A word is remembered on a second day, so more rounds today wouldn't move anything.
+- On a wide screen held sideways (a tablet, a phone on its side) the buttons stand in a column beside the map, with Pipo in the middle, so the map gets the whole height (`.map-screen` in `app.css`). The other screens are a centred column up to 760 px wide at every size.
 
 ## Difficulty and unlocking (`services/store.js`)
 
@@ -41,13 +45,15 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 
 ## A round (`round/round.js`, `round/steps/`)
 
-3–5 minutes: **Meet** new words → **What's this?** → **Listen & tap** → **Say it** → a bonus game (**Pop the bubbles** or **Memory match**) → **Well done** with stars and a sticker.
+3–5 minutes: **Meet** new words → **What's this?** → **Listen & tap** → **Say it** → a bonus game (**Pop the bubbles**, **Feed Pipo** or **Memory match**, in turn; a chest stone opens its chest instead) → **Well done** with stars and a sticker. The land's photo, blurred and dark, lies behind the round.
 
-- Up to 3 new words per round, then words due for review, at most 6 words. A word stone reviews its own words first, then words of the **same land** only, so a round keeps to the place the child chose (no cow in a fruit stone). Chests and party stones review their land and then the lands below; that is where older lands come back.
+- Up to 3 new words per round, then words due for review, at most 6 words. A round never holds a word the child hasn't met unless it is one of the new ones (the first round of the game is its three new words).
+- **Meet** says the word in English; for words a picture can't explain (feelings, actions, family, jobs, weather, places, colours, numbers, shapes) also in Hebrew, then English again. A word stone reviews its own words first, then words of the **same land** only, so a round keeps to the place the child chose (no cow in a fruit stone). Chests and party stones review their land and then the lands below; that is where older lands come back.
 - Finishing the whole map takes about 230–300 rounds, 15–20 hours of play: about 5 months at 2 rounds a day, 7–8 months at one (simulated with the real store rules).
-- Listen & tap shows 2 pictures in tier 1, 3 in tier 2, 4 from tier 3 (one fewer the first time a word is asked); a word back for review gets at least 3, so a lucky tap is less likely. Look-alike pairs (puppy/dog, lemon/lime; list in `stages.js`) never meet below tier 3; from tier 3 one may be the wrong answer on purpose.
-- **Say it**: on Android Chrome speech recognition checks the word: the right word earns two stars and "וואו, אמרת מושלם!"; another word gets "כמעט! נסה/נסי שוב!", the word again and no star (since 2.12.0). Otherwise, and after one missed try (unheard or another word), **Echo** records the child, plays their voice back, then the model word; Echo can only tell that the child spoke, so any real try earns a star there. Used for the new words of the round.
-- **What's this?** (same screen as Say it, `whats` step): for words met in earlier rounds, before the round says them again. The word is hidden behind a "?", Pipo asks "מה זה?", and the child names the picture from memory (free recall). The word shows and is said after the try, or when the child taps the speaker; the Hebrew button says the Hebrew word as a hint and keeps the English hidden. One per round with new words, up to three in a review round. Say it and What's this? together are at most three per round.
+- Listen & tap shows 2 pictures in tier 1, 3 in tier 2, 4 from tier 3 (one fewer the first time a word is asked); a word back for review gets at least 3, so a lucky tap is less likely. The wrong pictures are the other words of the round, then words met in the same land, then the rest of the land, so the right one can't be found just by being familiar. A word missed and asked again in the same round gets its level back for a right answer, not a day. Look-alike pairs (puppy/dog, lemon/lime; list in `stages.js`) never meet below tier 3; from tier 3 one may be the wrong answer on purpose.
+- **Say it**: on Android Chrome speech recognition checks the word: the right word earns two stars and "וואו, אמרת מושלם!"; another word gets "כמעט! נסה/נסי שוב!", the word again and no star (since 2.12.0). Otherwise, and after one missed try (unheard or another word), **Echo** records the child and lets them compare: the word, their own voice, the word again. Echo can only tell that the child spoke, so it gives a star for trying and no spoken praise (since 2.14.0). Used for one new word of the round.
+- **What's this?** (same screen as Say it, `whats` step): for words met in earlier rounds, before the round says them again. The word is hidden behind a "?", Pipo asks "מה זה?", and the child names the picture from memory (free recall). The word shows and is said after the try, or when the child taps the speaker; the Hebrew button says the Hebrew word as a hint and keeps the English hidden. Two per round with new words (when there are that many older words), up to three in a review round. Say it and What's this? together are at most three per round.
+- **Feed Pipo** (`steps/feed.js`): Pipo asks for something by its word; the child taps its plate among three and the picture flies to him. Three words.
 
 ## Learning model (`services/store.js`)
 
@@ -56,8 +62,8 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 ## Rewards (`services/shop.js`, `screens/garden.js`, `data/outfits.js`)
 
 - **Stars** for every attempt. Lifetime stars never go down; spending only lowers the purse shown in the star counter.
-- **Sticker book**: one sticker per finished round; tapping it says the word.
-- **Garden**: kids adopt animals with stars (5 each). An animal is for sale once its English word was answered right. The shelf shows all 108 animals: buyable first, then met, then the rest as shadows. Adopted animals live in the garden, bob, and say their name when tapped. (A bigger, swipeable, animated garden with habitat zones is planned.)
+- **Sticker album** (`screens/stickers.js`): every word of the open lands, land by land, easiest first. A shadow until the word was answered right, in colour after that, a gold frame once it is remembered; tapping one says the word. A locked land shows only its header. The end of a round shows one of the round's words as its sticker.
+- **Garden**: kids adopt animals with stars (5, 6, 8 or 10 by the word's tier). An animal is for sale once its English word was answered right. The shelf shows all 108 animals: buyable first, then met, then the rest as shadows. Adopted animals live in the garden, bob, and say their name when tapped. (A bigger, swipeable, animated garden with habitat zones is planned.)
 - **Outfits for Pipo** (20): one item per slot (head, face, neck, back), worn together. Six are tied to a land and appear for sale once that land opens. Prices 6–10, with three big ones (20/25/30) to save up for.
 - Prices are rows of stars, never numbers; prices over 10 use big stars worth five. Buying always goes through a confirm sheet with a big tick. Nothing bought is ever lost, and nothing can be bought with real money.
 
@@ -74,9 +80,11 @@ Pipo, an original chameleon (`ui/mascot.js`), drawn as SVG with four moods (idle
 ## Parent area (`parent/`)
 
 - Gate: type three numbers written as Hebrew words.
-- Words learned and to practise, time played, profiles, settings (sounds, music, Hebrew help, speaking mode, unlock all), microphone help, transfer to another phone (one-time 6-character code, 15 minutes) and backup file, credits. Hebrew, right to left.
+- "This week's words" for each child (the words met in the last seven days, with three things to do with them at home).
+- Words learned and to practise, time played, profiles, settings (sounds, music, Hebrew help, rounds a day before Pipo rests, speaking mode, unlock all), microphone help, transfer to another phone (one-time 6-character code, 15 minutes) and backup file, credits. Hebrew, right to left.
 
 ## Offline and updates (`sw.js`, `pwa.js`)
 
 - Installed as a PWA; opens straight from the phone. Pictures, recordings and music download in the background for offline play.
+- Installing (`parent/install.js`, for parents, at first run and in the parent area, only while the game isn't installed): Android Chrome gets an install button once the browser offers it; iPhone and iPad have no prompt, so they get three steps (share button, "Add to Home Screen", open from the home screen). iPhone and iPad keep an installed game's progress apart from the browser's, so the panel says to install before starting or to move progress with a transfer code.
 - Checks for a new version when the app opens or comes back to the screen, and reloads into it on the map, never mid-round or in the parent area.

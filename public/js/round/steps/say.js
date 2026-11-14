@@ -1,6 +1,8 @@
 // Say it: the child says the word. Speech recognition checks it where available (bonus star);
-// otherwise, and after one unheard try, "Echo" records the child, plays their voice back, then the word.
-// Every real attempt earns a star. No microphone: the child says it out loud and taps a big star.
+// otherwise, and after one unheard try, "Echo" records the child. Echo can't tell whether the word
+// was right, so it doesn't say "well done": it lets the child compare, playing the word, then
+// their own voice, then the word again. Every real attempt earns a star (for trying).
+// No microphone: the child says it out loud and taps a big star.
 //
 // "What's this?" (step "whats") is the same screen for a word the child already met: the word is
 // hidden, Pipo asks "מה זה?" and the child names the picture from memory. The word is shown and
@@ -76,8 +78,17 @@ export async function say(ctx, step) {
     mood("happy");
     if (!rewarded) { rewarded = true; store.markSaid(p, step.k, clear); ctx.award(clear ? 2 : 1); }
     Sound.sfx("good");
-    await Sound.talk(clear ? "clear" : "said", p.gender); if (!ctx.alive()) return;
-    if (myVoice) { await Sound.playUrl(myVoice, 1); if (!ctx.alive()) return; await wait(200); }
+    if (clear) { await Sound.talk("clear", p.gender); if (!ctx.alive()) return; }
+    else if (myVoice) {
+      // listen and compare: the word, my voice, the word
+      mood("listen");
+      await wait(350); if (!ctx.alive()) return;
+      await Sound.word(w.en); if (!ctx.alive()) return;
+      await wait(200);
+      await Sound.playUrl(myVoice, 1); if (!ctx.alive()) return;
+      await wait(200);
+      mood("happy");
+    }
     await Sound.word(w.en);
     if (ctx.alive()) showNext();
   });

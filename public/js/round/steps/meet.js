@@ -9,6 +9,11 @@ import { I } from "../../ui/icons.js";
 import { heFor } from "../../ui/picture.js";
 import { buddy, wordCard } from "../../ui/components.js";
 
+// Groups whose pictures don't explain themselves (a feeling, an action, a colour blob, a digit a
+// child can't read yet): the first meeting also says the word in Hebrew, then in English again.
+// A cow needs no translation.
+const EXPLAIN = new Set(["feelings", "actions", "family", "jobs", "weather", "places", "colors", "numbers", "shapes"]);
+
 export async function meet(ctx, step) {
   const { player: p } = ctx, w = WORD[step.k];
   const { $ } = ctx.frame(html`
@@ -26,5 +31,9 @@ export async function meet(ctx, step) {
 
   await wait(300);
   if (ctx.alive() && next.isConnected) await Sound.word(w.en);
+  if (store.settings.hebrew && EXPLAIN.has(w.sub.id)) {
+    if (ctx.alive() && next.isConnected) await Sound.hebrew(heFor(w, p));
+    if (ctx.alive() && next.isConnected) await Sound.word(w.en);
+  }
   if (ctx.alive() && next.isConnected) next.classList.add("glow"); // the child may already have moved on
 }

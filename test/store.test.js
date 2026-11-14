@@ -280,3 +280,69 @@ test("outfits: one thing per slot, a second tap takes it off, older one-hat save
   assert.ok(OUTFITS.every(x => ["head", "face", "neck", "back"].includes(x.slot)));
   assert.equal(new Set(OUTFITS.map(x => x.id)).size, OUTFITS.length);
 });
+
+// ---- 2.14 ----
+test("a round never asks about a word that hasn't had its Meet card", () => {
+  const { store } = clockStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  // every round up to the end of the first stones: each word is new in this round, or was met before
+  for (let i = 0; i < 12; i++) {
+    const st = store.nextStage(p), r = store.buildRound(p, st);
+    for (const k of r.words) assert.ok(r.fresh.includes(k) || p.words[k], `${k} in round ${i + 1} of ${st.id} was never met`);
+    assert.ok(r.fresh.length <= 3, "three new words at most");
+    r.fresh.forEach(k => store.meet(p, k));
+    r.words.forEach(k => store.mark(p, k, true));
+    store.finishRound(p, st, { pic: "img:farm-cow", en: "cow" }, 1000);
+  }
+});
+
+test("a word missed and asked again in the same round gets no day for the second answer", () => {
+  const { store, clock } = clockStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  const k = "farm/cow";
+  store.meet(p, k);
+  store.mark(p, k, false);
+  store.mark(p, k, true, { again: true });
+  assert.equal(p.words[k].days || 0, 0, "the re-ask doesn't count as remembered today");
+  assert.equal(p.words[k].lvl, 1, "but the level comes back");
+  store.mark(p, k, true);
+  assert.equal(p.words[k].days, 1, "a first-try right answer does");
+  clock.t += 24 * HOUR;
+  store.mark(p, k, true);
+  assert.ok(store.remembered(p, k));
+});
+
+test("Pipo rests after the day's rounds, and when nothing more can be learned today", () => {
+  const { store, clock } = clockStore();
+  const p = store.newProfile("Noa"); store.addProfile(p);
+  assert.ok(!store.resting(p), "a new player starts awake");
+  const play = () => {
+    const st = store.nextStage(p), r = store.buildRound(p, st);
+    r.fresh.forEach(k => store.meet(p, k));
+    r.words.forEach(k => store.mark(p, k, true));
+    store.finishRound(p, st, { pic: "img:farm-cow", en: "cow" }, 1000);
+    clock.t += 15 * 60e3; // a quarter of an hour between rounds
+  };
+  for (let i = 0; i < 3; i++) { play(); assert.ok(!store.resting(p), `awake after round ${i + 1}`); }
+  play();
+  assert.equal(store.roundsToday(p), 4);
+  assert.ok(store.resting(p), "four rounds is the day's number");
+  clock.t += 24 * HOUR;
+  assert.equal(store.roundsToday(p), 0);
+  assert.ok(!store.resting(p), "awake again the next day");
+  // with no limit, he rests only once nothing is new and nothing is due
+  store.settings.dayRounds = 0;
+  let n = 0;
+  while (store.canProgress(p) && n < 60) { play(); n++; }
+  assert.ok(n > 0 && n < 60, "a long day runs out of things to learn");
+  assert.ok(store.resting(p), "then Pipo rests");
+  clock.t += 24 * HOUR;
+  assert.ok(store.canProgress(p) && !store.resting(p), "tomorrow the words are due again");
+});
+
+test("an animal costs more the harder its word", async () => {
+  const { petPrice, PET_PRICE } = await import("../public/js/services/store.js");
+  assert.equal(petPrice("farm/cow"), PET_PRICE);
+  assert.ok(petPrice("wild/hyena") > petPrice("wild/wolf") && petPrice("wild/wolf") > petPrice("farm/cow"));
+  assert.ok(ALL_KEYS.filter(k => k.startsWith("farm/")).every(k => petPrice(k) <= 10), "a price is a row of at most ten stars");
+});
