@@ -85,7 +85,6 @@ function offer(p, x) {
     if (!store.buy(p, x.id, x.price)) return;
     Sound.sfx("unlock");
     if (x.kind === "hat") { p.outfit = toggleWear(p.outfit, x.hat); store.save(); return nav.refresh(); }
-    garden({ justBought: x.key });
-    setTimeout(() => Sound.word(x.w.en), 450);
+    garden({ justBought: x.key }); // its name was said when it was tapped; no second time
   };
 }

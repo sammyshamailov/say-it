@@ -2,6 +2,9 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.14.4 (2026-11-15): the shop says a name once
+- Buying an animal no longer says its name again: it was said when the child tapped it, and again after the tick.
+
 ## 2.14.3 (2026-11-15): the child hears themselves sooner
 - After a recording there was a long wait before anything played: the recorder waited 0.75 s of silence, then 0.6 s for the phone's sound to switch back, then the word played before the child's voice. Now the child's own voice plays first, right away, then the word (two sounds, was three); the recorder stops after 0.55 s of silence and waits 0.35 s (no "call" mode any more since 2.14.2). Each sound's button still lights up while it plays, then Next glows.
 
