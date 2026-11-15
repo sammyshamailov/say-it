@@ -398,6 +398,11 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .tips ul{margin:6px 0 0;padding-inline-start:20px}
 .tips li+li{margin-top:4px}
 
+/* Say it: the button whose sound is playing (the word, the child's own voice) lights up */
+.b3.playing{animation:playing .7s ease-in-out infinite}
+.say-row:has(#echo){padding:0 10px}
+@keyframes playing{0%,100%{box-shadow:0 7px 0 var(--d),0 0 0 4px #FFD23F,0 7px 0 4px #FFD23F}50%{box-shadow:0 7px 0 var(--d),0 0 0 9px #FFD23F,0 7px 0 9px #FFD23F}}
+
 /* Phones held sideways (short screens): nothing may sit out of reach.
    Any screen that still doesn't fit can be scrolled (no bar shown), and the busiest screens
    put their parts side by side instead of stacking them. */

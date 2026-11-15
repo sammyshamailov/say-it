@@ -2,6 +2,12 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.14.2 (2026-11-15): the recording plays back, and less of it
+From Sammy playing "Say it" on his Android phone.
+- **Nothing played after a recording** (the word, the child's voice, the word again); it only played when tapped later. The microphone was opened with echo cancellation, which on Android puts the phone's sound in "call" mode, and the sounds right after recording were lost while it switched back. The microphone now opens without echo cancellation (nothing plays while the child speaks, so there's nothing to cancel), and the game waits a little longer (0.6 s, was 0.3 s) before playing. Not checkable off the phone.
+- **It wasn't clear what to do after recording.** While the word plays, the speaker button lights up; while the child's voice plays, their voice button lights up; then the microphone stops glowing and Next glows. No new spoken line (it would need a recording).
+- **Two speaking turns a round** (was up to three): one "What's this?" and one "Say it" when the round has new and older words, two of either otherwise. Listen & tap, the bonus game and Meet are unchanged, so a round is now mostly listening and tapping.
+
 ## 2.14.1 (2026-11-15): phones on their side, the first recording, even glow rings
 From Sammy's screenshots of an Android phone held sideways.
 

@@ -27,7 +27,10 @@ export const canRecord = () => !!(navigator.mediaDevices && navigator.mediaDevic
 let stream = null;
 async function mic() {
   if (stream && stream.active) return stream;
-  stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+  // No echo cancellation: on Android it puts the phone's sound in "call" mode, and what played
+  // right after a recording (the word, the child's own voice) was lost or went to the earpiece.
+  // Nothing plays while the child speaks (music is silenced, the app waits), so there's no echo.
+  stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true } });
   return stream;
 }
 export function release() {
@@ -37,7 +40,7 @@ export function release() {
 // recognition can't get it (on Android it then hears nothing, so the child's next first try
 // failed), and Android plays sound in "call" mode. Closing it switches the audio back, which
 // takes a moment: a sound started during the switch can be lost, so wait before going on.
-const SWITCH_BACK_MS = 300;
+const SWITCH_BACK_MS = 600;
 export async function permission() {
   try { return (await navigator.permissions.query({ name: "microphone" })).state; } catch (e) { return "unknown"; }
 }

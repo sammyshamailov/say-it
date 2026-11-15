@@ -53,6 +53,11 @@ export async function say(ctx, step) {
   });
   // show the hidden word (What's this?): after a try, or when the child asks for a hint
   const reveal = () => { if (!secret) return; secret = false; root.querySelector(".word-card").classList.remove("secret"); };
+  // light up a button while its sound plays
+  const lit = async (sel, play) => {
+    const b = $(sel); if (b) b.classList.add("playing");
+    try { await play(); } finally { if (b) b.classList.remove("playing"); }
+  };
   const showNext = () => { $("#next").hidden = false; $("#nextph").hidden = true; $("#next").classList.add("glow"); };
 
   // The mic stays locked while the app is talking, so the child waits for the word to finish
@@ -78,18 +83,20 @@ export async function say(ctx, step) {
     mood("happy");
     if (!rewarded) { rewarded = true; store.markSaid(p, step.k, clear); ctx.award(clear ? 2 : 1); }
     Sound.sfx("good");
+    $("#mic").classList.remove("glow");
     if (clear) { await Sound.talk("clear", p.gender); if (!ctx.alive()) return; }
     else if (myVoice) {
-      // listen and compare: the word, my voice, the word
+      // listen and compare: the word, my voice, the word. What's playing lights up, so the child
+      // sees where each sound comes from (and can tap it again later).
       mood("listen");
       await wait(350); if (!ctx.alive()) return;
-      await Sound.word(w.en); if (!ctx.alive()) return;
+      await lit("#hear", () => Sound.word(w.en)); if (!ctx.alive()) return;
       await wait(200);
-      await Sound.playUrl(myVoice, 1); if (!ctx.alive()) return;
+      await lit("#echo", () => Sound.playUrl(myVoice, 1)); if (!ctx.alive()) return;
       await wait(200);
       mood("happy");
     }
-    await Sound.word(w.en);
+    await lit("#hear", () => Sound.word(w.en));
     if (ctx.alive()) showNext();
   });
   // nothing heard ("noHear"), or another word ("almost": no praise and no star for it). Either way

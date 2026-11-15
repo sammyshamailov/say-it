@@ -46,17 +46,17 @@ class Round {
 let current = null;
 
 // The order of steps for one round. "What's this?" asks for words met in earlier rounds, before
-// the round says them again (naming from memory is the speaking that teaches most, so it gets two
-// of the three turns when there are words for it); "Say it" is for the new ones. Three of the two
-// together at most.
+// the round says them again; "Say it" is for the new ones. Two speaking turns a round (Sammy,
+// 2.14.2: three felt like mostly recording): one of each when there are new and old words.
+const SPEAK = 2;
 function plan(p, b) {
   const steps = [];
   const old = b.words.filter(k => !b.fresh.includes(k));
-  const recall = shuffle(old).slice(0, b.fresh.length ? 2 : 3);
+  const recall = shuffle(old).slice(0, b.fresh.length ? 1 : SPEAK);
   b.fresh.forEach(k => steps.push({ t: "meet", k }));
   recall.forEach(k => steps.push({ t: "whats", k }));
   shuffle(b.words).forEach(k => steps.push({ t: "tap", k }));
-  b.fresh.slice(0, 3 - recall.length).forEach(k => steps.push({ t: "say", k }));
+  b.fresh.slice(0, SPEAK - recall.length).forEach(k => steps.push({ t: "say", k }));
   steps.push({ t: b.sub.kind === "chest" ? "chest" : BONUS[p.rounds % BONUS.length], keys: b.words.slice(0, Math.min(3, b.words.length)) });
   return steps;
 }

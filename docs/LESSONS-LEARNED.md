@@ -93,6 +93,11 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Sound and speech
 
+**What played right after a recording was lost (fixed in 2.14.2)**
+- What happened: 2.14.0 made Echo play the word, the child's voice and the word again by itself after a recording. On Sammy's Android phone none of it was heard; tapping the voice button later worked. The microphone asked for echo cancellation, which switches Android into "call" mode; sound played during the switch back is lost or goes to the earpiece. 2.11.1 had already seen this swallow a sound and only added a 300 ms wait.
+- Fix: no echo cancellation (the app is silent while the child speaks), a 600 ms wait, and each button lights up while its sound plays, so a lost sound at least shows where to tap.
+- Rule: on Android, anything that must be heard right after the microphone closes is at risk. Don't ask for processing the game doesn't need, and give every automatic sound a visible twin the child can tap.
+
 **A boy was told "סיימתְּ" (fixed in 2.11.1)**
 - What happened: Hebrew without niqqud doesn't show gender in some second-person words (סיימת, אותך, אמרת). The boy and girl feedback lines were the same text, so the voice tool made one recording, and Zina read it as the girl form. The device voice had hidden this, because it says the letters flatly.
 - Fix: niqqud on the word that changes, so the two forms are different texts with their own recordings; a test fails if a line with a gendered word is shared by both.
