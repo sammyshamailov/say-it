@@ -40,7 +40,7 @@ export function release() {
 // recognition can't get it (on Android it then hears nothing, so the child's next first try
 // failed), and Android plays sound in "call" mode. Closing it switches the audio back, which
 // takes a moment: a sound started during the switch can be lost, so wait before going on.
-const SWITCH_BACK_MS = 600;
+const SWITCH_BACK_MS = 350; // 600 in 2.14.2; without echo cancellation the switch is short
 export async function permission() {
   try { return (await navigator.permissions.query({ name: "microphone" })).state; } catch (e) { return "unknown"; }
 }
@@ -72,7 +72,7 @@ export async function record(onLevel) {
       const thr = t < 350 ? START_THR : Math.min(MAX_THR, Math.max(0.02, noise * 3));
       onLevel && onLevel(Math.min(1, rms / (thr * 4)));
       if (rms > thr) { voiced += dt; lastVoice = t; if (voiced > 140) spoke = true; }
-      const quietAfter = spoke && t - lastVoice > 750;
+      const quietAfter = spoke && t - lastVoice > 550;
       if (quietAfter || t > (spoke ? 5000 : 4500)) return res();
       requestAnimationFrame(loop);
     })();

@@ -1,7 +1,7 @@
 // Say it: the child says the word. Speech recognition checks it where available (bonus star);
 // otherwise, and after one unheard try, "Echo" records the child. Echo can't tell whether the word
-// was right, so it doesn't say "well done": it lets the child compare, playing the word, then
-// their own voice, then the word again. Every real attempt earns a star (for trying).
+// was right, so it doesn't say "well done": it lets the child compare, playing their own voice
+// at once, then the word. Every real attempt earns a star (for trying).
 // No microphone: the child says it out loud and taps a big star.
 //
 // "What's this?" (step "whats") is the same screen for a word the child already met: the word is
@@ -82,20 +82,17 @@ export async function say(ctx, step) {
     reveal();
     mood("happy");
     if (!rewarded) { rewarded = true; store.markSaid(p, step.k, clear); ctx.award(clear ? 2 : 1); }
-    Sound.sfx("good");
     $("#mic").classList.remove("glow");
-    if (clear) { await Sound.talk("clear", p.gender); if (!ctx.alive()) return; }
+    if (clear) { Sound.sfx("good"); await Sound.talk("clear", p.gender); if (!ctx.alive()) return; }
     else if (myVoice) {
-      // listen and compare: the word, my voice, the word. What's playing lights up, so the child
-      // sees where each sound comes from (and can tap it again later).
+      // listen and compare: the child's own voice at once, then the word (2.14.3: was word, voice,
+      // word, which left a long wait before the child heard themselves). What's playing lights up,
+      // so the child sees where each sound comes from (and can tap it again later).
       mood("listen");
-      await wait(350); if (!ctx.alive()) return;
-      await lit("#hear", () => Sound.word(w.en)); if (!ctx.alive()) return;
-      await wait(200);
       await lit("#echo", () => Sound.playUrl(myVoice, 1)); if (!ctx.alive()) return;
-      await wait(200);
+      await wait(250);
       mood("happy");
-    }
+    } else Sound.sfx("good");
     await lit("#hear", () => Sound.word(w.en));
     if (ctx.alive()) showNext();
   });
