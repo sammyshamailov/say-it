@@ -7,10 +7,17 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 let srBroken = false; // set when recognition fails for this session (offline, blocked)
+// On some Android phones recognition starts but never hears the child, so every first try failed
+// and only the recording (the second try) worked. Two tries in a row where recognition heard
+// nothing at all: stop using it on this phone and record from the first try.
+let srDeaf = 0;
+const SR_DEAF_LIMIT = 2;
+// remembered on the phone; choosing "automatic" again in the parent area clears it
+function deaf() { srDeaf = 0; store.settings.srDeaf = true; store.save(); }
 
 export function mode() {
   if (store.settings.sayMode === "echo") return "echo";
-  if (!SR || srBroken || (isIOS && standalone)) return "echo";
+  if (!SR || srBroken || store.settings.srDeaf || (isIOS && standalone)) return "echo";
   return "recognize";
 }
 export const hasSR = () => !!SR && !srBroken;
@@ -89,8 +96,13 @@ export async function recognize() {
       if (["network", "not-allowed", "service-not-allowed", "audio-capture", "language-not-supported"].includes(e.error)) srBroken = true;
       out = out || { error: e.error };
     };
-    r.onend = () => res(out || { error: "no-speech" });
-    try { r.start(); } catch (e) { res({ error: "start" }); }
+    r.onend = () => {
+      out = out || { error: "no-speech" };
+      if (out.heard && out.heard.some(t => t.trim())) srDeaf = 0;
+      else if (++srDeaf >= SR_DEAF_LIMIT) deaf();
+      res(out);
+    };
+    try { r.start(); } catch (e) { if (++srDeaf >= SR_DEAF_LIMIT) deaf(); res({ error: "start" }); }
     setTimeout(() => { try { r.stop(); } catch (e) {} }, 7000);
   });
 }

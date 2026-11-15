@@ -151,6 +151,16 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 **A child's English-letter name could crash the greeting (fixed in 1.x)**
 
+**Sideways phones weren't checked (2.13.0-2.14.0, fixed in 2.14.1)**
+- What happened: 2.13.0 added a sideways layout for the map and checked a tablet held sideways, but not the other screens on a phone held sideways. At about 830×410 the gate's numbers, the garden's shelf and a round's buttons fell below the bottom of the screen, and screens didn't scroll, so they couldn't be reached.
+- Fix: every `.screen` scrolls as a last resort; short screens get side-by-side layouts (`@media (orientation:landscape) and (max-height:540px)` in `app.css`).
+- Rule: for any layout change, walk every screen (map, garden, stickers, gate, parent area, each round step, the end of a round) at 390×844, about 830×410 and 667×375, and list buttons whose box ends past the screen edge.
+
+**Speech recognition "worked" but heard nothing (2.14.1)**
+- What happened: on Sammy's Android phone the first "Say it" try always failed; recognition started and ended with no result, and only the Echo recording (second try) heard the child. It can't be tested here.
+- Fix: two empty recognition tries in a row switch that phone to Echo first (`settings.srDeaf`).
+- Rule: a feature that depends on a phone service needs a fallback that kicks in by itself when the service gives nothing, not only when it reports an error.
+
 ## How the work is done
 
 **Screenshots written into the repo (2026-11-03)**

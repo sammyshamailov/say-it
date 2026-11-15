@@ -131,7 +131,7 @@ export async function dashboard() {
     $$("[data-dr]").forEach(x => x.setAttribute("aria-pressed", x === b));
   });
   onTap(root, "[data-m]", b => {
-    set.sayMode = b.dataset.m; store.save();
+    set.sayMode = b.dataset.m; delete set.srDeaf; store.save();
     $$("[data-m]").forEach(x => x.setAttribute("aria-pressed", x === b));
   });
 

@@ -118,7 +118,7 @@ export function createStore({ storage, now = Date.now } = {}) {
   // ---- moving progress between phones (transfer code or backup file) ----
   // The unlock belongs to the phone the code was entered on (a code opens two devices), so
   // transfers and backups never carry it, and restoring one keeps this phone's own unlock.
-  const exportData = () => { const d = JSON.parse(JSON.stringify(state)); delete d.unlocked; return d; };
+  const exportData = () => { const d = JSON.parse(JSON.stringify(state)); delete d.unlocked; if (d.settings) delete d.settings.srDeaf; return d; };
   function replaceAll(d) {
     if (!isSave(d)) return false;
     d.settings = Object.assign(blankSettings(), d.settings || {});

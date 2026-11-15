@@ -53,7 +53,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .wiggle{animation:wiggle .45s}
 @keyframes wiggle{0%,100%{transform:none}20%{transform:translateX(-10px) rotate(-3deg)}40%{transform:translateX(9px) rotate(3deg)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
 .glow{animation:glow 1s ease-in-out infinite}
-@keyframes glow{0%,100%{box-shadow:0 7px 0 var(--d),0 0 0 0 #FFD23F}50%{box-shadow:0 7px 0 var(--d),0 0 0 10px #FFD23F99}}
+/* the ring covers the button and its 7px lip, so it's the same width on every side */
+@keyframes glow{0%,100%{box-shadow:0 7px 0 var(--d),0 0 0 0 #FFD23F,0 7px 0 0 #FFD23F}50%{box-shadow:0 7px 0 var(--d),0 0 0 8px #FFD23F,0 7px 0 8px #FFD23F}}
 
 /* top bar */
 .top{display:flex;align-items:center;gap:10px;min-height:64px}
@@ -396,3 +397,57 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .tips{background:#FFF6D6;border-radius:16px;padding:12px 14px;font-size:15px;line-height:1.5}
 .tips ul{margin:6px 0 0;padding-inline-start:20px}
 .tips li+li{margin-top:4px}
+
+/* Phones held sideways (short screens): nothing may sit out of reach.
+   Any screen that still doesn't fit can be scrolled (no bar shown), and the busiest screens
+   put their parts side by side instead of stacking them. */
+.screen{overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+@media (orientation:landscape) and (max-height:540px){
+  #app{padding-top:calc(env(safe-area-inset-top,0px) + 8px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}
+  .screen{gap:10px;max-width:none}
+  .top{min-height:56px}
+  /* a round with a word card: the card on the left, Pipo and the buttons on the right */
+  .stage:has(>.word-card){display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;gap:10px 16px}
+  .stage>.word-card{grid-column:1;grid-row:1/span 3;justify-content:center;padding:12px}
+  .stage:has(>.word-card)>:not(.word-card){grid-column:2;min-height:0}
+  .stage:has(>.word-card)>div:not([class]){display:none}
+  .stage:has(>.word-card) .say-row{flex-wrap:wrap;gap:12px}
+  .word-card .big{font-size:clamp(64px,24vh,120px)}
+  .word-card .en{font-size:clamp(36px,11vh,56px)}
+  .word-card .he{font-size:18px}
+  .word-card .corner button{width:52px;height:52px}
+  .mic{width:110px;height:110px;border-radius:34px}
+  .say-row .side{width:68px;height:68px}
+  .say-row .buddy{max-width:110px}
+  .mascot-row{min-height:0!important}
+  .mascot-row .buddy{width:clamp(70px,20vh,110px)}
+  .mascot-row .hear{width:72px!important;height:72px!important}
+  .memo{grid-template-columns:repeat(6,1fr)}
+  .mcard{font-size:clamp(40px,12vh,80px)}
+  .plates{justify-content:center;padding-bottom:8px}
+  .plate{flex:none;width:28vh;height:28vh;max-height:none;font-size:clamp(44px,15vh,90px)}
+  .feed-top .buddy{max-width:30vh}
+  .chest-btn{width:min(40vw,52vh,300px)}
+  /* the end of a round: Pipo and the stars on the left, the new sticker on the right */
+  .done{display:grid;grid-template-columns:auto auto auto;align-content:center;justify-content:center;column-gap:36px;row-gap:6px;min-height:0}
+  .done>*{grid-column:1;justify-self:center}
+  .done>#buddy{width:clamp(90px,26vh,130px)!important}
+  .done h1{font-size:40px}
+  .done .jar svg{width:30px;height:30px}
+  .done>.sticker{grid-column:2;grid-row:1/span 3;width:120px;height:120px;font-size:72px}
+  .done>.icon,.done>.b3:not(.sticker){grid-column:3;grid-row:1/span 3;align-self:center}
+  /* the garden: the garden on the left, the tabs and what to buy on the right */
+  .screen:has(>.garden){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr);column-gap:16px;overflow:hidden}
+  .screen>.top{grid-column:1/-1}
+  .screen>.garden{grid-column:1;grid-row:2/span 2;height:auto;min-height:0}
+  .screen:has(>.garden)>.tabs{grid-column:2;grid-row:2}
+  .screen:has(>.garden)>.shelf{grid-column:2;grid-row:3;min-height:0}
+  /* the parent gate: the numbers to tap on the right */
+  .gate{display:grid;grid-template-columns:auto auto;column-gap:40px;row-gap:12px;align-content:center;justify-content:center}
+  .gate>*{grid-column:1}
+  .gate>div:first-child{display:none}
+  .gate>.keypad{grid-column:2;grid-row:1/span 3}
+  .keypad{grid-template-columns:repeat(3,68px);gap:10px}
+  .keypad button{height:54px;font-size:26px}
+}

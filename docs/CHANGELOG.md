@@ -2,6 +2,14 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.14.1 (2026-11-15): phones on their side, the first recording, even glow rings
+From Sammy's screenshots of an Android phone held sideways.
+
+Fixes
+- **Phones held sideways cut screens off with no way to reach the rest:** the parent gate's numbers, the garden's animals and hats, and the buttons under the word card in a round. Every screen now scrolls when it doesn't fit (no bar shown), and on short screens the busy ones put their parts side by side: the word card on the left with Pipo and the buttons on the right, the garden on the left with the tabs and the shelf on the right, the gate's words on one side and the numbers on the other, and the end of a round with the sticker beside Pipo. Feed Pipo's plates, memory cards and the chest are smaller there too.
+- **The first try at "Say it" failed every time on Sammy's phone; the second worked.** The first try uses the phone's speech recognition, which started but heard nothing; the second try records (Echo). After two tries in a row where recognition hears nothing at all, the phone remembers it and records from the first try. Choosing "אוטומטי" again in the parent area tries recognition again; "הקלטה והשמעה" there does the same switch by hand. The flag stays on the phone (transfers leave it out).
+- **The glowing ring around a button was thinner at the bottom:** it went around the button's face but not the 7px lip under it. It now covers both, so it's the same width on every side.
+
 ## 2.14.0 (2026-11-14): what the review found
 From a full review of the game (`REVIEW-2026-11-14.md` in the Claude project). Sammy asked for all of it; what needs new pictures or recordings is prepared in `docs/NEW-WORDS.md` and not in the game yet. Stone progress isn't reset, but the map changes order (below).
 

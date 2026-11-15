@@ -346,3 +346,12 @@ test("an animal costs more the harder its word", async () => {
   assert.ok(petPrice("wild/hyena") > petPrice("wild/wolf") && petPrice("wild/wolf") > petPrice("farm/cow"));
   assert.ok(ALL_KEYS.filter(k => k.startsWith("farm/")).every(k => petPrice(k) <= 10), "a price is a row of at most ten stars");
 });
+
+test("a phone whose speech recognition hears nothing keeps that to itself: transfers don't carry it", () => {
+  const { store: a } = newStore();
+  a.addProfile(a.newProfile("Noa", "🦄", "f"));
+  a.settings.srDeaf = true;
+  const data = JSON.parse(JSON.stringify(a.exportData()));
+  assert.ok(!("srDeaf" in data.settings));
+  assert.equal(a.settings.srDeaf, true, "the phone itself still remembers");
+});
