@@ -1,5 +1,5 @@
-// Say it: the child says the word. Speech recognition checks it where available (bonus star);
-// otherwise, and after one unheard try, "Echo" records the child. Echo can't tell whether the word
+// Say it: the child says the word and "Echo" records it (no speech recognition since 2.14.5). Echo
+// can't tell whether the word
 // was right, so it doesn't say "well done": it lets the child compare, playing their own voice
 // at once, then the word. Every real attempt earns a star (for trying).
 // No microphone: the child says it out loud and taps a big star.
@@ -130,28 +130,17 @@ export async function say(ctx, step) {
     mic.classList.add("live");
     Sound.hush(true); // no music while the child speaks, so it isn't recorded or heard as their voice
     try {
-      // after one unheard try, switch to Echo: it only needs to hear a voice, so every real attempt counts
-      let echo = Speech.mode() !== "recognize" || attempts >= 1;
-      if (!echo) {
-        level(.6);
-        const res = await Speech.recognize(); if (!ctx.alive()) return;
-        level(0);
-        if (res.heard) await (Speech.isMatch(res.heard, w.en, w.alts) ? reward(true) : missed("almost"));
-        else if (!Speech.hasSR() && Speech.canRecord()) echo = true; // recognition unavailable (offline/blocked): use Echo
-        else if (res.error === "not-allowed") micDenied();
-        else await missed();
-      }
-      if (echo) {
-        if (!Speech.canRecord()) throw new Error("no-mic");
-        const res = await Speech.record(level); if (!ctx.alive()) return;
-        if (res.spoke) {
-          if (myVoice) URL.revokeObjectURL(myVoice);
-          myVoice = res.url;
-          if (myVoice) $("#echo").hidden = false;
-          $("#lv").hidden = true;
-          await reward(false);
-        } else await missed();
-      }
+      // every try records (Echo) and plays the child's voice back, then the word (Sammy, 2.14.5:
+      // speech recognition made the first try look and behave differently, and kept nothing to play)
+      if (!Speech.canRecord()) throw new Error("no-mic");
+      const res = await Speech.record(level); if (!ctx.alive()) return;
+      if (res.spoke) {
+        if (myVoice) URL.revokeObjectURL(myVoice);
+        myVoice = res.url;
+        if (myVoice) $("#echo").hidden = false;
+        $("#lv").hidden = true;
+        await reward(false);
+      } else await missed();
     } catch (e) {
       if (ctx.alive()) micDenied();
     } finally {

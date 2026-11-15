@@ -71,10 +71,6 @@ export async function dashboard() {
         <div class="seg">${[2, 4, 6, 0].map(n => html`<button data-dr="${n}" aria-pressed="${(set.dayRounds || 0) === n}">${n || "ללא"}</button>`)}</div>
         <p class="small">מילה נחשבת זכורה רק אחרי תשובה נכונה בשני ימים שונים, לכן כמה סבבים קצרים כל יום עדיפים על הרבה ביום אחד. אחרי המספר הזה, או כשאין יותר מה ללמוד היום, פיפו נרדם וכפתור המשחק נח עד מחר. עדיין אפשר ללחוץ על אבן במפה, ולשחק בגינה.</p>
       </div>
-      <div class="field"><span>תרגול דיבור (<span class="en-ltr">Say it</span>)</span>
-        <div class="seg"><button data-m="auto" aria-pressed="${set.sayMode !== "echo"}">אוטומטי</button><button data-m="echo" aria-pressed="${set.sayMode === "echo"}">הקלטה והשמעה</button></div>
-        <p class="small">אוטומטי: במכשירים שתומכים בזיהוי דיבור, האפליקציה גם בודקת את המילה ונותנת כוכב בונוס. בכל מקרה כל ניסיון מקבל כוכב. "הקלטה והשמעה" משמיעה לילד את הקול שלו ואז את המילה, בלי זיהוי.</p>
-      </div>
     </div>
 
     <div class="panel"><h2>מיקרופון</h2>
@@ -129,10 +125,6 @@ export async function dashboard() {
   onTap(root, "[data-dr]", b => {
     set.dayRounds = +b.dataset.dr; store.save();
     $$("[data-dr]").forEach(x => x.setAttribute("aria-pressed", x === b));
-  });
-  onTap(root, "[data-m]", b => {
-    set.sayMode = b.dataset.m; delete set.srDeaf; store.save();
-    $$("[data-m]").forEach(x => x.setAttribute("aria-pressed", x === b));
   });
 
   $("#mkcode").onclick = () => makeCode($("#xhost"));

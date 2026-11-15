@@ -37,7 +37,7 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 | `public/js/core/` | `html` template tag (escapes values), router, sheets, events |
 | `public/js/data/` | `words.js` (484 words, tier 1-5 each), `stages.js` (stones built from words), `lands.js` (land photos, trail paths, stone placement), `outfits.js`, `lines.js` (Pipo's Hebrew lines), `he-audio.js` / `en-audio.js` (text → clip, generated) |
 | `public/audio/` | Recorded clips, `he/` (Zina) and `en/` (Sarah), made by `tools/voice/build.mjs` |
-| `public/js/services/` | `store.js` (progress, spaced repetition, unlock rules, rounds), `sound.js`, `speech.js`, `shop.js`, `match.js` |
+| `public/js/services/` | `store.js` (progress, spaced repetition, unlock rules, rounds), `sound.js`, `speech.js` (recording), `shop.js` |
 | `public/js/screens/` | map, who, stickers, garden (garden + shop) |
 | `public/js/round/` | `round.js` runs a round; `steps/` meet, tap, say (also "What's this?"), pop, feed, memory, chest, finish |
 | `public/js/parent/` | gate, dashboard, setup, transfer, profile form, install (how to put the game on the home screen) |

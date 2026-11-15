@@ -91,10 +91,9 @@ test("the Wikimedia recordings are gone (Sarah says every word since 2.11)", () 
   assert.match(src("sw.js"), /k === "sayit-audio"/, "phones delete the old recordings");
 });
 
-test("the microphone is closed after every recording and before speech recognition", () => {
+test("the microphone is closed after every recording, without echo cancellation (Android \"call\" mode)", () => {
   const speech = src("js/services/speech.js");
-  const record = speech.slice(speech.indexOf("export async function record"), speech.indexOf("export async function recognize"));
+  const record = speech.slice(speech.indexOf("export async function record"));
   assert.match(record, /release\(\);\s*await new Promise\(r => setTimeout\(r, SWITCH_BACK_MS\)\)/);
-  const recognize = speech.slice(speech.indexOf("export async function recognize"));
-  assert.match(recognize, /if \(stream\) \{ release\(\);/);
+  assert.match(speech, /echoCancellation: false/);
 });

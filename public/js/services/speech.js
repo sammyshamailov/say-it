@@ -1,26 +1,6 @@
-// "Say it": Echo (record + play back, works everywhere with a microphone) and,
-// where the browser supports it, speech recognition as a bonus check.
-import { store } from "../state.js";
-export { isMatch } from "./match.js";
+// "Say it": Echo, record the child and play it back (works everywhere with a microphone).
+// Speech recognition was used as a first check until 2.14.5; it kept no recording to play back.
 
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-let srBroken = false; // set when recognition fails for this session (offline, blocked)
-// On some Android phones recognition starts but never hears the child, so every first try failed
-// and only the recording (the second try) worked. Two tries in a row where recognition heard
-// nothing at all: stop using it on this phone and record from the first try.
-let srDeaf = 0;
-const SR_DEAF_LIMIT = 2;
-// remembered on the phone; choosing "automatic" again in the parent area clears it
-function deaf() { srDeaf = 0; store.settings.srDeaf = true; store.save(); }
-
-export function mode() {
-  if (store.settings.sayMode === "echo") return "echo";
-  if (!SR || srBroken || store.settings.srDeaf || (isIOS && standalone)) return "echo";
-  return "recognize";
-}
-export const hasSR = () => !!SR && !srBroken;
 export const canRecord = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
 
 // ---------- microphone ----------
@@ -84,28 +64,4 @@ export async function record(onLevel) {
   release();
   await new Promise(r => setTimeout(r, SWITCH_BACK_MS));
   return { spoke, url: blob && spoke ? URL.createObjectURL(blob) : null };
-}
-
-// Recognition: resolves {heard:[...]} or {error}
-export async function recognize() {
-  if (stream) { release(); await new Promise(r => setTimeout(r, SWITCH_BACK_MS)); } // recognition needs the mic to itself
-  return new Promise(res => {
-    let r;
-    try { r = new SR(); } catch (e) { srBroken = true; return res({ error: "unsupported" }); }
-    r.lang = "en-US"; r.interimResults = false; r.maxAlternatives = 5; r.continuous = false;
-    let out = null;
-    r.onresult = e => { out = { heard: Array.from(e.results[0]).map(a => a.transcript) }; };
-    r.onerror = e => {
-      if (["network", "not-allowed", "service-not-allowed", "audio-capture", "language-not-supported"].includes(e.error)) srBroken = true;
-      out = out || { error: e.error };
-    };
-    r.onend = () => {
-      out = out || { error: "no-speech" };
-      if (out.heard && out.heard.some(t => t.trim())) srDeaf = 0;
-      else if (++srDeaf >= SR_DEAF_LIMIT) deaf();
-      res(out);
-    };
-    try { r.start(); } catch (e) { if (++srDeaf >= SR_DEAF_LIMIT) deaf(); res({ error: "start" }); }
-    setTimeout(() => { try { r.stop(); } catch (e) {} }, 7000);
-  });
 }

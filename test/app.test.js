@@ -36,8 +36,9 @@ test("release files are in sync (run `npm run release` after adding or removing 
     assert.equal(readFileSync(new URL("../public/" + f, import.meta.url), "utf8"), want[f], `public/${f} is out of date`);
 });
 
-test("Say it: another word gets \"almost, try again\" and no star; only the right word is rewarded", () => {
+test("Say it: every try records and plays the child's voice back (no speech recognition)", () => {
   const say = readFileSync(new URL("../public/js/round/steps/say.js", import.meta.url), "utf8");
-  assert.match(say, /if \(res\.heard\) await \(Speech\.isMatch\(res\.heard, w\.en, w\.alts\) \? reward\(true\) : missed\("almost"\)\);/);
-  assert.match(say, /let echo = Speech\.mode\(\) !== "recognize" \|\| attempts >= 1;/, "the try after a miss is Echo");
+  assert.ok(!/recognize|isMatch/.test(say));
+  assert.match(say, /const res = await Speech\.record\(level\)/);
+  assert.match(say, /lit\("#echo", \(\) => Sound\.playUrl\(myVoice, 1\)\)/, "the child's voice plays back by itself");
 });

@@ -398,6 +398,11 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
 .tips ul{margin:6px 0 0;padding-inline-start:20px}
 .tips li+li{margin-top:4px}
 
+/* Lists that scroll fade out at their edges, so a row half under the edge reads as "more here"
+   instead of being cut off flat (Sammy, 2.14.5) */
+.shelf,.album,.book,.parent{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%)}
+.shelf{padding-top:16px}
+
 /* Say it: the button whose sound is playing (the word, the child's own voice) lights up */
 .b3.playing{animation:playing .7s ease-in-out infinite}
 .say-row:has(#echo){padding:0 10px}
@@ -426,6 +431,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:4px solid var(-
   .say-row .side{width:68px;height:68px}
   .say-row .buddy{max-width:110px}
   .mascot-row{min-height:0!important}
+  /* Listen & tap, bubbles, memory: Pipo and the speaker in a column on the left, the game beside them */
+  .stage:has(>.mascot-row){flex-direction:row;align-items:stretch}
+  .stage>.mascot-row{flex-direction:column;justify-content:center;flex:none}
+  .stage:has(>.mascot-row)>:not(.mascot-row){flex:1;min-width:0;min-height:0}
   .mascot-row .buddy{width:clamp(70px,20vh,110px)}
   .mascot-row .hear{width:72px!important;height:72px!important}
   .memo{grid-template-columns:repeat(6,1fr)}

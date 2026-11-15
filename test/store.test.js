@@ -1,9 +1,8 @@
-// Tests for the on-device store (export, restore, migration, shop) and the speech matcher.
+// Tests for the on-device store (export, restore, migration, shop).
 // The store is a factory that takes its storage, so it runs here against an in-memory fake.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createStore, isSave, KEY } from "../public/js/services/store.js";
-import { isMatch } from "../public/js/services/match.js";
 import { STAGES, STAGE, LAND_STAGES, confusable } from "../public/js/data/stages.js";
 import { ALL_KEYS } from "../public/js/data/index.js";
 
@@ -42,7 +41,7 @@ test("restore fills in fields an older save is missing", () => {
   assert.ok(store.replaceAll({ v: 2, profiles: [{ id: "x", name: "Tom", words: {}, stars: 60 }], lastId: "gone" }));
   const p = store.player();
   assert.equal(p.id, "x"); assert.deepEqual(p.stickers, []); assert.equal(p.stars, 60);
-  assert.equal(store.settings.sayMode, "auto");
+  assert.equal(store.settings.dayRounds, 4);
   assert.deepEqual(p.owned, ["hat:party", "hat:shades"], "hats earned before the shop are kept");
 });
 
@@ -64,12 +63,6 @@ test("first-version progress is imported and old keys left alone", () => {
   assert.ok(storage.m.has("sayit-players"));
 });
 
-test("speech matcher stays forgiving", () => {
-  assert.ok(isMatch(["it's a cat"], "cat"));
-  assert.ok(isMatch(["elefant"], "elephant"));
-  assert.ok(isMatch(["tree"], "three", ["3", "tree", "free"]));
-  assert.ok(!isMatch(["dog"], "cat"));
-});
 
 test("shop: spending lowers the purse, never the stars earned", () => {
   const { store } = newStore();
@@ -345,13 +338,4 @@ test("an animal costs more the harder its word", async () => {
   assert.equal(petPrice("farm/cow"), PET_PRICE);
   assert.ok(petPrice("wild/hyena") > petPrice("wild/wolf") && petPrice("wild/wolf") > petPrice("farm/cow"));
   assert.ok(ALL_KEYS.filter(k => k.startsWith("farm/")).every(k => petPrice(k) <= 10), "a price is a row of at most ten stars");
-});
-
-test("a phone whose speech recognition hears nothing keeps that to itself: transfers don't carry it", () => {
-  const { store: a } = newStore();
-  a.addProfile(a.newProfile("Noa", "🦄", "f"));
-  a.settings.srDeaf = true;
-  const data = JSON.parse(JSON.stringify(a.exportData()));
-  assert.ok(!("srDeaf" in data.settings));
-  assert.equal(a.settings.srDeaf, true, "the phone itself still remembers");
 });

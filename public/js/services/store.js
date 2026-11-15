@@ -26,7 +26,7 @@ export function shuffle(a) {
 }
 
 // dayRounds: rounds a day before Pipo rests (0 = no limit)
-const blankSettings = () => ({ music: true, musicV: 2, sfx: true, sayMode: "auto", hebrew: true, unlockAll: false, mascot: "Pipo", dayRounds: 4 });
+const blankSettings = () => ({ music: true, musicV: 2, sfx: true, hebrew: true, unlockAll: false, mascot: "Pipo", dayRounds: 4 });
 const blank = now => ({ v: 2, profiles: [], lastId: null, created: now, settings: blankSettings() });
 const newRecord = now => ({ lvl: 0, due: 0, right: 0, wrong: 0, said: 0, clear: 0, seen: now });
 
@@ -118,7 +118,7 @@ export function createStore({ storage, now = Date.now } = {}) {
   // ---- moving progress between phones (transfer code or backup file) ----
   // The unlock belongs to the phone the code was entered on (a code opens two devices), so
   // transfers and backups never carry it, and restoring one keeps this phone's own unlock.
-  const exportData = () => { const d = JSON.parse(JSON.stringify(state)); delete d.unlocked; if (d.settings) delete d.settings.srDeaf; return d; };
+  const exportData = () => { const d = JSON.parse(JSON.stringify(state)); delete d.unlocked; return d; };
   function replaceAll(d) {
     if (!isSave(d)) return false;
     d.settings = Object.assign(blankSettings(), d.settings || {});

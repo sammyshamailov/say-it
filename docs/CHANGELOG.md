@@ -2,6 +2,11 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.14.5 (2026-11-15): every try is recorded; short screens, part two
+- **"Say it" always records and plays the child's voice back** (Sammy's choice). Before, the first try on Android went through speech recognition, which checks the word but keeps no recording, so a right first try showed no voice card and played nothing, unlike every later try. Speech recognition is gone: no "כמעט!" for another word and no two-star "perfect"; every real try gets one star, the child's voice, then the word. The parent area's speaking-mode setting is gone with it (there's nothing to choose), and so is the 2.14.1 "recognition hears nothing" flag. The matcher (`match.js`) is removed.
+- **Listen & tap, bubbles and memory on a short screen** (a phone on its side, in a browser tab with its address bar): Pipo and the speaker stand in a column on the left and the game takes the rest, so the pictures aren't cut off at the bottom.
+- **Lists that scroll fade out at their top and bottom edges** (the garden's shelf, the sticker album, the parent area), instead of a row being cut off flat under the tabs.
+
 ## 2.14.4 (2026-11-15): the shop says a name once
 - Buying an animal no longer says its name again: it was said when the child tapped it, and again after the tick.
 
