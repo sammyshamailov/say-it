@@ -7,6 +7,7 @@ Every picture word in the app has its own illustration, cut from AI-generated sp
 | `assets/pictures/sheets/` | The 49 generated sheets, as they came from the image generator (the source) |
 | `assets/pictures/master/` | Each picture cut out at full size, transparent, with a white sticker border |
 | `assets/pictures/PROMPTS.md` | The prompts used for the sheets |
+| `assets/pictures/PROMPTS-NEW-WORDS.md` | Ready-to-paste prompts for the 28 new words of `docs/NEW-WORDS.md` (not generated yet) |
 | `tools/pictures/sheets.json` | Which sheet holds which pictures, in reading order |
 | `tools/pictures/build.py` | Cuts the sheets and writes everything below |
 | `public/img/words/<id>.webp` | 320 px copies the app shows |

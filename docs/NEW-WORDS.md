@@ -46,12 +46,13 @@ Notes for whoever adds them:
 - Each pair of opposites, and in/on/under, goes into `PAIRS` in `data/stages.js`: the two never meet below tier 3, and from tier 3 one is the wrong answer on purpose, which is the point of the pair.
 - `who-i` and `who-you` come as boy and girl pictures: add `who` to `GENDERED` in `ui/picture.js`.
 - Before adding, look at each picture on the phone at stone size: an opposite only works if its picture can't be read as its partner.
+- **Big and small come out the same size in the game.** The sheet draws the small dog much smaller, but `tools/pictures/build.py` scales every picture to fill its square, so `opp-big` and `opp-small` are the same dog at the same size (seen 2026-11-23). Before adding them: keep the pair's real size difference when cutting (cut both at the big one's scale), or redraw "small" next to something that shows its size. Check long/short and up/down the same way.
 
 ## B. 28 words that need new pictures
 
 Two sheets, each generated twice (once with the boy, once with the girl), the same way as the Actions and Feelings sheets. That is four images.
 
-**How to generate:** in ChatGPT image generation, attach `assets/pictures/sheets/actions-boy.webp` (for the boy runs) or `actions-girl.webp` (for the girl runs) as the reference, and paste the prompt. Save the results as `actions2-boy.webp`, `actions2-girl.webp`, `talk-boy.webp`, `talk-girl.webp` in `assets/pictures/sheets/`. Check before saving: 16 (or 12) separate pictures, the same child in every cell, no text anywhere, nothing touching its neighbour.
+**How to generate:** four runs in ChatGPT image generation (each sheet once with the boy, once with the girl). The ready-to-paste prompts, which reference sheet to attach to each, the file names and what to check are in `assets/pictures/PROMPTS-NEW-WORDS.md`.
 
 ### Sheet 1: Actions 2 (16 pictures)
 
@@ -74,50 +75,6 @@ Two sheets, each generated twice (once with the boy, once with the girl), the sa
 | brush | `actions-brush` | לצחצח | 3 |
 | hide | `actions-hide` | להתחבא | 3 |
 
-```
-Create ONE image: a sprite sheet of exactly 16 separate illustrations for a preschool vocabulary app, arranged in an invisible 4-column × 4-row grid of equal square cells.
-
-ITEMS, left to right, top to bottom (exactly this order, exactly these items):
-1. jumping high, both feet off the ground, knees bent, arms up
-2. sitting on a small wooden chair, hands on knees (chair in side profile)
-3. standing still and straight, arms at the sides
-4. playing: kneeling on the floor and stacking three colored wooden blocks
-5. giving: holding out a red ball with both hands, arms stretched forward
-6. hugging a brown teddy bear tightly with both arms
-7. kissing: blowing a kiss from an open hand, one small red heart floating beside the hand
-8. washing hands under a small tap, soap bubbles on the hands
-9. looking through a magnifying glass held up to one eye
-10. listening: one hand cupped behind the ear, head tilted
-11. throwing a blue ball overhand, the ball just leaving the hand
-12. catching a blue ball with both hands in front of the chest
-13. pushing a large cardboard box with both hands, leaning forward
-14. pulling a small red wagon by its handle, leaning back
-15. brushing teeth with a toothbrush, mouth open, a little foam
-16. hiding: crouching behind a large cardboard box, only the head and hands peeking over the top
-
-POSE: the SAME child in every cell, the same child as in the attached reference image: a 5-year-old with natural child proportions, light tan skin, a plain mint-green T-shirt, blue shorts and white sneakers. Full body, in a 3/4 view turned toward the LEFT, doing the action described, with only the props listed. Camera at the child's chest height.
-
-STYLE (identical in every cell, do not vary or interpret):
-- Semi-realistic children's picture-book illustration. TRUE-TO-LIFE proportions and anatomy, simplified into clean shapes. NOT chibi, NOT kawaii, NOT big-headed, NOT a toy or plush look.
-- REALISTIC natural colors exactly as in real life, clean and slightly bright. No candy, neon, pastel or fantasy colors.
-- Eyes at natural size with one small white catchlight. Calm, friendly, neutral expression.
-- Cel shading: one base color, one shadow tone and one highlight per area. Light from the top-left on every item. No gradients, no textures, no fur, feather or hair strands.
-- One even dark navy outline (#1A1640) of the same medium thickness around every illustration.
-- NO sticker border, NO white outline around the illustration.
-
-SIZE AND PLACEMENT:
-- Scale every item so its widest dimension fills 80% of its cell.
-- Center each item in its cell. Items that stand share the same invisible ground line near the bottom of the cell.
-
-BACKGROUND AND FORBIDDEN:
-- Flat solid pure white (#FFFFFF) background over the whole image.
-- Do NOT draw the grid: no boxes, frames, cell borders, cards, lines or dividers.
-- No ground, grass, water, cast shadows, scenery, extra props, accessories or clothing unless listed for that item. No text, letters, numbers, labels or watermarks.
-- Do not add anything that is not described. Do not change the pose, view or direction for any item.
-
-The attached reference image sets the child, the style, the line weight and the coloring: copy them exactly. The items come only from the list above.
-```
-
 ### Sheet 2: Little words (12 pictures)
 
 A new subcategory, `talk` (מילים קטנות), in Me and Friends.
@@ -137,47 +94,7 @@ A new subcategory, `talk` (מילים קטנות), in Me and Friends.
 | help | `talk-help` | עזרה | 3 |
 | sorry | `talk-sorry` | סליחה | 3 |
 
-```
-Create ONE image: a sprite sheet of exactly 12 separate illustrations for a preschool vocabulary app, arranged in an invisible 4-column × 3-row grid of equal square cells.
-
-ITEMS, left to right, top to bottom (exactly this order, exactly these items):
-1. YES: nodding with a big smile, one thumb up, and a large green check mark floating beside the head
-2. NO: shaking the head, serious face, both forearms crossed in an X in front of the chest, and a large red X mark floating beside the head
-3. HELLO: standing in an open wooden doorway, just arriving, one hand raised in greeting, smiling
-4. BYE: walking away with a small blue backpack on the back, body turned away, looking back over the shoulder and waving
-5. MORE: holding out an empty white bowl with both hands, looking up hopefully
-6. STOP: one arm stretched straight forward with the open palm facing out, serious face, and a plain red octagon sign with no writing floating beside the hand
-7. GO: taking one big step forward, one arm pointing ahead, and a round green traffic light circle floating above the pointing hand
-8. COME: one arm stretched forward, the hand curled back in a beckoning "come here" gesture, friendly smile
-9. PLEASE: both hands pressed together in front of the chest, head slightly tilted, hopeful smile
-10. THANK YOU: holding a small wrapped gift box against the chest with one hand, the other hand flat on the heart, grateful smile
-11. HELP: reaching one hand down to a small brown puppy sitting in a cardboard box, lifting it out
-12. SORRY: head bowed, eyebrows raised in the middle, one hand on the chest, the other hand offering a single flower
-
-POSE: the SAME child in every cell, the same child as in the attached reference image: a 5-year-old with natural child proportions, light tan skin, a plain mint-green T-shirt, blue shorts and white sneakers. Full body, FRONT VIEW or 3/4 view toward the LEFT (BYE is seen from behind), with only the props and marks listed. The gesture and the face must be strong and unmistakable. Camera at the child's chest height.
-
-STYLE (identical in every cell, do not vary or interpret):
-- Semi-realistic children's picture-book illustration. TRUE-TO-LIFE proportions and anatomy, simplified into clean shapes. NOT chibi, NOT kawaii, NOT big-headed, NOT a toy or plush look.
-- REALISTIC natural colors exactly as in real life, clean and slightly bright. No candy, neon, pastel or fantasy colors.
-- Eyes at natural size with one small white catchlight.
-- Cel shading: one base color, one shadow tone and one highlight per area. Light from the top-left on every item. No gradients, no textures, no fur, feather or hair strands.
-- One even dark navy outline (#1A1640) of the same medium thickness around every illustration, including the check mark, the X, the octagon and the green circle.
-- NO sticker border, NO white outline around the illustration.
-
-SIZE AND PLACEMENT:
-- Scale every item so its widest dimension fills 80% of its cell, marks included.
-- Center each item in its cell. Items that stand share the same invisible ground line near the bottom of the cell.
-
-BACKGROUND AND FORBIDDEN:
-- Flat solid pure white (#FFFFFF) background over the whole image.
-- Do NOT draw the grid: no boxes, frames, cell borders, cards, lines or dividers.
-- No ground, grass, cast shadows, scenery, extra props, accessories or clothing unless listed for that item. NO text, letters, words, numbers, labels or watermarks anywhere: the octagon sign and the marks are blank shapes.
-- Do not add anything that is not described.
-
-The attached reference image sets the child, the style, the line weight and the coloring: copy them exactly. The items come only from the list above.
-```
-
-Things to check on these two sheets, because they are harder than animals:
+Things to check on these two sheets, because they are harder than animals (also in the prompts file):
 - **hello** must not look like the existing **wave** (a child waving), and **bye** must be seen leaving. If they can't be told apart, drop one.
 - **give**, **more** and **please** are all "hands toward someone": compare the three side by side.
 - **stop** and **no** both look stern: the octagon and the X must be large.

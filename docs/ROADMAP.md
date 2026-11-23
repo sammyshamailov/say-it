@@ -12,7 +12,7 @@ Sources are shortened: **C1** = council of 2026-11-04 (pace, mini games, word or
 
 | Item | What's needed | Source |
 | --- | --- | --- |
-| Pictures for 28 new words | Generate 4 images in ChatGPT (2 sheets, each once with the boy and once with the girl), with the prompts and reference images in `docs/NEW-WORDS.md` section B. Claude can't make pictures in the house style. | R |
+| Pictures for 28 new words | Generate 4 images in ChatGPT (2 sheets, each once with the boy and once with the girl). Ready-to-paste prompts, which reference sheet to attach, file names and checks: `assets/pictures/PROMPTS-NEW-WORDS.md` (sent to Sammy 2026-11-23 with the reference sheets as PNG). Claude can't make pictures in the house style. | R |
 | Listen to new voice clips | Sarah's two-way words (dove, read, wind) were never confirmed by ear. Every clip recorded from now on also needs a listen; the key can't run speech-to-text. | V |
 | ElevenLabs commercial use | Confirm in the ElevenLabs account (Subscription) that the plan allows commercial use, and send support the two-line question: "May I include audio generated on a paid plan as fixed files in a children's learning app I sell?" Keep the invoice that shows the clips were made while subscribed. | V |
 | Zina is a library voice | The 2026-11-08 research advised ElevenLabs' own (premade) voices, because Voice Library voices belong to whoever shared them and can be removed. Zina is a library voice, Sarah is premade. Ask ElevenLabs support whether Zina's clips stay usable commercially if she is removed, or pick a premade Hebrew voice before selling. | V |
@@ -26,6 +26,7 @@ Sources are shortened: **C1** = council of 2026-11-04 (pace, mini games, word or
 Everything about the words is in `docs/NEW-WORDS.md`. In short:
 
 - **29 words whose pictures already exist** (big, small, up, down, in, on, under, I, you, we…): only need the word lines in `words.js`, `PAIRS` in `stages.js`, `who` in `GENDERED`, and recordings. Can be done in a session in the `say-it` environment without Sammy, then he listens.
+- **Big and small look the same in the game:** the cutter scales every picture to fill its square, so the small dog is as big as the big one. Fix before adding (cut the pair at one scale, or redraw "small" with something that shows its size); check long/short and up/down too. Details in `docs/NEW-WORDS.md`.
 - **28 words that need pictures** (jump, sit, hug, give…, yes, no, hello, bye, more, please, thank you…): after Sammy generates the 4 images.
 - **Pipo's missing lines**, recorded in the same run and wired in: going to sleep ("פיפו עייף. נתראה מחר!"), listen and compare after a recording ("עכשיו תקשיב|תקשיבי"), the chest ("מצאת אוצר!"). Today these moments have no spoken line.
 - **Hi, bye, more** were already asked for by C1; they are in the "Little words" sheet.
