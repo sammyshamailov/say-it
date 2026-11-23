@@ -52,6 +52,11 @@ Notes for whoever adds them:
 
 Two sheets, each generated twice (once with the boy, once with the girl), the same way as the Actions and Feelings sheets. That is four images.
 
+**Status (2026-11-23):** Sammy generated three of the four sheets; they are saved in `assets/pictures/sheets/` as `actions2-boy.webp`, `talk-boy.webp` and `talk-girl.webp` (not cut yet, not in `sheets.json` yet). **Still missing: `actions2-girl`** (run 2 of the prompts file). Checked by eye: every cell is the listed item, in order, no text, same child as the reference. Notes for cutting and adding:
+- `talk-boy` is 4:3 (1448×1086), the others square; the cutter finds pictures by outline, so that's fine.
+- Washing (actions2-boy, cell 8) stops at the shorts, no legs; it still reads as washing hands.
+- Give (red ball held out) and catch (blue ball at the chest) look alike; they are in different tiers (2 and 3) so they don't share a stone, but they can meet in a chest. Throw/catch and push/pull should go into `PAIRS` like the opposites.
+
 **How to generate:** four runs in ChatGPT image generation (each sheet once with the boy, once with the girl). The ready-to-paste prompts, which reference sheet to attach to each, the file names and what to check are in `assets/pictures/PROMPTS-NEW-WORDS.md`.
 
 ### Sheet 1: Actions 2 (16 pictures)

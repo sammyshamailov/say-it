@@ -8,6 +8,7 @@ No change to the game.
 - **`docs/DECISIONS.md`**: the council verdicts of 4 and 8 Nov, the 14 Nov review, the voice, unlock and price decisions, and which past session holds each conversation.
 - **CLAUDE.md**: the documentation rule (Sammy: every change and plan goes into the md files, so each session has the full context).
 - **New-word pictures:** four ready-to-paste ChatGPT prompts (two sheets, boy and girl) in `assets/pictures/PROMPTS-NEW-WORDS.md`, replacing the first prompts, which described only the boy and asked for more realistic children than the reference sheets. Found that "big" and "small" come out the same size after cutting (noted in NEW-WORDS and the roadmap).
+- **New-word picture sheets** from Sammy saved in `assets/pictures/sheets/`: Actions 2 (boy), Little words (boy and girl). Actions 2 with the girl is still to come. Not cut or used yet.
 - README brought up to date (land order and opening rule, the free first land, no speaking-mode setting, every round step, the unlock function).
 
 ## 2.14.5 (2026-11-15): every try is recorded; short screens, part two
