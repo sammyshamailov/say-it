@@ -2,6 +2,13 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## Docs (2026-11-23): roadmap, decisions, documentation rule
+No change to the game.
+- **`docs/ROADMAP.md`**: everything not done yet, with where each item came from: the parts of the two councils and the 14 Nov review that weren't built (a "knows for sure" count for parents, a round log, Simon says, a mixed first stone, phrases, second pictures…), the new words, Pipo's missing lines, selling, things Sammy has to do or check on the phone.
+- **`docs/DECISIONS.md`**: the council verdicts of 4 and 8 Nov, the 14 Nov review, the voice, unlock and price decisions, and which past session holds each conversation.
+- **CLAUDE.md**: the documentation rule (Sammy: every change and plan goes into the md files, so each session has the full context).
+- README brought up to date (land order and opening rule, the free first land, no speaking-mode setting, every round step, the unlock function).
+
 ## 2.14.5 (2026-11-15): every try is recorded; short screens, part two
 - **"Say it" always records and plays the child's voice back** (Sammy's choice). Before, the first try on Android went through speech recognition, which checks the word but keeps no recording, so a right first try showed no voice card and played nothing, unlike every later try. Speech recognition is gone: no "כמעט!" for another word and no two-star "perfect"; every real try gets one star, the child's voice, then the word. The parent area's speaking-mode setting is gone with it (there's nothing to choose), and so is the 2.14.1 "recognition hears nothing" flag. The matcher (`match.js`) is removed.
 - **Listen & tap, bubbles and memory on a short screen** (a phone on its side, in a browser tab with its address bar): Pipo and the speaker stand in a column on the left and the game takes the rest, so the pictures aren't cut off at the bottom.

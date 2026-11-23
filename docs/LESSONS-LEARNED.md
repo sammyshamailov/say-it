@@ -4,6 +4,11 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Map and layout
 
+**Sideways phones weren't checked (2.13.0-2.14.0, fixed in 2.14.1)**
+- What happened: 2.13.0 added a sideways layout for the map and checked a tablet held sideways, but not the other screens on a phone held sideways. At about 830×410 the gate's numbers, the garden's shelf and a round's buttons fell below the bottom of the screen, and screens didn't scroll, so they couldn't be reached.
+- Fix: every `.screen` scrolls as a last resort; short screens get side-by-side layouts (`@media (orientation:landscape) and (max-height:540px)` in `app.css`).
+- Rule: for any layout change, walk every screen (map, garden, stickers, gate, parent area, each round step, the end of a round) at 390×844, about 830×410 and 667×375, and list buttons whose box ends past the screen edge.
+
 **The game was never looked at on a tablet (fixed in 2.13.0)**
 - What happened: every screen was built and checked at one size, a phone held upright (390×844). On Sammy's iPad the game was a centred phone column: the map a strip between two rows of buttons, the parent area's scroll bar lying over the cards (right-to-left puts it on the left), no way offered to install it (iPhone and iPad have no install prompt), and after typing the child's name the page stayed pushed up under the browser's bar. A design review done at the same phone size missed all of it.
 - Fix: a sideways layout for the map, a how-to-install panel for iPhone and iPad, no scroll bars, the page put back after typing.
@@ -156,17 +161,22 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 **A child's English-letter name could crash the greeting (fixed in 1.x)**
 
-**Sideways phones weren't checked (2.13.0-2.14.0, fixed in 2.14.1)**
-- What happened: 2.13.0 added a sideways layout for the map and checked a tablet held sideways, but not the other screens on a phone held sideways. At about 830×410 the gate's numbers, the garden's shelf and a round's buttons fell below the bottom of the screen, and screens didn't scroll, so they couldn't be reached.
-- Fix: every `.screen` scrolls as a last resort; short screens get side-by-side layouts (`@media (orientation:landscape) and (max-height:540px)` in `app.css`).
-- Rule: for any layout change, walk every screen (map, garden, stickers, gate, parent area, each round step, the end of a round) at 390×844, about 830×410 and 667×375, and list buttons whose box ends past the screen edge.
-
 **Speech recognition "worked" but heard nothing (2.14.1)**
 - What happened: on Sammy's Android phone the first "Say it" try always failed; recognition started and ended with no result, and only the Echo recording (second try) heard the child. It can't be tested here.
 - Fix: two empty recognition tries in a row switch that phone to Echo first (`settings.srDeaf`).
 - Rule: a feature that depends on a phone service needs a fallback that kicks in by itself when the service gives nothing, not only when it reports an error.
 
 ## How the work is done
+
+**Verdicts and plans lived only in chats (found 2026-11-23)**
+- What happened: two council verdicts (2026-11-04, 2026-11-08) and the 24-point review (2026-11-14) were in chat transcripts and in the Claude Project's own files (`REVIEW-2026-11-14.md`, `STATUS.md`). The repo only had one-line mentions ("after a council review"). A new session asked for "the council verdict" couldn't find it in the repo or Drive, and had to page through old session transcripts by following the `Claude-Session` links in commit messages. Half the councils' advice (the parent's "knows for sure" count, a round log, Simon says, the mixed first stone) was never built, and nothing listed it as open.
+- Fix: `docs/DECISIONS.md` (each verdict, what Sammy chose, where the conversation is) and `docs/ROADMAP.md` (everything open, with its source); the documentation rule in CLAUDE.md.
+- Rule: what's decided goes into DECISIONS, what's left for later into ROADMAP, in the same session. The Claude Project's files are not a substitute: not every session can read them.
+
+**Secrets pasted into chats (found 2026-11-23)**
+- What happened: `UNLOCK_SECRET` and an ElevenLabs API key were written out in full in a chat on 2026-11-08 (to let Sammy run a script, and to carry the key to a new chat). Transcripts are kept and can be read by later sessions.
+- Fix: on the roadmap: rotate the unlock secret before selling; the key expires on its own.
+- Rule: hand a secret over through the environment's secret settings or Netlify, never as chat text; never in the repo or docs.
 
 **Screenshots written into the repo (2026-11-03)**
 - What happened: Playwright scripts used relative file names, so screenshots landed in the repo folder (and one stale screenshot was mistaken for the new result).

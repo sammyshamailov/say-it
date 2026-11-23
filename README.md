@@ -4,18 +4,18 @@ A game for young Hebrew-speaking children learning their first English words, th
 
 Live: https://say-it-words.netlify.app/
 
-More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/GAME-DESIGN.md`](docs/GAME-DESIGN.md), [`docs/CHANGELOG.md`](docs/CHANGELOG.md), [`docs/LESSONS-LEARNED.md`](docs/LESSONS-LEARNED.md).
+More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/ROADMAP.md`](docs/ROADMAP.md) (everything not done yet), [`docs/DECISIONS.md`](docs/DECISIONS.md) (reviews, councils and why things are the way they are), [`docs/GAME-DESIGN.md`](docs/GAME-DESIGN.md), [`docs/CHANGELOG.md`](docs/CHANGELOG.md), [`docs/LESSONS-LEARNED.md`](docs/LESSONS-LEARNED.md), [`docs/NEW-WORDS.md`](docs/NEW-WORDS.md).
 
 ## How it plays
 
-- **Map**: one long trail through six photographed lands (Animal Jungle, Yummy Town, Me and Friends, Toy House, Adventure Road, Learning Castle), about 130 stones, easy at the bottom and hard at the top. Each stone holds 4–7 words of one group; after each tier of a land comes a treasure chest (review round) and every land ends with a party stone. The glowing stone, with the mascot beside it, is what Play starts; any open stone can be tapped. Little things (a zebra, a fruit stall, a sailboat…) appear in a land as it's played. A land with many stones repeats its photo, mirrored, above itself.
-- **Difficulty**: every word has a tier from 1 to 5 (Seed, Sprout, Explorer, Doer, Talker), from how hard it is for a Hebrew-speaking 4-year-old who can't read: can it be pictured, how early English children learn it, sounds Hebrew lacks, look-alike words, and a bonus for words Hebrew already uses (banana, pizza, giraffe). Every land has all tiers. The map is played one land at a time: a land opens when 70% of the land below is done, and inside a land a tier opens when 70% of the tier below is done. Listen & tap shows 2 pictures in tier 1, 3 in tier 2 and 4 from tier 3; words a child mixes up (puppy/dog, lemon/lime) never meet below tier 3, and from tier 3 one may be the wrong answer on purpose.
-- **A round (3–5 minutes)**: meet new words → Listen & tap → Say it → a bonus game (Pop the bubbles or Memory match) → Well done, with stars and a sticker.
+- **Map**: one long trail through six photographed lands (Animal Jungle, Learning Castle, Yummy Town, Me and Friends, Toy House, Adventure Road), 135 stones, easy at the bottom and hard at the top. Each stone holds 4–7 words of one group; after each tier of a land comes a treasure chest (review round) and every land ends with a party stone. The glowing stone, with the mascot beside it, is what Play starts; any open stone can be tapped. Little things (a zebra, a fruit stall, a sailboat…) appear in a land as it's played. A land with many stones repeats its photo, mirrored, above itself.
+- **Difficulty**: every word has a tier from 1 to 5 (Seed, Sprout, Explorer, Doer, Talker), from how hard it is for a Hebrew-speaking 4-year-old who can't read: can it be pictured, how early English children learn it, sounds Hebrew lacks, look-alike words, and a bonus for words Hebrew already uses (banana, pizza, giraffe). Every land has all tiers. The map is played one land at a time: only Animal Jungle is free, and a parent unlock code opens the rest for the whole family. A land opens once 40% of the easy (tier 1–2) stones of the land below are done, and inside a land a tier opens when 70% of the tier below is done. A word stone is done once every word was answered right on two different days. Listen & tap shows 2 pictures in tier 1, 3 in tier 2 and 4 from tier 3; words a child mixes up (puppy/dog, lemon/lime) never meet below tier 3, and from tier 3 one may be the wrong answer on purpose.
+- **A round (3–5 minutes)**: meet new words → What's this? → Listen & tap → Say it → a bonus game (Pop the bubbles, Feed Pipo or Memory match, in turn; a treasure chest stone opens its chest instead) → Well done, with stars and a sticker. After the day's rounds Pipo goes to sleep.
 - **Say it**: "Echo" records the child, plays their voice back, then the model word; every real attempt earns a star. (Speech recognition was removed in 2.14.5.)
 - **Spaced repetition**: each word has a level per child; a miss lowers it and brings the word back in the same round and later rounds.
-- **Rewards**: stars, a sticker book (tap a sticker to hear its word), and the garden: kids spend stars to adopt any animal whose English word they've answered correctly (5 stars each; it lives in their garden and says its name when tapped) and to buy outfits for the mascot (20 items in four slots worn together: head, face, neck, back; 6–30 stars, some tied to a land). Prices are shown as rows of stars, not numbers. Total stars earned never goes down; only the purse does. Nothing bought is ever lost, and nothing can be bought with real money.
+- **Rewards**: stars, a sticker album (every word of the open lands, in colour once answered right, a gold frame once remembered; tap one to hear its word), and the garden: kids spend stars to adopt any animal whose English word they've answered correctly (5–10 stars by the word's tier; it lives in their garden and says its name when tapped) and to buy outfits for the mascot (20 items in four slots worn together: head, face, neck, back; 6–30 stars, some tied to a land). Prices are shown as rows of stars, not numbers. Total stars earned never goes down; only the purse does. Nothing bought is ever lost, and nothing can be bought with real money.
 - **Music**: each place has its own soundtrack: a main theme (start, who's playing, sticker book), one track per land (the land in view on the map, and the stone's land during a round), the bonus games, and the garden. Finishing a land's party stone plays a short jingle. The music drops to a whisper whenever a word, Hebrew help or feedback is spoken, and goes silent while the child is recorded. Parents can turn it off in the parent area.
-- **Parent area**: type three numbers written as Hebrew words (a 4-year-old can't read them). Words learned, words to practice, time played, profiles, settings (sounds, music, Hebrew help, speaking mode, unlock all), microphone info, credits. Hebrew, right to left.
+- **Parent area**: type three numbers written as Hebrew words (a 4-year-old can't read them). Words learned, words to practice, time played, profiles, this week's words with things to do at home, settings (sounds, music, Hebrew help, rounds a day, unlock all), the unlock code, how to install, microphone info, credits. Hebrew, right to left.
 
 ## Files
 
@@ -36,7 +36,7 @@ More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/GAME-DESIG
 | `public/js/services/` | Progress and spaced repetition (`store.js`), sound, speech, shop rules |
 | `public/js/ui/` | Icons, word pictures, the chameleon mascot, shared components (word card, stars pill, buttons) |
 | `public/js/screens/` | Map, who's playing, sticker book, garden and shop |
-| `public/js/round/` | A round: `round.js` runs the steps; `steps/` has one file per step (meet, tap, say, pop, memory, finish) |
+| `public/js/round/` | A round: `round.js` runs the steps; `steps/` has one file per step (meet, tap, say and What's this?, pop, feed, memory, chest, finish) |
 | `public/js/parent/` | Parent gate, parent area, first run, transfer codes and backups, microphone explanation, how to install |
 | `assets/pictures/` | Source sheets, full-size pictures and the prompts used to make them (not deployed) |
 | `tools/pictures/build.py` | Cuts the sheets into pictures |
@@ -46,6 +46,7 @@ More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/GAME-DESIG
 | `tools/release.mjs` | Sets the version and refreshes the file lists (`npm run release`) |
 | `netlify/functions/transfer.mjs` | Transfer codes: move progress to another phone |
 | `netlify/functions/transfer-cleanup.mjs` | Daily sweep of unused codes |
+| `netlify/functions/unlock.mjs` | Checks parent unlock codes (signed with `UNLOCK_SECRET`, at most two devices per code, Netlify Blobs store `unlocks`). `npm run codes N` makes codes |
 | `test/` | Tests, run with `npm test` (Node 20+) |
 | `netlify.toml` | Netlify settings |
 

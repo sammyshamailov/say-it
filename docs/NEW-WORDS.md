@@ -2,6 +2,10 @@
 
 From the review of 14 Nov 2026: about 430 of the 484 words are names of things. This adds the words a child needs to say something: 29 that already have pictures, and 28 that need two new picture sheets. None of them is in the game yet, because every word needs its recorded voice first (see "What each word still needs").
 
+**Who does what:**
+- **Sammy:** generates the pictures for part B in ChatGPT image generation (4 images). Claude can't make pictures in the house style.
+- **Claude**, in a session in the `say-it` environment: everything else, cutting the sheets, the word lines and the recordings. Part A needs nothing from Sammy except listening to the new clips.
+
 ## A. 29 words whose pictures already exist
 
 These were generated and cut for 2.5 and never used (`public/img/words/opp-*`, `pos-*`, `who-*`). They only need voices. Suggested home: Learning Castle, three new subcategories.

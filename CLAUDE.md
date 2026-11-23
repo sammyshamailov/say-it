@@ -2,10 +2,23 @@
 
 Read this before changing anything. Also see:
 
+- `docs/ROADMAP.md`: **everything not done yet**: open work, suggestions from reviews and councils, decisions waiting on Sammy, checks only a phone can do. Start here when asked "what's next?".
+- `docs/DECISIONS.md`: why things are the way they are: each review and council verdict, what Sammy chose, and which past session holds the full conversation.
 - `docs/GAME-DESIGN.md`: how the game is structured (lands, tiers, stones, rounds, rewards)
 - `docs/CHANGELOG.md`: every version and what it contains
 - `docs/LESSONS-LEARNED.md`: mistakes made so far, how they were fixed, and the rule each one taught. Add to it whenever something goes wrong.
-- `docs/NEW-WORDS.md`: the everyday words waiting to be added (29 with pictures ready, 28 with their picture prompts), and what each still needs.
+- `docs/NEW-WORDS.md`: the everyday words waiting to be added (29 with pictures ready, 28 that need pictures from ChatGPT first, with their prompts), and what each still needs.
+
+## Documentation rule (Sammy, 2026-11-23)
+
+Every change, plan and piece of work goes into the md files in the same session, so the next session has the full context without the chat:
+- **Shipped** → `docs/CHANGELOG.md` (and `GAME-DESIGN.md` / `README.md` if how the game works changed).
+- **Decided** (a review, a council, research, an answer from Sammy) → `docs/DECISIONS.md`: the question, the options, the choice and why.
+- **Not built yet** (suggestions, "later", half-done work, things for Sammy to do or check) → `docs/ROADMAP.md`, with its source. Remove it there once it ships.
+- **Went wrong** → `docs/LESSONS-LEARNED.md`.
+- **New way of working or constraint** → this file.
+- Never write secrets (keys, `UNLOCK_SECRET`, codes) into any doc.
+A session doesn't end with a plan or a verdict that exists only in the chat or in the Claude Project's files.
 
 ## What this is
 
@@ -53,7 +66,7 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 4. **Look at it**: serve `public/` (`python3 -m http.server 8765` from inside `public/`) and screenshot with Playwright at **390×844, deviceScaleFactor 2**. Disable the service worker in the page (`Object.defineProperty(navigator,'serviceWorker',{value:undefined})`). Seed a player through the store: `store.newProfile(...)`, `store.addProfile(p)`, then `nav.reset('map')`. Write screenshots to the scratchpad with **absolute paths**, never into the repo. For anything that changes a layout, also look at a tablet held sideways (about 1150×670) and phones on their side (about 830×410 and 667×375), every screen, not just the one you changed: the map has its own sideways layout, and Sammy also tries the game on an iPad. To see what iPhone and iPad get (the install steps), give the browser context an iPad user agent.
 5. **Release**: `npm run release X.Y.Z` (bumps `version.js`, `sw.js`, `index.html`, file lists). `npm test` fails if you forget. Patch for fixes, minor for features.
 6. **Commit and push to `main`**: `git fetch origin main && git rebase origin/main && git push origin HEAD:main`. Netlify deploys in about a minute; phones pick it up next time the app comes to the front.
-7. **Update `docs/CHANGELOG.md`** in the same commit, and `docs/LESSONS-LEARNED.md` if a mistake was fixed.
+7. **Update the docs** in the same commit (see the documentation rule above): `docs/CHANGELOG.md`, `docs/ROADMAP.md` (remove what shipped, add what was left for later), `docs/DECISIONS.md` for any choice Sammy made, and `docs/LESSONS-LEARNED.md` if a mistake was fixed.
 
 ## Conventions that matter
 
