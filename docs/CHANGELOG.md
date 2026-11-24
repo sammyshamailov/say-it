@@ -2,6 +2,12 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.15.1 (2026-11-24): a new Hebrew voice, Dalit
+- **All Hebrew is recorded again in a new voice, "Dalit – Natural Israeli Hebrew"** (ElevenLabs library), chosen by Sammy by ear over Zina, Ronit and Danit. Sammy heard white noise under Zina's Hebrew: her background was only about 24 dB below her speech (Dalit about 41, Sarah 50), and no setting or noise removal fixed it (see DECISIONS).
+- **Calmer delivery:** the tool now uses fixed settings with style 0. Zina's saved settings had style 1.0, the most exaggerated, which made short words like בואי (come, to a girl) sound wrong.
+- **"Pipo", not "Fipo":** פיפו inside a line is sent as פִּיפּוֹ (`SPELL_IN` in `tools/voice/build.mjs`); without the dots a פ is read F.
+- The parent area's credits name Dalit. Same file names, new contents, so phones fetch the clips again once.
+
 ## 2.15.0 (2026-11-24): 57 everyday words; Pipo says goodnight and finds the treasure
 From the 14 Nov review: about 430 of the 484 words were names of things. These are words a child needs to say something. Stones are rebuilt from the tiers: 148 stones (was 135), 19 treasure chests (was 18), still 17 land photos. Progress on existing stones is kept; new stones start empty.
 

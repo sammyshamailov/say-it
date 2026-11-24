@@ -94,7 +94,7 @@ export async function dashboard() {
     <div id="installhost" hidden></div>
 
     <div class="panel"><h2>קרדיטים</h2>
-      <p class="small">הקולות: באנגלית, Sarah; בעברית, Zina (Young &amp; Soulful). שתיהן מ־<a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a>.</p>
+      <p class="small">הקולות: באנגלית, Sarah; בעברית, Dalit. שתיהן מ־<a href="https://elevenlabs.io" target="_blank" rel="noopener">ElevenLabs</a>.</p>
       <p class="small">גופן Fredoka ברישיון SIL Open Font License. תמונות: איורים שנוצרו במיוחד לאפליקציה. גרסה <span class="en-ltr">${VERSION}</span>.</p>
     </div>
   </div></div>`);

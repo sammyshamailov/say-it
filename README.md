@@ -42,7 +42,7 @@ More docs: [`CLAUDE.md`](CLAUDE.md) (how to work on the code), [`docs/ROADMAP.md
 | `tools/pictures/build.py` | Cuts the sheets into pictures |
 | `tools/pictures/build_map.py` | Makes the map pictures |
 | `tools/music/build.py` | Makes the soundtrack loops from the Suno WAVs: same loudness, beat-matched crossfade at the loop point. Bump `MUSIC_V` in `services/sound.js` when the files change |
-| `tools/voice/build.mjs` | Records all Hebrew (voice Zina) and all English (voice Sarah) with ElevenLabs (Eleven v4): trims silence, levels loudness, writes small AAC clips and the manifest; skips clips that exist. Run it after adding a word or changing a Hebrew line |
+| `tools/voice/build.mjs` | Records all Hebrew (voice Dalit) and all English (voice Sarah) with ElevenLabs (Eleven v4): trims silence, levels loudness, writes small AAC clips and the manifest; skips clips that exist. Run it after adding a word or changing a Hebrew line |
 | `tools/release.mjs` | Sets the version and refreshes the file lists (`npm run release`) |
 | `netlify/functions/transfer.mjs` | Transfer codes: move progress to another phone |
 | `netlify/functions/transfer-cleanup.mjs` | Daily sweep of unused codes |
@@ -79,7 +79,7 @@ Parent area → "העברה לטלפון אחר". The old phone uploads its prog
 
 ## Credits
 
-- Voices: English "Sarah" (premade) and Hebrew "Zina – Young & Soulful" (voice library), from [ElevenLabs](https://elevenlabs.io), generated with Eleven v4 on Sammy's paid plan.
+- Voices: English "Sarah" (premade) and Hebrew "Dalit – Natural Israeli Hebrew" (voice library), from [ElevenLabs](https://elevenlabs.io), generated with Eleven v4 on Sammy's paid plan.
 - Music: made for the app with [Suno](https://suno.com) on a paid plan (commercial use allowed).
 - Font: [Fredoka](https://github.com/google/fonts/tree/main/ofl/fredoka), SIL Open Font License (`fonts/OFL.txt`), subset to Latin + Hebrew.
 - Pictures: illustrations made for the app (see `assets/pictures/README.md`). Colours and numbers are drawn by the app.

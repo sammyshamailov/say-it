@@ -1,5 +1,5 @@
 // Everything Pipo says, apart from the words themselves (data/words.js) and the land names
-// (data/lands.js). Each line is recorded once by tools/voice/build.mjs: Hebrew by Zina into
+// (data/lands.js). Each line is recorded once by tools/voice/build.mjs: Hebrew by Dalit into
 // public/audio/he/, English by Sarah into public/audio/en/. Change a line here, then run the tool
 // again so it gets its recording (`npm test` fails until it has one).
 

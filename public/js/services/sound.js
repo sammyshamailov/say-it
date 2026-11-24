@@ -1,4 +1,4 @@
-// Sound: recorded voices (English: Sarah, Hebrew: Zina; the device's voices only if a clip can't
+// Sound: recorded voices (English: Sarah, Hebrew: Dalit; the device's voices only if a clip can't
 // play), effects and music.
 import { store } from "../state.js";
 import { EN_AUDIO } from "../data/en-audio.js";

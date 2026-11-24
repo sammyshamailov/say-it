@@ -2,7 +2,8 @@
 // Recorded voices, made with ElevenLabs (model Eleven v4) so children hear the same voice on every
 // phone instead of the device's own:
 //
-//   he   every Hebrew line the app speaks, voice "Zina – Young & Soulful": every word's Hebrew in
+//   he   every Hebrew line the app speaks, voice "Dalit – Natural Israeli Hebrew" (since 2.15.1;
+//        Zina until then): every word's Hebrew in
 //        data/words.js (boy and girl forms), the land names (data/lands.js) and Pipo's lines
 //        (data/lines.js). Manifest data/he-audio.js (HE_AUDIO), clips in public/audio/he/.
 //   en   all English, voice "Sarah" (premade): every word alone with a period ("Cow."), the land
@@ -20,6 +21,7 @@
 //   --limit N      make at most N new clips per set (a test batch)
 //   --only "text"  make just this line (may repeat)
 //   --redo "text"  make this line again even if it exists (may repeat); e.g. after fixing SPELL
+//   --redo-all     make every line of the set again (a new voice); costs every character again
 //   --prune        delete clips no line uses any more
 //
 // NODE_USE_ENV_PROXY=1 only matters behind an HTTPS proxy (Node's fetch ignores HTTPS_PROXY
@@ -53,6 +55,15 @@ export const SPELL = {
   },
   en: {}
 };
+// Words fixed inside any Hebrew line, wherever they appear as a whole word. "פיפו" without a
+// dagesh is read "Fipo"/"Fifo" (פ without a dot is F).
+export const SPELL_IN = { he: { "פיפו": "פִּיפּוֹ" }, en: {} };
+const HEB = "\u05D0-\u05EA\u05B0-\u05C7";
+const inLine = (lang, t) => Object.entries(SPELL_IN[lang]).reduce(
+  (s, [w, r]) => s.replace(new RegExp(`(^|[^${HEB}])${w}(?![${HEB}])`, "g"), `$1${r}`), t);
+// Fixed voice settings, not the voice's saved ones (Zina's had style 1.0, which made short words
+// odd). Style 0 is ElevenLabs' advice for steady speech.
+const SETTINGS = { stability: 0.5, similarity_boost: 0.75, style: 0, use_speaker_boost: true };
 
 // ---------- lines ----------
 export function hebrewLines() {
@@ -81,10 +92,11 @@ export function englishLines() {
 export const fileFor = (text, prefix = "he") => prefix + "-" + createHash("sha1").update(text.normalize("NFC")).digest("hex").slice(0, 12) + ".m4a";
 
 export const SETS = {
-  he: { voice: "Tbj9UQjXon5RB9MPEyc2", // Zina – Young & Soulful (shared voice library, Hebrew)
+  he: { voice: "MEuFCMd6dNJqQaLoEa8r", // Dalit – Natural Israeli Hebrew (voice library). Was Zina
+    // (Tbj9UQjXon5RB9MPEyc2) until 2.15.1: her clips had background noise about 24 dB under the speech.
     lang: "he", speed: 0.9, dir: "he", manifest: "he-audio.js", name: "HE_AUDIO", lines: hebrewLines,
-    say: t => SPELL.he[t] || t,
-    about: "Hebrew text -> recorded clip in public/audio/he/ (voice: Zina – Young & Soulful, ElevenLabs Eleven v4).\n// Lines missing here use the device's Hebrew voice." },
+    say: t => SPELL.he[t] || inLine("he", t),
+    about: "Hebrew text -> recorded clip in public/audio/he/ (voice: Dalit – Natural Israeli Hebrew, ElevenLabs Eleven v4).\n// Lines missing here use the device's Hebrew voice." },
   en: { voice: "EXAVITQu4vr4xnSDxMaL", // Sarah (premade ElevenLabs voice, American)
     lang: "en", speed: 0.9, dir: "en", manifest: "en-audio.js", name: "EN_AUDIO", lines: englishLines,
     // a word alone gets a capital and a period ("Cow."), so it's said as a whole, finished word
@@ -167,7 +179,7 @@ async function build(set, args) {
   const lines = set.lines(), has = t => existsSync(join(set.out, set.file(t)));
   mkdirSync(set.out, { recursive: true });
   const redo = new Set(opt("--redo")), only = opt("--only");
-  let todo = lines.filter(t => redo.has(t) || !has(t));
+  let todo = args.includes("--redo-all") ? lines.slice() : lines.filter(t => redo.has(t) || !has(t));
   if (only.length) todo = todo.filter(t => only.includes(t));
   const limit = parseInt(opt("--limit")[0], 10);
   if (limit >= 0) todo = todo.slice(0, limit);
@@ -184,7 +196,7 @@ async function build(set, args) {
   }
   if (todo.length) {
     if (!key()) { console.error("Set ELEVENLABS_API_KEY."); process.exit(1); }
-    const settings = { ...(await (await api(`/voices/${set.voice}/settings`)).json()), speed: set.speed };
+    const settings = { ...SETTINGS, speed: set.speed };
     let next = 0, made = 0, failed = 0;
     const worker = async () => {
       while (next < todo.length) {
