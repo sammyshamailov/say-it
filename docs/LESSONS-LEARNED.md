@@ -198,5 +198,10 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 - Fix: a personal `say-it` cloud environment that allows the host, with the key saved as a network secret (the proxy adds it; scripts get the placeholder `proxy-injected`). Zina was already in Sammy's voices from the audition, so adding her wasn't needed. Node's `fetch` needs `NODE_USE_ENV_PROXY=1` to go through the proxy.
 - Rule: start ElevenLabs work in the `say-it` environment. Check the key's permissions with one cheap call before planning around an endpoint.
 
+**A voice chosen by ear on a laptop had noise in it (2026-11-24)**
+- What happened: Zina was picked in a short audition (2026-11-08). After about 580 clips Sammy heard white noise under her Hebrew on the phone. Her background is about 24 dB below her speech, against 37–50 dB for the other voices; the levelling step turns her up further because her output is quiet. Her saved settings also had style 1.0, the most exaggerated.
+- Fix: a listening file with other voices for Sammy to choose; the Hebrew is to be recorded again.
+- Rule: before adopting a voice, record two or three lines and measure the quietest moment inside a line against the speech (aim for 35 dB or more), and check the voice's saved settings (style 0). Library voices are clones of someone's recording and carry its room noise.
+
 **Things that can't be checked here**
 - Audio levels, the real microphone and touch feel need the phone. Say so and ask Sammy to try it, rather than claiming it works.

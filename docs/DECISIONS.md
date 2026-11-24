@@ -4,6 +4,13 @@ Why the game is the way it is: the reviews and councils that shaped it, what Sam
 
 **Keeping it current:** whenever a review, a council, research or a question to Sammy leads to a decision (or to "not now"), add it here in the same session: the question, the options, what was chosen, by whom, and why. Put what wasn't built in the roadmap. Chats and the Claude Project's own files can't be read by every later session; this file can.
 
+## 2026-11-24: the Hebrew voice has background noise
+
+- **Sammy:** "come (בואי) sounds awful for girl; overall why does the Hebrew voice have white noise when speaking, English voice is clear."
+- **Measured** (no ear here, so numbers): the quietest moment inside a spoken line is about 24 dB below the speech for Zina, 37–41 dB for the library voices Danit, Dalit and Ronit, 50 dB for Sarah. Zina's raw output is also 10–15 dB quieter, so levelling turns her up more than the others. Her saved voice settings have style 1.0 (Sarah 0); style 0 with lower similarity, ffmpeg's FFT and non-local-means noise removal, all moved it by 3 dB at most. ElevenLabs' voice isolator would be the next try, but the key lacks that permission. Conclusion: the noise is in the recording Zina's voice was made from, not in our processing.
+- **Options:** (a) keep Zina, record again with style 0 (clean-up barely helps); (b) another Hebrew voice: Dalit and Ronit measured cleanest; Danit was heard before (Zina was preferred); (c) Sammy makes the key able to use the voice isolator and we clean Zina's clips.
+- **Asked Sammy to choose by ear** with `hebrew-voices-listen.m4a` (Zina today, Dalit, Ronit, Danit). Whatever he picks, the Hebrew is recorded again with style 0. Waiting (roadmap, section 1).
+
 ## 2026-11-24: how the 57 everyday words went in (2.15.0)
 
 Sammy sent the four picture sheets and said "Continue"; these choices were made in the session, following the plan in `docs/NEW-WORDS.md`:
