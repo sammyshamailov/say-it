@@ -1,5 +1,7 @@
 # New everyday words: what's ready, and the picture prompts
 
+**Added in 2.15.0 (2026-11-24).** All 57 words are in the game with their pictures and recordings; see the changelog. This file stays as the record of how they were chosen and made. Open follow-ups (Sammy listens to the clips, a look at the pictures on the phone) are in `docs/ROADMAP.md`.
+
 From the review of 14 Nov 2026: about 430 of the 484 words are names of things. This adds the words a child needs to say something: 29 that already have pictures, and 28 that need two new picture sheets. None of them is in the game yet, because every word needs its recorded voice first (see "What each word still needs").
 
 **Who does what:**

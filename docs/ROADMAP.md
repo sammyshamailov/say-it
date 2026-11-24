@@ -12,8 +12,7 @@ Sources are shortened: **C1** = council of 2026-11-04 (pace, mini games, word or
 
 | Item | What's needed | Source |
 | --- | --- | --- |
-| Pictures for 28 new words | **3 of 4 done** (actions2-boy, talk-boy, talk-girl saved in `assets/pictures/sheets/` on 2026-11-23); **missing: Actions 2 with the girl** (run 2). Generate 4 images in ChatGPT (2 sheets, each once with the boy and once with the girl). Ready-to-paste prompts, which reference sheet to attach, file names and checks: `assets/pictures/PROMPTS-NEW-WORDS.md` (sent to Sammy 2026-11-23 with the reference sheets as PNG). Claude can't make pictures in the house style. | R |
-| Listen to new voice clips | Sarah's two-way words (dove, read, wind) were never confirmed by ear. Every clip recorded from now on also needs a listen; the key can't run speech-to-text. | V |
+| Listen to new voice clips | **The 2.15.0 clips** (57 new words, English then Hebrew, and Pipo's sleep and treasure lines): one file, `new-words-listen.m4a`, sent 2026-11-24. Most at risk: very short English words read alone (I, in, on, up, no, go, he, we) and the Hebrew sent with vowel marks (את, על, לנשק, לשבת, מלא, ריק). Also still never confirmed by ear: Sarah's two-way words (dove, read, wind). The key can't run speech-to-text, so every clip needs a human listen. A wrong one: tell Claude the word; it is fixed with `SPELL` in `tools/voice/build.mjs` and `--redo`. | V, 2.15.0 |
 | ElevenLabs commercial use | Confirm in the ElevenLabs account (Subscription) that the plan allows commercial use, and send support the two-line question: "May I include audio generated on a paid plan as fixed files in a children's learning app I sell?" Keep the invoice that shows the clips were made while subscribed. | V |
 | Zina is a library voice | The 2026-11-08 research advised ElevenLabs' own (premade) voices, because Voice Library voices belong to whoever shared them and can be removed. Zina is a library voice, Sarah is premade. Ask ElevenLabs support whether Zina's clips stay usable commercially if she is removed, or pick a premade Hebrew voice before selling. | V |
 | Rotate `UNLOCK_SECRET` before selling | The current secret was pasted in plain text in the 2026-11-08 chat. Anyone with it can make codes. Set a new one in Netlify, make new codes with `npm run codes N` and give the family a new code the same day (old codes stop working). Never put the secret in the repo or the docs. | 2026-11-23 read of past sessions |
@@ -21,15 +20,12 @@ Sources are shortened: **C1** = council of 2026-11-04 (pace, mini games, word or
 | Unlock slot lost when browser data is cleared | Each phone makes a random device id in localStorage. Clearing site data makes a new id, which uses up the code's second slot. Decide: allow a third device, or let slots free up (for example after 30 days). | R |
 | Phone and iPad checks | See section 8. | |
 
-## 2. New words and lines (needs voices, and for B pictures)
+## 2. Words and lines
 
-Everything about the words is in `docs/NEW-WORDS.md`. In short:
-
-- **29 words whose pictures already exist** (big, small, up, down, in, on, under, I, you, we…): only need the word lines in `words.js`, `PAIRS` in `stages.js`, `who` in `GENDERED`, and recordings. Can be done in a session in the `say-it` environment without Sammy, then he listens.
-- **Big and small look the same in the game:** the cutter scales every picture to fill its square, so the small dog is as big as the big one. Fix before adding (cut the pair at one scale, or redraw "small" with something that shows its size); check long/short and up/down too. Details in `docs/NEW-WORDS.md`.
-- **28 words that need pictures** (jump, sit, hug, give…, yes, no, hello, bye, more, please, thank you…): after Sammy generates the 4 images.
-- **Pipo's missing lines**, recorded in the same run and wired in: going to sleep ("פיפו עייף. נתראה מחר!"), listen and compare after a recording ("עכשיו תקשיב|תקשיבי"), the chest ("מצאת אוצר!"). Today these moments have no spoken line.
-- **Hi, bye, more** were already asked for by C1; they are in the "Little words" sheet.
+The 57 everyday words and two of Pipo's three missing lines shipped in 2.15.0. Still open:
+- **Sammy listens to the new clips** (section 1).
+- **Look at the new pictures at stone size on the phone**, especially the pairs (big/small, in/on/under, he/she, hello/bye) and give/catch.
+- **More everyday words** if the kids need them: want, my, here, there, again, all done (none has a picture or a prompt yet).
 
 ## 3. Learning
 

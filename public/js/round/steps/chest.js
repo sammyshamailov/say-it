@@ -37,7 +37,7 @@ export async function chest(ctx) {
     Sound.sfx("unlock"); mood("happy");
     await wait(500); if (!ctx.alive()) return;
     ctx.award(CHEST_STARS);
-    await Sound.talk("cheer", p.gender); if (!ctx.alive()) return;
+    await Sound.talk("treasure", p.gender); if (!ctx.alive()) return;
     await wait(700);
     ctx.next();
   };

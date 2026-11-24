@@ -2,6 +2,28 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.15.0 (2026-11-24): 57 everyday words; Pipo says goodnight and finds the treasure
+From the 14 Nov review: about 430 of the 484 words were names of things. These are words a child needs to say something. Stones are rebuilt from the tiers: 148 stones (was 135), 19 treasure chests (was 18), still 17 land photos. Progress on existing stones is kept; new stones start empty.
+
+Words (541 in all, was 484)
+- **Learning Castle, three new groups:** opposites (big, small, up, down, open, closed, day, night, fast, slow, full, empty, wet, dry, clean, dirty, long, short), where (in, on, under, next to, behind) and who (I, you, we, they, he, she). "I" and "you" show the boy or the girl, like the feelings.
+- **Me and Friends:** 16 more actions (jump, sit, stand, play, give, hug, kiss, wash, look, listen, throw, catch, push, pull, brush, hide) and a new group, little words (yes, no, hello, bye, more, stop, go, come, please, thank you, help, sorry), boy and girl pictures from Sammy's four new ChatGPT sheets.
+- Tiers from the plan in `docs/NEW-WORDS.md`: yes, no, hello and bye are tier 1; most others 2 or 3; next to, behind, I and you 4; we, they, he and she 5.
+- **Look-alike pairs** (`PAIRS` in `stages.js`): every opposite with its partner, in/on/under, next to/behind, I/you, he/she, we/they, throw/catch, push/pull, sit/stand, give/catch, hug/kiss, wave/hello/bye, yes/no, stop/go, come/go, please/thank you/more. Below tier 3 a pair never meets; from tier 3 one may be the wrong answer on purpose, which is the point of an opposite.
+- **Hebrew at the first meeting** for the four new groups too (they can't be explained by a picture alone).
+- **All new words are recorded** (Sarah and Zina). Short Hebrew words that read two ways are sent with vowel marks (`SPELL` in `tools/voice/build.mjs`: את, על, לנשק, לשבת, מלא, ריק and a few more); the app still shows plain text.
+
+Pictures
+- **Big and small, up and down, long and short keep their size difference.** The cutter used to stretch every picture to fill its square, so the small dog was as big as the big one. Pairs whose size is the point are now cut at one scale (`same_scale` and `align` in `tools/pictures/sheets.json`): the small dog stands small, the "down" balloon lies at the bottom, the short scarf is short. No other picture changed.
+- `PIC_V` 2, so phones fetch the pictures again once.
+
+Pipo
+- **Goes to sleep with a line:** "פיפו עייף. נתראה מחר!" ("Pipo is sleepy. See you tomorrow!") at the end of the day's last round, and when Play is tapped while he rests.
+- **The treasure chest:** opening it says "מָצָאתָ אוֹצָר!" / "מָצָאת אוֹצָר!" ("You found a treasure!") instead of a cheer.
+- The planned "now listen" line after a recording was left out on purpose: since 2.14.3 the child's voice plays the moment they stop, and a line before it would bring back the wait (see DECISIONS).
+
+Tests: every word's picture exists (both versions where there's a boy and a girl); the size pairs are cut at one scale.
+
 ## Docs (2026-11-23): roadmap, decisions, documentation rule
 No change to the game.
 - **`docs/ROADMAP.md`**: everything not done yet, with where each item came from: the parts of the two councils and the 14 Nov review that weren't built (a "knows for sure" count for parents, a round log, Simon says, a mixed first stone, phrases, second pictures…), the new words, Pipo's missing lines, selling, things Sammy has to do or check on the phone.

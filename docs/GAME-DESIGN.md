@@ -13,23 +13,23 @@ Two Hebrew-speaking children aged 4 and 5 who can't read. Every interaction work
 | Land | Group | Subcategories |
 | --- | --- | --- |
 | Animal Jungle | animals | farm, pets, wild, birds, sea, bugs, dinos |
-| Learning Castle | learning | colours, numbers, shapes |
+| Learning Castle | learning | colours, numbers, shapes, opposites, where (in, on, under…), who (I, you, he, she…) |
 | Yummy Town | food | fruits, veg, meals, sweets, drinks |
-| Me and Friends | people | family, body, feelings, clothes, accessories, actions, jobs |
+| Me and Friends | people | family, body, feelings, clothes, accessories, actions, little words (yes, no, hello, please…), jobs |
 | Toy House | things | home, kitchen, toys, school |
 | Adventure Road | outside | vehicles, places, nature, weather |
 
 The order of the lands is the order of the groups in `data/words.js`. Learning Castle moved from last to second in 2.14.0, so colours and numbers come early.
 
 - Each land is a felt/clay diorama photo with the trail drawn into it (`path` in `lands.js`). A land with more stones than one photo holds repeats its photo, mirrored, above itself (17 photos in all).
-- **Stones** (135 in all) are placed along the trail so no two are closer than 0.22 picture widths in a straight line, and a land's stones are shared evenly over its photos.
+- **Stones** (148 in all, 19 treasure chests) are placed along the trail so no two are closer than 0.22 picture widths in a straight line, and a land's stones are shared evenly over its photos.
 - Kinds of stone:
   - **Word stone**: 4–7 words of one subcategory and tier (small leftovers of several subcategories share one mixed stone). Shows the picture of its first word.
-  - **Treasure chest** (18): after each tier of a land that has at least three stones; a review round of the words met so far in that land, which ends with the chest itself: three knocks open it for 5 stars (`steps/chest.js`).
+  - **Treasure chest** (19): after each tier of a land that has at least three stones; a review round of the words met so far in that land, which ends with the chest itself: three knocks open it for 5 stars and Pipo says "מצאת אוצר!" (`steps/chest.js`).
   - **Party stone**: the end of each land; a review of all its words, with the party jingle.
 - **World stickers** (a zebra, a fruit stall, a sailboat…) appear in a land at 30% and 65% done.
 - The glowing stone, with Pipo beside it, is what Play starts. Any open stone can be tapped. A locked stone wiggles and makes a soft sound. A floating Pipo button scrolls back to the glowing stone when it's off screen.
-- **Pipo rests** (`resting()` in `store.js`): after the day's rounds (4 by default; parents choose 2, 4, 6 or no limit) or when nothing is new and no word is due, Pipo sleeps beside the stone, nothing glows, Play shows a moon and the garden button glows. Stones can still be tapped. A word is remembered on a second day, so more rounds today wouldn't move anything.
+- **Pipo rests** (`resting()` in `store.js`): after the day's rounds (4 by default; parents choose 2, 4, 6 or no limit) or when nothing is new and no word is due, Pipo sleeps beside the stone, nothing glows, Play shows a moon and the garden button glows. Pipo says "פיפו עייף. נתראה מחר!" at the end of the last round and when Play is tapped while he sleeps. Stones can still be tapped. A word is remembered on a second day, so more rounds today wouldn't move anything.
 - On a wide screen held sideways (a tablet, a phone on its side) the buttons stand in a column beside the map, with Pipo in the middle, so the map gets the whole height (`.map-screen` in `app.css`). The other screens are a centred column up to 760 px wide at every size.
 
 ## Difficulty and unlocking (`services/store.js`)
@@ -48,7 +48,7 @@ The order of the lands is the order of the groups in `data/words.js`. Learning C
 3–5 minutes: **Meet** new words → **What's this?** → **Listen & tap** → **Say it** → a bonus game (**Pop the bubbles**, **Feed Pipo** or **Memory match**, in turn; a chest stone opens its chest instead) → **Well done** with stars and a sticker. The land's photo, blurred and dark, lies behind the round.
 
 - Up to 3 new words per round, then words due for review, at most 6 words. A round never holds a word the child hasn't met unless it is one of the new ones (the first round of the game is its three new words).
-- **Meet** says the word in English; for words a picture can't explain (feelings, actions, family, jobs, weather, places, colours, numbers, shapes) also in Hebrew, then English again. A word stone reviews its own words first, then words of the **same land** only, so a round keeps to the place the child chose (no cow in a fruit stone). Chests and party stones review their land and then the lands below; that is where older lands come back.
+- **Meet** says the word in English; for words a picture can't explain (feelings, actions, family, jobs, weather, places, colours, numbers, shapes, opposites, where, who, little words) also in Hebrew, then English again. A word stone reviews its own words first, then words of the **same land** only, so a round keeps to the place the child chose (no cow in a fruit stone). Chests and party stones review their land and then the lands below; that is where older lands come back.
 - Finishing the whole map takes about 230–300 rounds, 15–20 hours of play: about 5 months at 2 rounds a day, 7–8 months at one (simulated with the real store rules).
 - Listen & tap shows 2 pictures in tier 1, 3 in tier 2, 4 from tier 3 (one fewer the first time a word is asked); a word back for review gets at least 3, so a lucky tap is less likely. The wrong pictures are the other words of the round, then words met in the same land, then the rest of the land, so the right one can't be found just by being familiar. A word missed and asked again in the same round gets its level back for a right answer, not a day. Look-alike pairs (puppy/dog, lemon/lime; list in `stages.js`) never meet below tier 3; from tier 3 one may be the wrong answer on purpose.
 - **Say it**: **Echo** records the child and lets them compare: their own voice right away, then the word; the button each sound comes from lights up while it plays, then Next glows. Echo can only tell that the child spoke, so every real try gets one star and no spoken praise. A try with no voice heard gets "לא שמעתי. נסה/נסי שוב!" and the word again. No speech recognition since 2.14.5 (Sammy: the first try looked different from the rest and kept nothing to play back; recognition is also unreliable for 4–5-year-olds). Used for one new word of the round (two in the very first round, which has no older words).

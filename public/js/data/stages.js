@@ -49,7 +49,16 @@ const PAIRS = [
   ["nature/sea", "nature/lake"], ["nature/sea", "places/beach"], ["places/pool", "nature/lake"], ["nature/river", "nature/waterfall"],
   ["nature/cactus", "nature/desert"], ["nature/tree", "nature/forest"], ["nature/sand", "nature/desert"], ["nature/rock", "nature/cave"],
   ["nature/moon", "shapes/crescent"], ["nature/star", "shapes/star"], ["shapes/circle", "shapes/oval"], ["shapes/square", "shapes/rectangle"],
-  ["dinos/dinosaur", "dinos/stegosaurus"], ["dinos/dinosaur", "dinos/triceratops"]
+  ["dinos/dinosaur", "dinos/stegosaurus"], ["dinos/dinosaur", "dinos/triceratops"],
+  // opposites and the other little words: the pair is the point, so from tier 3 one is the wrong answer
+  ["opposites/big", "opposites/small"], ["opposites/up", "opposites/down"], ["opposites/open", "opposites/closed"],
+  ["opposites/day", "opposites/night"], ["opposites/fast", "opposites/slow"], ["opposites/full", "opposites/empty"],
+  ["opposites/wet", "opposites/dry"], ["opposites/clean", "opposites/dirty"], ["opposites/long", "opposites/short"],
+  ["where/in", "where/on"], ["where/on", "where/under"], ["where/in", "where/under"], ["where/next to", "where/behind"],
+  ["who/I", "who/you"], ["who/he", "who/she"], ["who/we", "who/they"],
+  ["actions/throw", "actions/catch"], ["actions/push", "actions/pull"], ["actions/sit", "actions/stand"], ["actions/give", "actions/catch"],
+  ["actions/hug", "actions/kiss"], ["actions/wave", "talk/hello"], ["actions/wave", "talk/bye"], ["talk/hello", "talk/bye"],
+  ["talk/yes", "talk/no"], ["talk/stop", "talk/go"], ["talk/come", "talk/go"], ["talk/please", "talk/thank you"], ["talk/please", "talk/more"]
 ];
 export const CONFUSABLE = {};
 for (const [a, b] of PAIRS) {

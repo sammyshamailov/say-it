@@ -21,3 +21,7 @@ WORDS.forEach(g => g.subs.forEach(s => {
 
 export const groupIndex = g => WORDS.indexOf(g);
 export const subIndex = s => s.group.subs.indexOf(s);
+
+// Pictures drawn twice, with the boy and with the girl (<id>-boy / <id>-girl); the player's
+// profile picks one (ui/picture.js).
+export const GENDERED = /^(feelings|actions|talk)-|^who-(i|you)$/;

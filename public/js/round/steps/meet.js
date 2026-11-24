@@ -12,7 +12,8 @@ import { buddy, wordCard } from "../../ui/components.js";
 // Groups whose pictures don't explain themselves (a feeling, an action, a colour blob, a digit a
 // child can't read yet): the first meeting also says the word in Hebrew, then in English again.
 // A cow needs no translation.
-const EXPLAIN = new Set(["feelings", "actions", "family", "jobs", "weather", "places", "colors", "numbers", "shapes"]);
+const EXPLAIN = new Set(["feelings", "actions", "family", "jobs", "weather", "places", "colors", "numbers", "shapes",
+  "opposites", "where", "who", "talk"]);
 
 export async function meet(ctx, step) {
   const { player: p } = ctx, w = WORD[step.k];

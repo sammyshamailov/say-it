@@ -4,6 +4,11 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 
 ## Map and layout
 
+**Every picture was stretched to fill its square, so "small" looked as big as "big" (fixed in 2.15.0, before the words were used)**
+- What happened: `tools/pictures/build.py` crops each picture to its outline and scales it to fill a square. The opposites sheet drew the small dog much smaller, but after cutting both dogs were the same size; the short scarf was as wide as the long one. Found on 2026-11-23 by putting the pictures side by side before adding the words.
+- Fix: `same_scale` groups in `sheets.json` cut a pair at one scale, with `align` to stand it on the ground (small dog) or lay it at the bottom (the "down" balloon). A test checks the groups are there.
+- Rule: when a picture's meaning is its size or position (big/small, long/short, up/down, near/far), the cutter must not normalise it. Look at new pictures next to their partner at stone size before shipping.
+
 **Sideways phones weren't checked (2.13.0-2.14.0, fixed in 2.14.1)**
 - What happened: 2.13.0 added a sideways layout for the map and checked a tablet held sideways, but not the other screens on a phone held sideways. At about 830×410 the gate's numbers, the garden's shelf and a round's buttons fell below the bottom of the screen, and screens didn't scroll, so they couldn't be reached.
 - Fix: every `.screen` scrolls as a last resort; short screens get side-by-side layouts (`@media (orientation:landscape) and (max-height:540px)` in `app.css`).

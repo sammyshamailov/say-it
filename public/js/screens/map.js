@@ -138,7 +138,7 @@ export function map() {
     await Sound.english(L.en);
     if (store.settings.hebrew) Sound.hebrew(L.he);
   });
-  $("#play").onclick = () => (rest ? nope($("#play")) : round.start(store.nextStage(p)));
+  $("#play").onclick = () => (rest ? (nope($("#play")), Sound.talk("sleep", p.gender)) : round.start(store.nextStage(p)));
   $("#who").onclick = () => nav.go("who");
   $("#book").onclick = () => nav.go("stickers");
   $("#shop").onclick = () => nav.go("garden");

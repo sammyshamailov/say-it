@@ -15,7 +15,9 @@ export const TALK = {
   clear: { m: ["וואו, אָמַרְתָּ מושלם!"], f: ["וואו, אָמַרְתְּ מושלם!"], en: ["Wow, perfect!"] },
   done: { m: ["כל הכבוד! סִיַּמְתָּ!"], f: ["כל הכבוד! סִיַּמְתְּ!"], en: ["Well done!"] },
   whats: { m: ["מה זה?"], f: ["מה זה?"], en: ["What's this?"] },
-  hi: { m: ["היי!"], f: ["היי!"], en: ["Hi!"] }
+  hi: { m: ["היי!"], f: ["היי!"], en: ["Hi!"] },
+  sleep: { m: ["פיפו עייף. נתראה מחר!"], f: ["פיפו עייף. נתראה מחר!"], en: ["Pipo is sleepy. See you tomorrow!"] }, // Pipo rests
+  treasure: { m: ["מָצָאתָ אוֹצָר!"], f: ["מָצָאת אוֹצָר!"], en: ["You found a treasure!"] } // the chest opens
 };
 
 // Single lines spoken by a screen, in Hebrew (Hebrew help on) and English (Hebrew help off).

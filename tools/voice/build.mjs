@@ -42,7 +42,17 @@ const API = "https://api.elevenlabs.io/v1";
 
 // What to send for a line when the plain spelling comes out wrong: niqqud for Hebrew
 // (e.g. "סַפָּה"), a respelling for English. The clip is still found by the text the app uses.
-export const SPELL = { he: {}, en: {} };
+// How a line is sent to the voice when the plain text reads two ways. Short Hebrew words without
+// niqqud are the risk (את at/et, לנשק to kiss / weapon, לשבת to sit / Shabbat, מלא full / he filled).
+// The app still shows and matches the plain text; only the recording uses this spelling.
+export const SPELL = {
+  he: {
+    "את": "אַתְּ", "על": "עַל", "הם": "הֵם", "עוד": "עוֹד", "בוא": "בּוֹא", "בואי": "בּוֹאִי",
+    "מלא": "מָלֵא", "ריק": "רֵיק", "מהר": "מַהֵר", "לאט": "לְאַט", "יבש": "יָבֵשׁ", "קצר": "קָצָר",
+    "לנשק": "לְנַשֵּׁק", "לשבת": "לָשֶׁבֶת", "לתת": "לָתֵת"
+  },
+  en: {}
+};
 
 // ---------- lines ----------
 export function hebrewLines() {

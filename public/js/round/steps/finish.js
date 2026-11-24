@@ -51,5 +51,9 @@ export async function finish(r) {
   if (shopNow) $("#shopnow").onclick = () => { nav.base("map"); nav.go("garden"); };
   await wait(500);
   await Sound.talk("done", p.gender);
-  if (rest && $("#buddy").isConnected) { await wait(900); Mascot.set($("#buddy"), "sleep", p.outfit); }
+  if (rest && $("#buddy").isConnected) {
+    await wait(600); if (!$("#buddy").isConnected) return;
+    await Sound.talk("sleep", p.gender);
+    if ($("#buddy").isConnected) Mascot.set($("#buddy"), "sleep", p.outfit);
+  }
 }

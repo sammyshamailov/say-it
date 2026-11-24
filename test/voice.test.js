@@ -53,7 +53,7 @@ test("every English word and line has a recorded clip (run tools/voice/build.mjs
 });
 
 test("a boy and a girl hear their own form (no shared line with a gendered word)", () => {
-  const same = ["כל הכבוד!", "יופי!", "מעולה!", "וואו!", "איזה יופי!", "מה זה?", "היי!"]; // the same for both
+  const same = ["כל הכבוד!", "יופי!", "מעולה!", "וואו!", "איזה יופי!", "מה זה?", "היי!", "פיפו עייף. נתראה מחר!"]; // the same for both
   for (const [k, t] of Object.entries(TALK))
     for (const x of t.m.filter(x => t.f.includes(x))) assert.ok(same.includes(x), `${k}: "${x}" is shared; give the boy and girl forms niqqud`);
   assert.notEqual(TALK.done.m[0], TALK.done.f[0]);

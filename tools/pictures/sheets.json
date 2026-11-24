@@ -878,7 +878,23 @@
    "opp-wet",
    "opp-dry"
   ],
-  "separate_people": false
+  "separate_people": false,
+  "same_scale": [
+   [
+    "opp-big",
+    "opp-small"
+   ],
+   [
+    "opp-up",
+    "opp-down"
+   ]
+  ],
+  "align": {
+   "opp-big": "bottom",
+   "opp-small": "bottom",
+   "opp-up": "top",
+   "opp-down": "bottom"
+  }
  },
  {
   "sheet": "opposites-2.webp",
@@ -892,7 +908,13 @@
    "opp-clean",
    "opp-dirty"
   ],
-  "separate_people": false
+  "separate_people": false,
+  "same_scale": [
+   [
+    "opp-long",
+    "opp-short"
+   ]
+  ]
  },
  {
   "sheet": "positions.webp",
@@ -904,6 +926,94 @@
    "pos-under",
    "pos-next-to",
    "pos-behind"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "actions2-boy.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "actions-jump-boy",
+   "actions-sit-boy",
+   "actions-stand-boy",
+   "actions-play-boy",
+   "actions-give-boy",
+   "actions-hug-boy",
+   "actions-kiss-boy",
+   "actions-wash-boy",
+   "actions-look-boy",
+   "actions-listen-boy",
+   "actions-throw-boy",
+   "actions-catch-boy",
+   "actions-push-boy",
+   "actions-pull-boy",
+   "actions-brush-boy",
+   "actions-hide-boy"
+  ],
+  "separate_people": true
+ },
+ {
+  "sheet": "actions2-girl.webp",
+  "cols": 4,
+  "rows": 4,
+  "pictures": [
+   "actions-jump-girl",
+   "actions-sit-girl",
+   "actions-stand-girl",
+   "actions-play-girl",
+   "actions-give-girl",
+   "actions-hug-girl",
+   "actions-kiss-girl",
+   "actions-wash-girl",
+   "actions-look-girl",
+   "actions-listen-girl",
+   "actions-throw-girl",
+   "actions-catch-girl",
+   "actions-push-girl",
+   "actions-pull-girl",
+   "actions-brush-girl",
+   "actions-hide-girl"
+  ],
+  "separate_people": true
+ },
+ {
+  "sheet": "talk-boy.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "talk-yes-boy",
+   "talk-no-boy",
+   "talk-hello-boy",
+   "talk-bye-boy",
+   "talk-more-boy",
+   "talk-stop-boy",
+   "talk-go-boy",
+   "talk-come-boy",
+   "talk-please-boy",
+   "talk-thank-you-boy",
+   "talk-help-boy",
+   "talk-sorry-boy"
+  ],
+  "separate_people": false
+ },
+ {
+  "sheet": "talk-girl.webp",
+  "cols": 4,
+  "rows": 3,
+  "pictures": [
+   "talk-yes-girl",
+   "talk-no-girl",
+   "talk-hello-girl",
+   "talk-bye-girl",
+   "talk-more-girl",
+   "talk-stop-girl",
+   "talk-go-girl",
+   "talk-come-girl",
+   "talk-please-girl",
+   "talk-thank-you-girl",
+   "talk-help-girl",
+   "talk-sorry-girl"
   ],
   "separate_people": false
  }

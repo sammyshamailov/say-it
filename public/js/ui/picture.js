@@ -1,15 +1,14 @@
 // Word pictures.
-//   "img:<id>"     public/img/words/<id>.webp (feelings and actions come in a boy and a girl
-//                  version; the player's profile picks one)
+//   "img:<id>"     public/img/words/<id>.webp (feelings, actions, the little words, I and
+//                  you come in a boy and a girl version; the player's profile picks one)
 //   "color:#hex"   a colour blob      "num:7"  a number
 //   "a+b"          two emoji side by side, anything else is an emoji
 // Bump PIC_V when the pictures are rebuilt, so phones fetch the new ones.
 import { html, raw } from "../core/html.js";
-import { WORDS } from "../data/index.js";
+import { WORDS, GENDERED } from "../data/index.js";
 import { store } from "../state.js";
 
-const PIC_V = 1;
-const GENDERED = /^(feelings|actions)-/;
+const PIC_V = 2;
 const HEX = /^#[0-9a-f]{3,8}$/i;
 export const picUrl = id => `img/words/${id}.webp?p=${PIC_V}`;
 

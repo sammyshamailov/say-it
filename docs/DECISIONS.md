@@ -4,6 +4,16 @@ Why the game is the way it is: the reviews and councils that shaped it, what Sam
 
 **Keeping it current:** whenever a review, a council, research or a question to Sammy leads to a decision (or to "not now"), add it here in the same session: the question, the options, what was chosen, by whom, and why. Put what wasn't built in the roadmap. Chats and the Claude Project's own files can't be read by every later session; this file can.
 
+## 2026-11-24: how the 57 everyday words went in (2.15.0)
+
+Sammy sent the four picture sheets and said "Continue"; these choices were made in the session, following the plan in `docs/NEW-WORDS.md`:
+- **Where they live:** opposites, where and who as three new groups in Learning Castle (the land of concepts); the new actions join Actions; yes/no/hello… as a new group, little words, in Me and Friends. Nothing new in the free land, so Animal Jungle is unchanged.
+- **Tiers** as planned in NEW-WORDS (yes, no, hello, bye at tier 1; pronouns highest).
+- **Pairs:** every opposite and the other look-alikes go in `PAIRS`, so from tier 3 the partner is the wrong answer on purpose.
+- **Big/small:** cut at one scale (the small dog stands small) rather than asking Sammy for a new picture.
+- **Pipo's "now listen" line was left out.** It was planned (14 Nov) to introduce listen-and-compare after a recording. Since 2.14.3 the child's own voice plays the moment they stop talking, and Sammy had complained about the wait before it; a spoken line first would bring the wait back. The glowing buttons (2.14.2) show what's playing. The sleep and treasure lines were added.
+- **"brush"** already existed as a hairbrush (At Home); the new one is brushing teeth (Actions, Hebrew לצחצח שיניים). Words are compared by English, so the two never appear as answers together.
+
 ## 2026-11-23: documentation rule
 
 Sammy: every change, plan and piece of work is written into the repo's md files (roadmap, changelog, CLAUDE.md, lessons learned, this file), so each new session has the full context. Until then, the two council verdicts and the 14 Nov review lived only in chat transcripts and in the Claude Project ("English learning app for kids"), and a new session couldn't find them.

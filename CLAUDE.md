@@ -7,7 +7,7 @@ Read this before changing anything. Also see:
 - `docs/GAME-DESIGN.md`: how the game is structured (lands, tiers, stones, rounds, rewards)
 - `docs/CHANGELOG.md`: every version and what it contains
 - `docs/LESSONS-LEARNED.md`: mistakes made so far, how they were fixed, and the rule each one taught. Add to it whenever something goes wrong.
-- `docs/NEW-WORDS.md`: the everyday words waiting to be added (29 with pictures ready, 28 that need pictures from ChatGPT first, with their prompts), and what each still needs.
+- `docs/NEW-WORDS.md`: how the 57 everyday words of 2.15.0 were chosen and made (pictures, prompts, tiers). Use it as the pattern for adding words.
 
 ## Documentation rule (Sammy, 2026-11-23)
 
@@ -48,7 +48,7 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 | --- | --- |
 | `public/js/main.js` | Registers screens, starts the app |
 | `public/js/core/` | `html` template tag (escapes values), router, sheets, events |
-| `public/js/data/` | `words.js` (484 words, tier 1-5 each), `stages.js` (stones built from words), `lands.js` (land photos, trail paths, stone placement), `outfits.js`, `lines.js` (Pipo's Hebrew lines), `he-audio.js` / `en-audio.js` (text → clip, generated) |
+| `public/js/data/` | `words.js` (541 words, tier 1-5 each), `stages.js` (stones built from words), `lands.js` (land photos, trail paths, stone placement), `outfits.js`, `lines.js` (Pipo's Hebrew lines), `he-audio.js` / `en-audio.js` (text → clip, generated) |
 | `public/audio/` | Recorded clips, `he/` (Zina) and `en/` (Sarah), made by `tools/voice/build.mjs` |
 | `public/js/services/` | `store.js` (progress, spaced repetition, unlock rules, rounds), `sound.js`, `speech.js` (recording), `shop.js` |
 | `public/js/screens/` | map, who, stickers, garden (garden + shop) |
@@ -80,7 +80,8 @@ Long-term: Sammy wants it to earn money someday. Since 2.9.0 only the first land
 - **Old saves must keep working** once the game goes to other families. Until then (Sammy, 2026-11-04: still building, not sent to anyone), changes that regroup stones or reset progress are fine; say so in the changelog. Changes to the save shape still need a tolerant reader (e.g. `worn()` accepts the old single-hat string, `days` may be missing on a word record).
 - **Use the `html` tag** for all markup; it escapes values. Names and restored data are untrusted.
 - **Positioned elements and animations:** stones and similar use `transform: translate(...)` to centre themselves. Any animation on them must keep that translate in every keyframe, or the element jumps. Use element-specific keyframes, not the shared `wiggle`/`pop`.
-- **Map pictures** are cache-busted by `MAP_V` in `screens/map.js`; music by `MUSIC_V` in `services/sound.js`. Bump them when the files change.
+- **Map pictures** are cache-busted by `MAP_V` in `screens/map.js`; word pictures by `PIC_V` in `ui/picture.js`; music by `MUSIC_V` in `services/sound.js`. Bump them when the files change.
+- **Word pictures:** cut by `tools/pictures/build.py` from the sheets listed in `tools/pictures/sheets.json` (takes about 15 minutes; needs `pip install scipy`). Each picture is scaled to fill its square, except `same_scale` groups (big/small, up/down, long/short), whose size difference is the point. Pictures drawn with the boy and the girl are listed in `GENDERED` in `data/index.js`; a test checks every word's picture exists.
 - **Sound:** music ducks under any spoken word and goes silent while the child records. The mic is locked while the app is talking. Keep it that way for anything new that speaks. Speak only through `Sound.word()` / `Sound.english()` / `Sound.hebrew()` / `Sound.talk()` (clip first, the device voice only if it can't play); new lines go in `data/lines.js` (both languages) so the tool records them.
 - **Kid-facing design:** big tap targets, no reading, gentle feedback (a locked thing wiggles and makes a soft sound, it never scolds).
 - Write plain commit messages: a title with the version, then what changed and why.

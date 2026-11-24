@@ -86,12 +86,21 @@ def cut_sheet(path, cols, rows, count, separate_people=False, border_px=BORDER):
         rgb = c * a_obj[..., None] + 255 * (1 - a_obj[..., None])  # picture over its white sticker
         rgba = np.dstack([rgb.astype(np.uint8), (a_brd * 255).astype(np.uint8)])
         ys, xs = np.where(border)
-        img = Image.fromarray(rgba[ys.min():ys.max() + 1, xs.min():xs.max() + 1], "RGBA")
-        side = int(max(img.size) * 1.06)
-        sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
-        sq.paste(img, ((side - img.size[0]) // 2, (side - img.size[1]) // 2))
-        out.append(sq)
+        out.append(Image.fromarray(rgba[ys.min():ys.max() + 1, xs.min():xs.max() + 1], "RGBA"))
     return out
+
+
+def square(img, side=None, align="center"):
+    """Put a cut-out on a transparent square. By default the square fits the picture (plus 6%),
+    so every picture fills its tile. A larger `side` keeps the picture at its size on the sheet
+    (same_scale groups); `align` says where it sits then: center, bottom or top."""
+    side = side or int(max(img.size) * 1.06)
+    gap = int(side * 0.03)
+    x = (side - img.size[0]) // 2
+    y = {"bottom": side - img.size[1] - gap, "top": gap}.get(align, (side - img.size[1]) // 2)
+    sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    sq.paste(img, (x, y))
+    return sq
 
 
 def main():
@@ -106,6 +115,17 @@ def main():
             if pid in s.get("flip", []):
                 im = im.transpose(Image.FLIP_LEFT_RIGHT)
             pics[pid] = im
+        # same_scale: pictures whose size difference is the point (big/small, long/short) share one
+        # scale, the largest one's, instead of each filling its tile. align: where each one sits.
+        align, grouped = s.get("align", {}), set()
+        for group in s.get("same_scale", []):
+            side = int(max(max(pics[g].size) for g in group) * 1.06)
+            for g in group:
+                pics[g] = square(pics[g], side, align.get(g, "center"))
+                grouped.add(g)
+        for pid in s["pictures"]:
+            if pid not in grouped:
+                pics[pid] = square(pics[pid])
         print(f"{s['sheet']}: {len(imgs)}")
     ids = sorted(pics)
     for pid in ids:
