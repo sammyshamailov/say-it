@@ -2,6 +2,13 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.15.2 (2026-11-25): 35 Hebrew words said right
+Sammy listened to all of Dalit's Hebrew and flagged 41 lines. 35 are fixed here, recorded again with full vowel marks (`SPELL.he` in `tools/voice/build.mjs`):
+- **Wrong vowels:** מלון is melon (not malon), דוד dod, חום hum, צייר tsayar, טבח tabach, ריק rek (sent as רֵק: רֵיק came out "reik"), and more animals, foods and body parts (חמור, טלה, לאמה, נחש, דביבון, בואש, יען, צדף, ניבתן, טי-רקס, ליים, משמש, בצל, צ'ילי, תרד, ריבה, תה, יד, לחי, מפחד, עצרי, צייר, מראה, מקרר, חבל קפיצה, סופרמרקט).
+- **P, not F, at the start of a word:** פיל, פה, פטל.
+- **The girl's "you said it perfectly" and "you finished"** (אָמַרְתְּ, סִיַּמְתְּ) are sent spelled by sound (אָמַרְט, סִיַּמְט); with vowel marks the ending came out wrong. Sammy picked these by ear.
+- Still being fixed (three takes each sent to Sammy): טוקן, סטגוזאורוס, פסיפלורה, טבח, טירה, גינה. Until then the game plays their 2.15.1 clips.
+
 ## 2.15.1 (2026-11-24): a new Hebrew voice, Dalit
 - **All Hebrew is recorded again in a new voice, "Dalit – Natural Israeli Hebrew"** (ElevenLabs library), chosen by Sammy by ear over Zina, Ronit and Danit. Sammy heard white noise under Zina's Hebrew: her background was only about 24 dB below her speech (Dalit about 41, Sarah 50), and no setting or noise removal fixed it (see DECISIONS).
 - **Calmer delivery:** the tool now uses fixed settings with style 0. Zina's saved settings had style 1.0, the most exaggerated, which made short words like בואי (come, to a girl) sound wrong.

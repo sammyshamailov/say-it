@@ -4,6 +4,11 @@ Why the game is the way it is: the reviews and councils that shaped it, what Sam
 
 **Keeping it current:** whenever a review, a council, research or a question to Sammy leads to a decision (or to "not now"), add it here in the same session: the question, the options, what was chosen, by whom, and why. Put what wasn't built in the roadmap. Chats and the Claude Project's own files can't be read by every later session; this file can.
 
+## 2026-11-25: Dalit's flagged lines
+
+- Sammy listened to all 581 rows and flagged 41. Asked what was wrong, he confirmed the readings: melon, dod, hum, tsayar, tabach. So the fix was full vowel marks for all 41 (one take each), with two versions of the girl lines: A with proper niqqud (אָמַרְתְּ, סִיַּמְתְּ), B spelled by sound (אָמַרְט, סִיַּמְט).
+- **Sammy:** 35 good, B for both girl lines. Still wrong: טוקן ("should be toucaan"), סטגוזאורוס and פסיפלורה ("a strange accent that doesn't feel natural"), טבח ("the ח is pronounced too strong"), טירה and גינה ("טי too strong and רה too weak"). The 35 shipped in 2.15.2; three takes of each of the six were sent to choose from.
+
 ## 2026-11-24: the Hebrew voice has background noise
 
 - **Sammy:** "come (בואי) sounds awful for girl; overall why does the Hebrew voice have white noise when speaking, English voice is clear."
