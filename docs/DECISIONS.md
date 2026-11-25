@@ -9,6 +9,7 @@ Why the game is the way it is: the reviews and councils that shaped it, what Sam
 - Sammy listened to all 581 rows and flagged 41. Asked what was wrong, he confirmed the readings: melon, dod, hum, tsayar, tabach. So the fix was full vowel marks for all 41 (one take each), with two versions of the girl lines: A with proper niqqud (אָמַרְתְּ, סִיַּמְתְּ), B spelled by sound (אָמַרְט, סִיַּמְט).
 - **Sammy:** 35 good, B for both girl lines. Still wrong: טוקן ("should be toucaan"), סטגוזאורוס and פסיפלורה ("a strange accent that doesn't feel natural"), טבח ("the ח is pronounced too strong"), טירה and גינה ("טי too strong and רה too weak"). The 35 shipped in 2.15.2; three takes of each of the six were sent to choose from.
 - **Sammy picked** take 1 for טוקן (טוּקָאן), סטגוזאורוס (no marks, steadier) and טבח (טַבָּךְ), shipped in 2.15.3. None worked for טירה, גינה ("the second vowel should be a lot stronger") or פסיפלורה ("רה pronounced like the narrator isn't Israeli, maybe Spanish"). Next try: sentence context the voice doesn't say, so the stress falls as it does at the end of a sentence (four takes each).
+- **Sammy picked** the context takes for all three (טירה and גינה after "תִּרְאוּ, זֹאת", פסיפלורה after "אֲנִי הֲכִי אוֹהֶבֶת"), shipped in 2.15.4. All 41 flagged lines are done.
 
 ## 2026-11-24: the Hebrew voice has background noise
 

@@ -203,5 +203,10 @@ Mistakes made while building Say It! Words, how each was found and fixed, and th
 - Fix: a listening file with other voices for Sammy to choose; the Hebrew is to be recorded again.
 - Rule: before adopting a voice, record two or three lines and measure the quietest moment inside a line against the speech (aim for 35 dB or more), and check the voice's saved settings (style 0). Library voices are clones of someone's recording and carry its room noise.
 
+**Hebrew words said alone get the wrong stress or accent (2026-11-25)**
+- What happened: of 41 lines Sammy flagged in Dalit's voice, vowel marks fixed 35 (wrong vowels, פ read as F). They couldn't fix stress: טירה and גינה came out with the weight on the first syllable, and פסיפלורה with a Spanish-sounding רה, over three rounds of spellings.
+- Fix: send the word with context the voice hears but doesn't say (ElevenLabs `previous_text`, `before` in `SPELL.he`), e.g. "תִּרְאוּ, זֹאת" before "טירה.". The word then sounds like the end of a natural sentence.
+- Rule: vowel marks for wrong sounds; sentence context for wrong stress or accent. Offer Sammy three or four takes side by side (a page with old and new) rather than one guess at a time, and record only after he names what's wrong.
+
 **Things that can't be checked here**
 - Audio levels, the real microphone and touch feel need the phone. Say so and ask Sammy to try it, rather than claiming it works.

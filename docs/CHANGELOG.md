@@ -2,6 +2,12 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.15.4 (2026-11-25): castle, garden and passion fruit
+The last three of the 41 Hebrew lines Sammy flagged in Dalit's voice, each his pick out of four takes. All three are recorded with sentence context the voice hears but doesn't say (`before` in `SPELL.he`), which fixed what vowel marks couldn't:
+- **טירה and גינה** with "תִּרְאוּ, זֹאת" ("look, it's a…") before them: the last syllable is now strong, as Hebrew stresses it. Alone, the voice put the weight on the first.
+- **פסיפלורה** with "אֲנִי הֲכִי אוֹהֶבֶת" ("I love…") before it: the final רה no longer sounds Spanish.
+All 41 flagged lines are now fixed.
+
 ## 2.15.3 (2026-11-25): toucan, stegosaurus and chef
 Three more of the Hebrew lines Sammy flagged, each the take he picked out of three:
 - **טוקן** sent as טוּקָאן, so the end is a long "kaan".
