@@ -44,7 +44,10 @@ const API = "https://api.elevenlabs.io/v1";
 
 // What to send for a line when the plain spelling comes out wrong: niqqud for Hebrew
 // (e.g. "סַפָּה"), a respelling for English. The clip is still found by the text the app uses.
-// How a line is sent to the voice when the plain text reads two ways. Short Hebrew words without
+// How a line is sent to the voice when the plain text reads two ways. A value is either the text
+// to send, or { say, before, stability }: `before` is context the voice hears but doesn't say
+// (ElevenLabs previous_text), so a word gets the stress it has at the end of a sentence;
+// `stability` overrides the default for that line (0.8 is steadier, less accent). Short Hebrew words without
 // niqqud are the risk (את at/et, לנשק to kiss / weapon, לשבת to sit / Shabbat, מלא full / he filled).
 // The app still shows and matches the plain text; only the recording uses this spelling.
 export const SPELL = {
@@ -56,11 +59,11 @@ export const SPELL = {
     // the girl lines are spelled by sound: with אָמַרְתְּ / סִיַּמְתְּ the ending came out wrong (Sammy picked these)
     "וואו, אָמַרְתְּ מושלם!": "וואו, אָמַרְט מֻשְׁלָם!", "כל הכבוד! סִיַּמְתְּ!": "כָּל הַכָּבוֹד! סִיַּמְט!",
     "חמור": "חֲמוֹר", "טלה": "טָלֶה", "לאמה": "לָאמָה", "פיל": "פִּיל", "נחש": "נָחָשׁ", "דביבון": "דְּבִיבוֹן",
-    "בואש": "בּוֹאֵשׁ", "טוקן": "טוּקָן", "יען": "יָעֵן", "צדף": "צֶדֶף", "ניבתן": "נִיבְתָּן", "טי-רקס": "טִי רֶקְס",
-    "סטגוזאורוס": "סְטֶגוֹזָאוּרוּס", "חום": "חוּם", "מלון": "מֶלוֹן", "ליים": "לַיְים", "משמש": "מִשְׁמֵשׁ",
+    "בואש": "בּוֹאֵשׁ", "טוקן": "טוּקָאן", "יען": "יָעֵן", "צדף": "צֶדֶף", "ניבתן": "נִיבְתָּן", "טי-רקס": "טִי רֶקְס",
+    "סטגוזאורוס": { say: "סטגוזאורוס", stability: 0.8 }, "חום": "חוּם", "מלון": "מֶלוֹן", "ליים": "לַיְים", "משמש": "מִשְׁמֵשׁ",
     "פטל": "פֶּטֶל", "פסיפלורה": "פָּסִיפְלוֹרָה", "בצל": "בָּצָל", "צ'ילי": "צִ'ילִי", "תרד": "תֶּרֶד", "ריבה": "רִיבָּה",
     "תה": "תֵּה", "דוד": "דּוֹד", "יד": "יָד", "פה": "פֶּה", "לחי": "לֶחִי", "מפחד": "מְפַחֵד", "עצרי": "עִצְרִי",
-    "טבח": "טַבָּח", "צייר": "צַיָּר", "מראה": "מַרְאָה", "מקרר": "מְקָרֵר", "חבל קפיצה": "חֶבֶל קְפִיצָה",
+    "טבח": "טַבָּךְ", "צייר": "צַיָּר", "מראה": "מַרְאָה", "מקרר": "מְקָרֵר", "חבל קפיצה": "חֶבֶל קְפִיצָה",
     "סופרמרקט": "סוּפֶּרְמַרְקֶט", "טירה": "טִירָה", "גינה": "גִּינָּה"
   },
   en: {}
@@ -74,6 +77,7 @@ const inLine = (lang, t) => Object.entries(SPELL_IN[lang]).reduce(
 // Fixed voice settings, not the voice's saved ones (Zina's had style 1.0, which made short words
 // odd). Style 0 is ElevenLabs' advice for steady speech.
 const SETTINGS = { stability: 0.5, similarity_boost: 0.75, style: 0, use_speaker_boost: true };
+const how = (set, t) => { const v = SPELL[set.id][t]; return v && typeof v === "object" ? v : {}; };
 
 // ---------- lines ----------
 export function hebrewLines() {
@@ -105,7 +109,7 @@ export const SETS = {
   he: { voice: "MEuFCMd6dNJqQaLoEa8r", // Dalit – Natural Israeli Hebrew (voice library). Was Zina
     // (Tbj9UQjXon5RB9MPEyc2) until 2.15.1: her clips had background noise about 24 dB under the speech.
     lang: "he", speed: 0.9, dir: "he", manifest: "he-audio.js", name: "HE_AUDIO", lines: hebrewLines,
-    say: t => SPELL.he[t] || inLine("he", t),
+    say: t => how(SETS.he, t).say || SPELL.he[t] || inLine("he", t),
     about: "Hebrew text -> recorded clip in public/audio/he/ (voice: Dalit – Natural Israeli Hebrew, ElevenLabs Eleven v4).\n// Lines missing here use the device's Hebrew voice." },
   en: { voice: "EXAVITQu4vr4xnSDxMaL", // Sarah (premade ElevenLabs voice, American)
     lang: "en", speed: 0.9, dir: "en", manifest: "en-audio.js", name: "EN_AUDIO", lines: englishLines,
@@ -133,7 +137,9 @@ async function api(path, init = {}, tries = 5) {
 async function speak(set, text, settings) {
   const r = await api(`/text-to-speech/${set.voice}?output_format=mp3_44100_128`, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: set.say(text), model_id: MODEL, language_code: set.lang, voice_settings: settings })
+    body: JSON.stringify({ text: set.say(text), model_id: MODEL, language_code: set.lang,
+      voice_settings: { ...settings, ...(how(set, text).stability ? { stability: how(set, text).stability } : {}) },
+      ...(how(set, text).before ? { previous_text: how(set, text).before } : {}) })
   });
   return Buffer.from(await r.arrayBuffer());
 }

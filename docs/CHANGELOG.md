@@ -2,6 +2,14 @@
 
 Newest first. Dates are when the version went live. Versions before 2.0 were a single `index.html` uploaded to Netlify by hand and have no git history; they are reconstructed from the conversations.
 
+## 2.15.3 (2026-11-25): toucan, stegosaurus and chef
+Three more of the Hebrew lines Sammy flagged, each the take he picked out of three:
+- **טוקן** sent as טוּקָאן, so the end is a long "kaan".
+- **סטגוזאורוס** without vowel marks but with a steadier voice setting (stability 0.8); with the marks it sounded foreign.
+- **טבח** sent as טַבָּךְ: a soft כ sound instead of a strong ח.
+- The voice tool can now set a line's own stability and give it context the voice hears but doesn't say (`before`, ElevenLabs' previous_text), for a word that needs sentence stress.
+- Still open: טירה, גינה (the last syllable must be much stronger) and פסיפלורה (the final רה sounds Spanish, not Israeli). Four new takes each were sent to Sammy.
+
 ## 2.15.2 (2026-11-25): 35 Hebrew words said right
 Sammy listened to all of Dalit's Hebrew and flagged 41 lines. 35 are fixed here, recorded again with full vowel marks (`SPELL.he` in `tools/voice/build.mjs`):
 - **Wrong vowels:** מלון is melon (not malon), דוד dod, חום hum, צייר tsayar, טבח tabach, ריק rek (sent as רֵק: רֵיק came out "reik"), and more animals, foods and body parts (חמור, טלה, לאמה, נחש, דביבון, בואש, יען, צדף, ניבתן, טי-רקס, ליים, משמש, בצל, צ'ילי, תרד, ריבה, תה, יד, לחי, מפחד, עצרי, צייר, מראה, מקרר, חבל קפיצה, סופרמרקט).
