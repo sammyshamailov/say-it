@@ -4,6 +4,21 @@ Why the game is the way it is: the reviews and councils that shaped it, what Sam
 
 **Keeping it current:** whenever a review, a council, research or a question to Sammy leads to a decision (or to "not now"), add it here in the same session: the question, the options, what was chosen, by whom, and why. Put what wasn't built in the roadmap. Chats and the Claude Project's own files can't be read by every later session; this file can.
 
+## 2026-11-26: Learning plan, and council "how the game starts"
+
+Sammy asked to plan and build the Learning section of the roadmap. Everything below is in `docs/ROADMAP.md` section 3, waiting for his go-ahead to build.
+
+- **Sammy's choices (asked first):** a parent **word check** to measure speaking (over a per-word "said it" button); **rounds a day and round size per child** (over rounds only, or phone-wide); **number phrases now** ("two cats" from existing pictures), with prompts for colour phrases and second pictures for later. The "missed 3+ times" rule (council of 2026-11-08) needed no question.
+- **First words in the free land.** Sammy: the first stone shouldn't be only animals, "it should have the basic words or at least a mix". Claude recommended mixed stones: L2 research (Tinkham 1993/1997, Waring 1997, Erten & Tekin 2008) found that words from one category taught together (red/blue/yellow) are learned more slowly. Sammy preferred stones by topic ("keeps the child focused") and asked for a council.
+- **Council (5 advisors, anonymous peer review, chairman):**
+  - Agreed: topic stones win (a promise on the map a non-reader and a parent understand); the research applies only partly (the kids know these concepts in Hebrew, they learn new labels); what decides learning is which pictures appear together in Listen & tap (`choices()`), not how stones are grouped; happy/sad are a look-alike pair like hello/bye.
+  - Clashed: wrong pictures from other kinds of words make a new word easy, but then red is the only blob on screen and is tapped by elimination (fake "remembered"); animals first (the Outsider: a jungle trail should open with an animal) or first words first; free basic words as lost value (Contrarian) or as the sample that sells (Expansionist, chairman sided with this: 13 of 541 words).
+  - Caught in peer review: **numbers are drawn as digits**, so "What's this?" on "3" is a reading task; pacing (about 6 rounds of starter words before the first animal); hello and bye are both a waving child.
+  - **Verdict:** topic starter stones at the bottom of Animal Jungle, in this order: Family & hello (mom, dad, baby, hello, bye), the first animal stone unchanged (cow, pig, horse, duck, pony), My face (eye, nose, mouth, happy, sad), Colours (red, blue, yellow), then the rest of the animals. No numbers until they are drawn as fingers. A wrong-picture rule: other kinds of words until the word was answered right once, then at least one of the same kind; a right answer counts towards "remembered" only with a same-kind wrong picture (any, if no other word of that kind was met yet). Parent area: one line "Already knows: mom, dad, red…". Not: parent-recorded voices, WhatsApp sharing. First thing: the wrong-picture rule and its tests, since it decides whether a right answer means the child knows the word (also on the existing animal stones).
+  - Claude agreed with the verdict (checked in the code: numbers are digits, hello/bye already a pair, every starter word has a picture), noting that the stricter "remembered" also makes some animal stones take a little longer.
+- **More lands or themes?** Sammy asked whether to build more stages with fitting background pictures for the basic words, then remembered Learning Castle. **Advice: no new lands now** (6 lands, 541 words, 5–8 months of play; each land is a photo, trail mapping, a picture sheet and recordings; the bigger risks are rounds that are all the same steps and stars running dry). Learning Castle and Me and Friends stay the home of these words; the starter stones only borrow 13 of them. **One new picture is worth it:** a home with a little farmyard at the very bottom of the trail, under the jungle, holding the starter stones (mom and eye make sense in a house, the farmyard keeps an animal on day 1), still part of the free first land. Until the art exists the starter stones sit on the jungle photo.
+- **Sammy:** "add everything to the roadmap." Not built yet.
+
 ## 2026-11-25: Dalit's flagged lines
 
 - Sammy listened to all 581 rows and flagged 41. Asked what was wrong, he confirmed the readings: melon, dod, hum, tsayar, tabach. So the fix was full vowel marks for all 41 (one take each), with two versions of the girl lines: A with proper niqqud (אָמַרְתְּ, סִיַּמְתְּ), B spelled by sound (אָמַרְט, סִיַּמְט).
@@ -114,3 +129,4 @@ Claude Code sessions linked from the commits (`Claude-Session:` lines). Their tr
 | 2026-10-27 | `session_01HwnCtdykVJBn3GeAKJok8S` | 2.1.0 – 2.2.1 |
 | 2026-10-26 | `session_01P3Fk1wQ9QnXcyyAum9yXRJ` | 2.0 rebuild |
 | 2026-11-23 | `session_01HwnCtcNWuDgLqiCpNLzBHu` | Read all history; roadmap and this file |
+| 2026-11-26 | `session_01HwnCte9MSbzNoz2tbB5Swq` | Learning plan, council "how the game starts", roadmap section 3 |

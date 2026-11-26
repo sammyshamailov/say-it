@@ -4,7 +4,7 @@ Everything still open: work that's half done, suggestions from the reviews and c
 
 **Keeping it current:** when an item is built, delete it here and describe it in `docs/CHANGELOG.md`. When a review, council or chat suggests something that isn't built in the same session, add it here with its source. A session should never end with a plan that lives only in the chat.
 
-Last full check against the code: 2026-11-23, live version 2.14.5 (voice rows updated for 2.15.1).
+Last full check against the code: 2026-11-23, live version 2.14.5 (voice rows updated for 2.15.1; section 3 replanned 2026-11-26).
 
 Sources are shortened: **C1** = council of 2026-11-04 (pace, mini games, word order), **C2** = council of 2026-11-08 ("the game feels random"), **R** = full review of 2026-11-14 (24 points), **S** = Sammy asked for it, **V** = voice and pricing research of 2026-11-08.
 
@@ -18,6 +18,8 @@ Sources are shortened: **C1** = council of 2026-11-04 (pace, mini games, word or
 | Rotate `UNLOCK_SECRET` before selling | The current secret was pasted in plain text in the 2026-11-08 chat. Anyone with it can make codes. Set a new one in Netlify, make new codes with `npm run codes N` and give the family a new code the same day (old codes stop working). Never put the secret in the repo or the docs. | 2026-11-23 read of past sessions |
 | ElevenLabs key expires | The restricted key made on 2026-11-08 was set to expire after 30 days (about 2026-12-08). If it is the key saved in the `say-it` cloud environment, voice recording stops working then: make a new key and save it there as a network secret. | 2026-11-08 |
 | Unlock slot lost when browser data is cleared | Each phone makes a random device id in localStorage. Clearing site data makes a new id, which uses up the code's second slot. Decide: allow a third device, or let slots free up (for example after 30 days). | R |
+| Go-ahead for the Learning plan | Section 3 is planned (choices and council of 2026-11-26) but not started: Sammy asked only to put it in the roadmap. | 2026-11-26 |
+| Three pictures for the Learning plan | The home picture under the jungle, numbers drawn as fingers, and later colour phrases and second pictures (section 3). Claude writes the ChatGPT prompts; Sammy makes the images. | 2026-11-26 |
 | Phone and iPad checks | See section 8. | |
 
 ## 2. Words and lines
@@ -29,15 +31,25 @@ The 57 everyday words and two of Pipo's three missing lines shipped in 2.15.0. S
 
 ## 3. Learning
 
-| Item | Notes | Source |
-| --- | --- | --- |
-| A first stone that mixes the first words | Family, colours and one to five at the very start of the trail, instead of only animals. Moving Learning Castle to second (2.14.0) helps, but it's behind the unlock code, so free players still get no colours, numbers or mom/dad. | C1, R ("the free land is 113 animals and none of the words parents value most") |
-| One adaptation rule | A word missed 3 or more times comes back sooner and its sound plays twice. | C2 |
-| Phrases from known words | "A red apple", "two cats": the next level after single words. Needs recordings (cheap with the voice tool). | R |
-| Second pictures | One picture per word teaches one example. Children taught with varied examples carry a word over to new ones (Perry et al. 2010). A second picture for common words. | R |
-| Measure speaking | Say it and "What's this?" record but nothing checks the word. A parent button ("said it to me on their own") or a dated voice diary would show real speaking. | C1, C2 |
-| Test with the real kids | A week after a stretch of play, show each child 20 pictures and write down which words they say without help. Also watch both kids play a few rounds before building big features: "feels random" was the adult's view. | C1, C2 |
-| Ages 4 and 5 differ | One template may not suit both (attention span, speech). The daily-rounds setting is for the whole phone, not per child. | C1, C2 |
+Planned on 2026-11-26 with Sammy's choices and a council (full reasoning in `docs/DECISIONS.md`). **Waiting for Sammy's go-ahead to build.** Source **L** = that plan, **LC** = its council. Build in this order; 1–5 need no new art.
+
+| # | Item | What to build | Source |
+| --- | --- | --- | --- |
+| 1 | **Wrong-picture rule, and a stricter "remembered"** (build first) | Give every word a kind (family, greeting, body, feeling, colour, number, animal, …; mostly its subcategory). In Listen & tap (`choices()` in `steps/tap.js`): until a word has been answered right once, its wrong pictures are other kinds of words (red next to mom and a cow); after that at least one wrong picture is the same kind (red among blue and a cow). A first-try right answer counts as a day towards "remembered" (`mark()` in `store.js`) only when a same-kind picture was among the wrong ones, or when no other word of that kind has been met yet. Wrong pictures may come from every word met, not only the word's home land. Applies to all stones; some animal stones will take a little longer to finish. Tests in `store.test.js`/`app.test.js`. | LC |
+| 2 | **Starter stones by topic** at the bottom of Animal Jungle (free) | In this order: **Family & hello** (mom, dad, baby, hello, bye; first round mom, dad, hello), then the **first animal stone unchanged** (cow, pig, horse, duck, pony), then **My face** (eye, nose, mouth, happy, sad), then **Colours** (red, blue, yellow; three words on purpose), then the rest of the animals. No numbers until item 7. Add happy/sad to the look-alike list (hello/bye already is). The words stay in their own lands too (one progress record each, so they count as met there and some paid stones open partly done). Built in `stages.js` (new stone ids, tier 1 of land 0; chest and party keys include them); check the map layout, the 40% land gate and `nextStage()`. Removes the review's "the free land is 113 animals" (R, C1). Old saves: Sammy's kids get starter stones under stones they've already played; Play goes back down to them. | LC, S, R, C1 |
+| 3 | **One adaptation rule** | A word missed 3 or more times (and not yet remembered) comes back sooner (shorter wait in `DUE`, first in `dueKeys()`) and its sound plays twice in Listen & tap. | C2 |
+| 4 | **Parent word check** (measures speaking; is also the real-kid test) | In the parent area: the parent hands the phone to the child; about 20 pictures of words met (remembered ones first, none from today); the child names each, the parent taps ✓ said / ✗ not (Hebrew UI). Saved per word with the date; the dashboard shows "says on their own: N words" and the last check. Sammy chose this over a per-word "said it" button. | S, C1, C2 |
+| 5 | **Rounds a day and round size per child** | Move "rounds a day before Pipo rests" from the phone's settings to each child's profile (fallback: the phone setting, so old saves keep working), and add "short rounds" per child: at most 4 words, 2 new instead of 3. In the child's profile form. | S, C1, C2 |
+| 6 | **"Already knows" line** | In the parent area: "Already knows: mom, dad, red…" (remembered words). The council's way to show a parent the value of the free land. | LC |
+| 7 | **Numbers a child can see** | Numbers are drawn as digits ("1", "2", "3"): naming a digit is reading. Redraw one to five (later ten) as a hand holding up fingers, felt style. Claude writes the prompt, Sammy makes the sheet, `tools/pictures/build.py` cuts it. Then one, two, three can join the starter stones. | LC |
+| 8 | **Number phrases** ("two cats") | Sammy chose these first: a new step that shows a known picture 1–5 times; the child hears "two cats" and taps the right count among two or three. Recordings of each phrase with Sarah (plurals, including sheep, mice, geese; a curated list of well-known nouns), Hebrew help lines with Dalit. Needs item 7 (or counts that need no digit) and a rule for when a word is ready for phrases (remembered). | S, R |
+| 9 | **Home picture at the bottom of the trail** | A felt/clay diorama of Pipo's home with a little farmyard (family room, a mirror for "my face", a paint corner for colours, a fence with a cow and a pony), under the jungle, holding the starter stones. Still part of the free first land: map code needs a land whose first photo is different (`lands.js`, `screens/map.js`), with its own trail path. Claude writes the prompt. Until it exists the starter stones sit on the jungle photo. | LC, 2026-11-26 |
+| 10 | **Colour phrases** ("a red apple") | Need new pictures of things in several colours (a tinted picture looks wrong). Prompts from Claude, art by Sammy. | S, R |
+| 11 | **Second pictures** | One picture per word teaches one example; children taught with varied examples carry a word over to new ones (Perry et al. 2010). A second picture for common words, used on review. Prompts from Claude, art by Sammy, then a word may list several pictures. | R |
+| 12 | **Watch "What's this?" on the starter words** | On the phone: do the kids name hello, bye, happy and sad, or say "face"/"hand"? If they stall, leave greetings and feelings out of "What's this?" and keep Listen & tap and Say it for them. Do they answer in Hebrew ("Ima")? | LC |
+| 13 | **Test with the real kids** | A week after a stretch of play, the word check (item 4) on each child. Also watch both kids play a few rounds before building big features: "feels random" was the adult's view. | C1, C2 |
+
+Not planned: more lands or themes (advice of 2026-11-26: content isn't what's missing; see DECISIONS), parent-recorded voices and WhatsApp sharing (council: scope creep).
 
 ## 4. Play and rewards
 
